@@ -21,20 +21,24 @@ RUN [ "cross-build-start" ]
 # RUN rclone lsf arupiot-expect:mlp_samples_test
 # Sync songs from the gdrive
 
+RUN mkdir -p /opt/code
 
 RUN apt-get install git && \
-    git clone --single-branch -b mw-23 https://github.com/arupiot/media_warrior.git /opt/media_warrior && \
+    git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_rclone.git /opt/code && \
     apt-get -y install expect && \
     apt-get install man && \
     apt-get install p7zip-full && \
     curl -L https://rclone.org/install.sh | bash && \
     rclone --version
 
-WORKDIR /opt/media_warrior/mw_rclone
+
+
+
+WORKDIR /opt/code
 RUN mkdir -p /media/usb/rclone
 
 RUN expect rclone1.43.1_expect.sh && \
-    rclone sync arupiot-expect:mlp_samples_test /media/usb/rclone -v -P
+    rclone sync arupiot-expect:/mlp_samples_test /media/usb/rclone -v -P
 
 # TODO:
 # set up rclone cron job
