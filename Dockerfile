@@ -5,7 +5,9 @@
 # sudo docker run -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static --rm -ti resin/rpi-raspbian
 
 # get media warrior rpi image. (QEMU/Python/dbus/etc)
-FROM mw_rpi_base
+FROM lrpi_rpi_base:local
+
+RUN mkdir -p /media/usb/tracks
 
 RUN [ "cross-build-start" ]
 # ADD media-warrior-07dec249ae7a.json /opt/GCP
@@ -21,20 +23,18 @@ RUN [ "cross-build-start" ]
 # RUN rclone lsf arupiot-expect:mlp_samples_test
 # Sync songs from the gdrive
 
-
-RUN apt-get install git && \
-    git clone --single-branch -b mw-23 https://github.com/arupiot/media_warrior.git /opt/media_warrior && \
-    apt-get -y install expect && \
-    apt-get install man && \
-    apt-get install p7zip-full && \
-    curl -L https://rclone.org/install.sh | bash && \
-    rclone --version
-
 WORKDIR /opt/media_warrior/mw_rclone
 RUN mkdir -p /media/usb/rclone
+COPY rclone.conf /root/.rclone.conf
+COPY lush-rooms-stage-global-f0347a1c7551.json /media/usb/lush-rooms-stage-global-f0347a1c7551.json
 
-RUN expect rclone1.43.1_expect.sh && \
-    rclone sync arupiot-expect:mlp_samples_test /media/usb/rclone -v -P
+RUN apt-get install man && \
+    apt-get install p7zip-full
+
+RUN curl -L https://rclone.org/install.sh | bash && \
+    rclone --version
+
+RUN rclone sync lush-gsuite-drive:Tracks/00_Test/ /media/usb/tracks -v -P
 
 # TODO:
 # set up rclone cron job
