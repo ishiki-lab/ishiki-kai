@@ -45,7 +45,7 @@ export class TrackControlComponent implements OnInit {
     });
     this.getTracksService.getSingleTrack(this.id).subscribe(
       (data: any) => {
-        console.log('from (singelTrack) service: ', data);
+        console.log('from (singleTrack) service: ', data);
         this.serverData = of(data.slice(0, data.length - 4));
       },
       (err: any) => {
