@@ -212,7 +212,7 @@ def install_rclone():
     print('Installing rclone')
     if not exists('/opt/rclone', use_sudo=True):
         sudo('mkdir /opt/rclone')
-    sudo('cd /opt/rclone ; wget https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh')
+    sudo('cd /opt/rclone ; wget --no-check-certificate https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh')
     sudo('cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh')
     sudo('rclone --version')
     print('Installing rclone clompleted')
