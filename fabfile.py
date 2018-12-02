@@ -320,8 +320,6 @@ def change_password():
     crypted_password = crypt(PI_PASSWORD, 'salt')
     sudo('usermod --password %s %s' % (crypted_password, env.user), pty=False)
 
-"""
-
 def _change_graphics_memory():
     sudo('echo "gpu_mem=256" >> /boot/config.txt')
 
@@ -341,6 +339,8 @@ def add_bootstrap():
     # sudo("chown root /etc/rc.local")
     # sudo("chgrp root /etc/rc.local")
 
+"""
+
 def add_resize():
     sudo('printf " quiet init=/usr/lib/raspi-config/init_resize.sh" >> /boot/cmdline.txt')
     put("resize2fs_once", "/etc/init.d/resize2fs_once", use_sudo=True)
@@ -352,11 +352,11 @@ def add_resize():
 def build_bootstrap():
     tag = BOOTSTRAP_VERSION
     put("docker", "~")
-    sudo('docker build --no-cache=true -t="augment00/augment00-bootstrap:%s" '
-         'docker/augment00-bootstrap' % tag)
-    sudo('docker tag augment00/augment00-bootstrap:%s augment00/'
-         'augment00-bootstrap:latest' % tag)
-    sudo('docker push augment00/augment00-bootstrap:latest')
+    sudo('docker build --no-cache=true -t="lushroom/lushroom-bootstrap:%s" '
+         'docker/lushroom-bootstrap' % tag)
+    sudo('docker tag lushroom/lushroom-bootstrap:%s lushroom/'
+         'lushroom-bootstrap:latest' % tag)
+    sudo('docker push lushroom/lushroom-bootstrap:latest')
 
 def install_docker():
     # install docker
@@ -365,7 +365,7 @@ def install_docker():
     run("sudo systemctl enable docker")
     # allows pi use to use docker
     run("sudo usermod -aG docker pi")
-    # installs cocker compose
+    # installs docker compose
     sudo("curl --silent --show-error --retry 5 https://bootstrap.pypa.io/"
          "get-pip.py | sudo python2.7")
     sudo("pip install docker-compose")
@@ -381,43 +381,43 @@ def docker_login(password):
 
 
 def push_bootstrap():
-    sudo('docker push augment00/augment00-bootstrap:latest')
+    sudo('docker push lushroom/lushroom-bootstrap:latest')
 
 
 def build_python():
     tag = PYTHON_VERSION
     put("docker", "~")
-    sudo('docker build --no-cache=true -t="augment00/augment00-python:%s" docker/augment00-python' % tag)
-    sudo('docker push augment00/augment00-python:%s' % tag)
-    sudo('docker tag augment00/augment00-python:%s augment00/augment00-python:latest' % tag)
-    sudo('docker push augment00/augment00-python:latest')
+    sudo('docker build --no-cache=true -t="lushroom/lushroom-python:%s" docker/lushroom-python' % tag)
+    sudo('docker push lushroom/lushroom-python:%s' % tag)
+    sudo('docker tag lushroom/lushroom-python:%s lushroom/lushroom-python:latest' % tag)
+    sudo('docker push lushroom/lushroom-python:latest')
 
 
 def build_deskcontrol():
     tag = DESKCONTROL_VERSION
     put("docker", "~")
-    sudo('docker build --no-cache=true -t="augment00/augment00-deskcontrol:%s" docker/augment00-deskcontrol' % tag)
-    sudo('docker push augment00/augment00-deskcontrol:%s' % tag)
-    sudo('docker tag augment00/augment00-deskcontrol:%s augment00/augment00-deskcontrol:latest' % tag)
-    sudo('docker push augment00/augment00-deskcontrol:latest')
+    sudo('docker build --no-cache=true -t="lushroom/lushroom-deskcontrol:%s" docker/lushroom-deskcontrol' % tag)
+    sudo('docker push lushroom/lushroom-deskcontrol:%s' % tag)
+    sudo('docker tag lushroom/lushroom-deskcontrol:%s lushroom/lushroom-deskcontrol:latest' % tag)
+    sudo('docker push lushroom/lushroom-deskcontrol:latest')
 
 
 def build_command():
     tag = COMMAND_VERSION
     put("docker", "~")
-    sudo('docker build --no-cache=true -t="augment00/augment00-command:%s" docker/augment00-command2' % tag)
-    sudo('docker push augment00/augment00-command:%s' % tag)
-    sudo('docker tag augment00/augment00-command:%s augment00/augment00-command:latest' % tag)
-    sudo('docker push augment00/augment00-command:latest')
+    sudo('docker build --no-cache=true -t="lushroom/lushroom-commands:%s" docker/lushroom-commands' % tag)
+    sudo('docker push lushroom/lushroom-commands:%s' % tag)
+    sudo('docker tag lushroom/lushroom-commands:%s lushroom/lushroom-commands:latest' % tag)
+    sudo('docker push lushroom/lushroom-commands:latest')
 
 
 def build_brickd():
     tag = BRICKD_VERSION
     put("docker", "~")
-    sudo('docker build --no-cache=true -t="augment00/augment00-brickd:%s" docker/augment00-brickd' % tag)
-    sudo('docker push augment00/augment00-brickd:%s' % tag)
-    sudo('docker tag augment00/augment00-brickd:%s augment00/augment00-brickd:latest' % tag)
-    sudo('docker push augment00/augment00-brickd:latest')
+    sudo('docker build --no-cache=true -t="lushroom/lushroom-brickd:%s" docker/lushroom-brickd' % tag)
+    sudo('docker push lushroom/lushroom-brickd:%s' % tag)
+    sudo('docker tag lushroom/lushroom-brickd:%s lushroom/lushroom-brickd:latest' % tag)
+    sudo('docker push lushroom/lushroom-brickd:latest')
 
 
 """

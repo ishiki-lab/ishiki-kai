@@ -1,0 +1,1 @@
+* * * * * root rclone --config /media/usb/rclone_lushrooms.conf lsf lushrooms:Tracks >> /var/log/cron.log 2>&1
