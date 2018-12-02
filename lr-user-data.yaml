@@ -2,7 +2,7 @@
 # vim: syntax=yaml
 #
 
-hostname: media-warrior
+hostname: lushroom
 manage_etc_hosts: true
 
 resize_rootfs: true
@@ -13,22 +13,24 @@ growpart:
 
 users:
     - default
-    - name: warrior
-      gecos: "Media Warrior"
+    - name: lush
+      gecos: "Lush"
       sudo: ALL=(ALL) NOPASSWD:ALL
       shell: /bin/bash
       groups: users,docker,video
-      ssh_import_id: none
-      passwd: <put SHA5 password here>
-      ssh_authorized_keys:
-          - <put ssh public key here>
-      lock_passwd: true
+      plain_text_passwd: password
+      lock_passwd: false
+      # ssh_import_id: none
+      # passwd: <put SHA5 password here>
+      # ssh_authorized_keys:
+      #     - <put ssh public key here>
+      # lock_passwd: true
 
 locale: "en_US.UTF-8"
 timezone: "Europe/London"
 
 mounts:
-    - [ /dev/sda1, /mnt/usb, "vfat", "defaults", "0", "0" ]
+    - [ /dev/sda1, /media/usb, "vfat", "defaults", "0", "0" ]
 
 write_files:
     - path: "/etc/docker/daemon.json"
@@ -49,20 +51,20 @@ write_files:
           }
       owner: root:root
       permissions: '0755'
-    - path: "/etc/rc.local"
-      content: |
-          #!/bin/sh -e
-          (sleep 2; /opt/media-warrior/start.sh)&
-          exit 0
-      owner: root:root
-      permissions: '0755'
-    - path: "/opt/media-warrior/start.sh"
-      content: |
-          #!/bin/sh
-          docker pull arupiot/media_warrior_base:develop
-          docker run --privileged -d -p 80:80 arupiot/media_warrior_base:develop
-      owner: root:root
-      permissions: '0755'
+    # - path: "/etc/rc.local"
+    #   content: |
+    #       #!/bin/sh -e
+    #       (sleep 2; /opt/media-warrior/start.sh)&
+    #       exit 0
+    #   owner: root:root
+    #   permissions: '0755'
+    # - path: "/opt/media-warrior/start.sh"
+    #   content: |
+    #       #!/bin/sh
+    #       docker pull arupiot/media_warrior_base:develop
+    #       docker run --privileged -d -p 80:80 arupiot/media_warrior_base:develop
+    #   owner: root:root
+    #   permissions: '0755'
 
 runcmd:
     - [systemctl, restart, avahi-daemon]
@@ -102,9 +104,9 @@ packages:
     # - libdbus-1
     # - libdbus-1-dev
 
-power_state:
-    delay: "+10"
-    mode: poweroff
-    message: Media Warrior setup completed, rebooting in 30 seconds, bye bye
-    timeout: 30
-    condition: true
+# power_state:
+#     delay: "+10"
+#     mode: poweroff
+#     message: Media Warrior setup completed, rebooting in 30 seconds, bye bye
+#     timeout: 30
+#     condition: true
