@@ -2,3 +2,5 @@
 #* * * * * rclone --config /media/usb/rclone_lushrooms.conf lsf lushrooms:Tracks >> /var/log/cron.log 2>&1
 # sync tracks at 1:05AM
 5 1 * * * rclone --config /media/usb/rclone_lushrooms.conf sync /media/usb/tracks lushrooms:Tracks >> /var/log/cron.log 2>&1
+# sync at reboot
+@reboot rclone --config /media/usb/rclone_lushrooms.conf sync /media/usb/tracks lushrooms:Tracks >> /var/log/cron.log 2>&1
