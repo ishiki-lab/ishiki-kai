@@ -9,13 +9,12 @@ FROM arupiot/lushroom-base:latest
 RUN [ "cross-build-start" ]
 
 # install dependencies
-RUN apt-get update && apt-get -y install cron p7zip-full
+RUN apt-get update && apt-get -y install cron p7zip-full unzip
 
+# install rclone
 RUN mkdir -p /opt/rclone
-
 WORKDIR /opt/rclone
-
-RUN cd /opt/rclone ; wget https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh
+RUN cd /opt/rclone ; wget --no-check-certificate https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh
 RUN cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh
 RUN rclone --version
 
@@ -31,7 +30,11 @@ RUN crontab /etc/cron.d/rclone-cron
 # create the log file
 RUN touch /var/log/cron.log
 
-# run the cron command on container startup
+# run an initial rclone update
+RUN mkdir -p /opt/rclone/tracks
+RUN rclone -vv --config /media/usb/rclone_lushrooms.conf sync /media/usb/tracks lushrooms:Tracks
+
+# run the cron command
 CMD cron && tail -f /var/log/cron.log
 
 RUN [ "cross-build-end" ]
