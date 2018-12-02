@@ -1,11 +1,10 @@
-FROM augment00/augment00-python:latest
+FROM arupiot/lushroom-base:latest
 
-RUN mkdir -p /opt/augment00
-RUN cd /opt/augment00 && git clone https://github.com/arupiot/deskcontrol.git
-RUN pip install -r /opt/augment00/deskcontrol/requirements.txt
-ADD config_local.py /opt/augment00/deskcontrol/deskcontrol
+RUN mkdir -p /opt/lushroom
+RUN cd /opt/lushroom && git clone https://github.com/arupiot/deskcontrol.git
+RUN pip install -r /opt/lushroom/deskcontrol/requirements.txt
+ADD config_local.py /opt/lushroom/deskcontrol/deskcontrol
 
-WORKDIR /opt/augment00
+WORKDIR /opt/lushroom
 
 CMD ["python", "-u", "deskcontrol/deskcontrol/controller.py"]
-

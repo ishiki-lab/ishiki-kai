@@ -1,4 +1,4 @@
-FROM lushroom/lushroom-base:latest
+FROM arupiot/lushroom-base:latest
 
 RUN mkdir -p /opt/lushroom
 
