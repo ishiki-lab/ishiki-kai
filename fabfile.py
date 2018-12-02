@@ -223,25 +223,25 @@ def create_lushroom_dev():
         sudo('mkdir /opt/lushroom')
     if not exists('/opt/lushroom/lrpi_base', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_base')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_base.git /opt/lushroom/lrpi_base')
     if not exists('/opt/lushroom/lrpi_bootstrap', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_bootstrap')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_bootstrap.git /opt/lushroom/lrpi_bootstrap')
     if not exists('/opt/lushroom/lrpi_commands', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_commands')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_commands.git /opt/lushroom/lrpi_commands')
     if not exists('/opt/lushroom/lrpi_rclone', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_rclone')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_rclone.git /opt/lushroom/lrpi_rclone')
     if not exists('/opt/lushroom/lrpi_player', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_player')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_player.git /opt/lushroom/lrpi_player')
     if not exists('/opt/lushroom/lrpi_record', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_record')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_recorder.git /opt/lushroom/lrpi_record')
     if not exists('/opt/lushroom/lrpi_tablet_ui', use_sudo=True):
         sudo('mkdir /opt/lushroom/lrpi_tablet_ui')
-    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_base.git /opt/lushroom/lrpi_base')
-    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_bootstrap.git /opt/lushroom/lrpi_bootstrap')
-    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_commands.git /opt/lushroom/lrpi_commands')
-    sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_rclone.git /opt/lushroom/lrpi_rclone')
-    sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_player.git /opt/lushroom/lrpi_player')
-    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_recorder.git /opt/lushroom/lrpi_record')
-    sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_tablet_ui.git /opt/lushroom/lrpi_tablet_ui')
+        sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_tablet_ui.git /opt/lushroom/lrpi_tablet_ui')
     print('Creating LushRoom development environment completed')
 
 
