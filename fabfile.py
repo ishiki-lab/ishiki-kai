@@ -1,5 +1,7 @@
 from crypt import crypt
 from fabric.api import local, settings, abort, run, env, sudo, put, get, prefix
+from fabric.contrib.files import exists
+
 # from fabric import Connection, Config, task
 # import getpass
 
@@ -50,6 +52,7 @@ RASPBIAN_VERSION = "KeDei Raspbian rpi_v6_3_stretch_kernel_4_15_18"
     Interfacing Options > SSH > Yes
     reboot
 """
+
 
 def prepare_card():
     uninstall_packages()
@@ -109,52 +112,56 @@ def kedei_install_SPI_touchscreen_drivers():
 
 def kedei_download_touchscreen_drivers():
     print('Downloading KeDei touchscreen drivers. This operation may take a very long time')
-    # sudo('mkdir /opt/kedei')
-    sudo('[ ! -d "/opt/kedei" ] && mkdir /opt/kedei')
+    if not exists('/opt/kedei', use_sudo=True):
+        sudo('mkdir /opt/kedei')
     sudo('cd /opt/kedei ; wget http://www.kedei.net/raspberry/v6_1/LCD_show_v6_1_3.tar.gz')
     sudo('pwd')
 
 def kedei_untar_touchscreen_drivers():
-    sudo('[ ! -d "/opt/kedei" ] && mkdir /opt/kedei')
-    sudo('cd /opt/kedei ; tar zxvf LCD_show_v6_1_3.tar.gz')
+    if exists('/opt/kedei', use_sudo=True):
+        sudo('cd /opt/kedei ; tar zxvf LCD_show_v6_1_3.tar.gz')
 
 def kedei_backup_old_kernel():
-    print('Backing up old kernel')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/kernel.img  ./backup/kernel.img')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/kernel7.img ./backup/kernel7.img')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/*.dtb ./backup/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/overlays/*.dtb* ./backup/overlays/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf  /lib/firmware    ./backup/lib/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf  /lib/modules    ./backup/lib')
-    print('Backing up old kernel completed')
+    if exists('/opt/kedei/LCD_show_v6_1_3', use_sudo=True):
+        print('Backing up old kernel')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/kernel.img  ./backup/kernel.img')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/kernel7.img ./backup/kernel7.img')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/*.dtb ./backup/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v /boot/overlays/*.dtb* ./backup/overlays/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf  /lib/firmware    ./backup/lib/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf  /lib/modules    ./backup/lib')
+        print('Backing up old kernel completed')
 
 def kedei_install_new_kernel():
-    print('Installing new kernel for Kedei touchscreen driver')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/kernel.img /boot/kernel.img')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/kernel7.img /boot/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/*.dtb /boot/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/overlays/*.dtb* /boot/overlays/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf ./lcd_35_v/lib/* /lib/')
-    sudo('apt-mark hold raspberrypi-kernel')
-    print('Installing new kernel for Kedei touchscreen driver completed')
+    if exists('/opt/kedei/LCD_show_v6_1_3', use_sudo=True):
+        print('Installing new kernel for Kedei touchscreen driver')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/kernel.img /boot/kernel.img')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/kernel7.img /boot/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/*.dtb /boot/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./lcd_35_v/overlays/*.dtb* /boot/overlays/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf ./lcd_35_v/lib/* /lib/')
+        sudo('apt-mark hold raspberrypi-kernel')
+        print('Installing new kernel for Kedei touchscreen driver completed')
 
 def kedei_restore_old_kernel():
-    print('Restoring old kernel')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/kernel.img /boot/kernel.img')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/kernel7.img /boot/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/*.dtb /boot/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/overlays/*.dtb* /boot/overlays/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf ./backup/lib/* /lib/')
-    print('Restoring old kernel completed')
+    if exists('/opt/kedei/LCD_show_v6_1_3', use_sudo=True):
+        print('Restoring old kernel')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/kernel.img /boot/kernel.img')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/kernel7.img /boot/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/*.dtb /boot/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./backup/overlays/*.dtb* /boot/overlays/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf ./backup/lib/* /lib/')
+        print('Restoring old kernel completed')
 
 def kedei_restore_hdmi_kernel():
-    print('Restoring kernel with HDMI output')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/kernel.img /boot/kernel.img')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/kernel7.img /boot/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/*.dtb /boot/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/overlays/*.dtb* /boot/overlays/')
-    sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf ./hdmi/lib/* /lib/')
-    print('Restoring kernel with HDMI output completed')
+    if exists('/opt/kedei/LCD_show_v6_1_3', use_sudo=True):
+        print('Restoring kernel with HDMI output')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/kernel.img /boot/kernel.img')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/kernel7.img /boot/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/*.dtb /boot/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v ./hdmi/overlays/*.dtb* /boot/overlays/')
+        sudo('cd /opt/kedei/LCD_show_v6_1_3 ; cp -v -rf ./hdmi/lib/* /lib/')
+        print('Restoring kernel with HDMI output completed')
 
 def install_software_apt_prerequisites():
     print('Installing software APT prerequisites')
@@ -195,40 +202,45 @@ def install_software_pip_prerequisites():
 
 def install_pygameui():
     print('Installing pygameui')
-    # sudo('rm -rf /opt/pygameui')
-    # sudo('mkdir /opt/pygameui')
-    sudo('[ ! -d "/opt/pygameui" ] && mkdir /opt/pygameui')
+    if not exists('/opt/pygameui', use_sudo=True):
+        sudo('mkdir /opt/pygameui')
     sudo('cd /opt/pygameui ; git clone https://github.com/fictorial/pygameui.git /opt/pygameui')
     sudo('cd /opt/pygameui ; python setup.py install')
     print('Installing pygameui completed')
 
 def install_rclone():
     print('Installing rclone')
-    # sudo('rm -rf /opt/rclone')
-    # sudo('mkdir /opt/rclone')
-    sudo('[ ! -d "/opt/rclone" ] && mkdir /opt/rclone')
+    if not exists('/opt/rclone', use_sudo=True):
+        sudo('mkdir /opt/rclone')
     sudo('cd /opt/rclone ; wget https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh')
-    sudo('cd /opt/rclone ; ./rclone-install.sh')
+    sudo('cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh')
     sudo('rclone --version')
     print('Installing rclone clompleted')
 
-
 def create_lushroom_dev():
     print('Creating LushRoom development environment')
-    sudo('mkdir /opt/lushroom')
-    sudo('mkdir /opt/lushroom/lrpi_base')
-    sudo('mkdir /opt/lushroom/lrpi_bootstrap')
-    sudo('mkdir /opt/lushroom/lrpi_commands')
-    sudo('mkdir /opt/lushroom/lrpi_rclone')
-    sudo('mkdir /opt/lushroom/lrpi_player')
-    # sudo('mkdir /opt/lushroom/lrpi_recorder')
-    sudo('mkdir /opt/lushroom/lrpi_tablet_ui')
-    sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_base.git /opt/lushroom/lrpi_base')
-    sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_bootstrap.git /opt/lushroom/lrpi_bootstrap')
-    sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_commands.git /opt/lushroom/lrpi_commands')
+    if not exists('/opt/lushroom', use_sudo=True):
+        sudo('mkdir /opt/lushroom')
+    if not exists('/opt/lushroom/lrpi_base', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_base')
+    if not exists('/opt/lushroom/lrpi_bootstrap', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_bootstrap')
+    if not exists('/opt/lushroom/lrpi_commands', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_commands')
+    if not exists('/opt/lushroom/lrpi_rclone', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_rclone')
+    if not exists('/opt/lushroom/lrpi_player', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_player')
+    if not exists('/opt/lushroom/lrpi_record', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_record')
+    if not exists('/opt/lushroom/lrpi_tablet_ui', use_sudo=True):
+        sudo('mkdir /opt/lushroom/lrpi_tablet_ui')
+    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_base.git /opt/lushroom/lrpi_base')
+    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_bootstrap.git /opt/lushroom/lrpi_bootstrap')
+    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_commands.git /opt/lushroom/lrpi_commands')
     sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_rclone.git /opt/lushroom/lrpi_rclone')
     sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_player.git /opt/lushroom/lrpi_player')
-    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_recorder.git /opt/lushroom/lrpi_recorder')
+    # sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_recorder.git /opt/lushroom/lrpi_record')
     sudo('git clone --single-branch -b develop https://github.com/LUSHDigital/lrpi_tablet_ui.git /opt/lushroom/lrpi_tablet_ui')
     print('Creating LushRoom development environment completed')
 
@@ -297,23 +309,30 @@ def _reduce_logging():
     sudo("chown root /etc/rsyslog.conf")
     sudo("chgrp root /etc/rsyslog.conf")
 
-"""
+def test():
+    put("test.txt", "~")
+
+def get_file():
+    get("/home/lush/.bashrc")
+
 def change_password():
     env.password = "raspberry"
     crypted_password = crypt(PI_PASSWORD, 'salt')
     sudo('usermod --password %s %s' % (crypted_password, env.user), pty=False)
 
+"""
+
 def _change_graphics_memory():
-    sudo('echo "gpu_mem=16" >> /boot/config.txt')
+    sudo('echo "gpu_mem=256" >> /boot/config.txt')
 
 def add_bootstrap():
     # # build_bootstrap()
-    # sudo("mkdir -p /opt/augment00")
-    # put("start.sh", "/opt/augment00/start.sh", use_sudo=True)
-    # sudo("chmod 755 /opt/augment00/start.sh")
+    # sudo("mkdir -p /opt/lushroom")
+    # put("start.sh", "/opt/lushroom/start.sh", use_sudo=True)
+    # sudo("chmod 755 /opt/lushroom/start.sh")
 
-    put("wifi.py", "/opt/augment00/wifi.py", use_sudo=True)
-    sudo("chmod 755 /opt/augment00/wifi.py")
+    put("bootstrap.py", "/opt/lushroom/bootstrap.py", use_sudo=True)
+    sudo("chmod 755 /opt/lushroom/bootstrap.py")
 
     # ## add our own rc.local
     # sudo("rm /etc/rc.local")
@@ -321,7 +340,6 @@ def add_bootstrap():
     # sudo("chmod 755 /etc/rc.local")
     # sudo("chown root /etc/rc.local")
     # sudo("chgrp root /etc/rc.local")
-
 
 def add_resize():
     sudo('printf " quiet init=/usr/lib/raspi-config/init_resize.sh" >> /boot/cmdline.txt')
@@ -354,12 +372,12 @@ def install_docker():
 
 
 ############################################################################
-##              Docker commands for building other images                       ##
+##              Docker commands for building other images                 ##
 ############################################################################
 
 
 def docker_login(password):
-    sudo('docker login -u augment00 -p "%s"' % password)
+    sudo('docker login -u arupiot -p "%s"' % password)
 
 
 def push_bootstrap():
@@ -401,9 +419,5 @@ def build_brickd():
     sudo('docker tag augment00/augment00-brickd:%s augment00/augment00-brickd:latest' % tag)
     sudo('docker push augment00/augment00-brickd:latest')
 
-def test():
-    put("test.txt", "~")
 
-def get_file():
-    get("/etc/cron.daily/logrotate")
 """
