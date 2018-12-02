@@ -7,7 +7,7 @@
 
 # uncomment this if your display has a black border of unused pixels visible
 # and your display can output without overscan
-#disable_overscan=1
+disable_overscan=1
 
 # uncomment the following to adjust overscan. Use positive numbers if console
 # goes off screen, and negative if there is too much border
@@ -25,8 +25,8 @@ framebuffer_height=320
 #hdmi_force_hotplug=1
 
 # uncomment to force a specific HDMI mode (this will force VGA)
-hdmi_group=9
-#hdmi_mode=1
+hdmi_group=1
+hdmi_mode=2
 
 # uncomment to force a HDMI mode rather than DVI. This can make audio work in
 # DMT (computer monitor) modes
@@ -56,7 +56,7 @@ dtparam=spi=on
 dtparam=audio=on
 
 # GPU memory
-gpu_mem=128
+gpu_mem=256
 
 # Disable UART (this is necessary to enable Wi-Fi)
 enable_uart=0
