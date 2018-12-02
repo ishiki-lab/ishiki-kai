@@ -4,12 +4,20 @@
 # docker container - see example below
 # docker run -it --name lushroom-rclone -v /media/usb:/media/usb arupiot/lushroom-rclone:latest
 
-FROM lushroom-base:latest
+FROM arupiot/lushroom-base:latest
 
 RUN [ "cross-build-start" ]
 
-# install rclone
+# install dependencies
 RUN apt-get update && apt-get -y install cron p7zip-full
+
+RUN mkdir -p /opt/rclone
+
+WORKDIR /opt/rclone
+
+RUN cd /opt/rclone ; wget https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh
+RUN cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh
+RUN rclone --version
 
 # add the rclone command crontab file in the cron directory
 ADD rclone-cron /etc/cron.d/rclone-cron
