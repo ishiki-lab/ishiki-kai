@@ -76,4 +76,10 @@ export class TrackControlComponent implements OnInit {
     });
     this.playing = false;
   }
+
+  scrubForward() {
+    this.getTracksService.scrubForward().subscribe(data => {
+      console.log(data);
+    });
+  }
 }
