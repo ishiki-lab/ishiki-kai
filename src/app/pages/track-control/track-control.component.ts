@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {Location} from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { GetTracksService } from '../services/get-tracks.service';
 import { of, Observable } from 'rxjs';
@@ -7,7 +8,8 @@ import { GetStylesService } from '../services/get-styles.service';
 @Component({
   selector: 'app-track-control',
   templateUrl: './track-control.component.html',
-  styleUrls: ['./track-control.component.css']
+  styleUrls: ['./track-control.component.css'],
+  // encapsulation: ViewEncapsulation.ShadowDom
 })
 export class TrackControlComponent implements OnInit {
   serverData: Observable<any>;
@@ -19,14 +21,18 @@ export class TrackControlComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private getTracksService: GetTracksService,
-    private getStylesService: GetStylesService
+    private getStylesService: GetStylesService,
+    private _location: Location
   ) {}
+
+  backClicked() {
+    this._location.back();
+  }
 
   styleObject() {
     if (!this.getStylesService.getStyles()) {
       return {
         background: 'black',
-        border: '0.2rem solid white'
       };
     }
   }
@@ -45,7 +51,7 @@ export class TrackControlComponent implements OnInit {
     });
     this.getTracksService.getSingleTrack(this.id).subscribe(
       (data: any) => {
-        console.log('from (singleTrack) service: ', data);
+        console.log('from single track service: ', data);
         this.serverData = of(data.slice(0, data.length - 4));
       },
       (err: any) => {
