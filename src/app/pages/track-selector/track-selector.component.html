@@ -2,16 +2,15 @@
 
 <div *ngIf="serverData != null; else elseBlock">
   <div id="mainBox" [ngStyle]="styleObject()">
-   
-    <div *ngFor="let datum of serverData | async" [ngStyle]="itemStyleObject()">
-      <a [routerLink]="['/player',datum.ID]">
+    <div class="selector-heading">Select treatment:</div>
+    <div *ngFor="let track of serverData | async" [ngStyle]="itemStyleObject()">
+      <a [routerLink]="['/player',track.ID]">
         <div class="item" >
-          <div class="text">{{ datum.Name.slice(0, datum.Name.length-4) }}</div>
+          <div class="text">{{ track.Name.slice(0, track.Name.length-4) }}</div>
         </div>
       </a>
     </div>
   </div>
-  <!-- <app-track></app-track> -->
 </div>
 <ng-template #elseBlock>
   <div class="error">{{ errorResponse.message }}</div>

@@ -23,16 +23,13 @@ a {
     width: 100%;
     min-height: 100vh;
 
-    text-transform: uppercase;
     color: white;
     
-    
     background: #000000;
-    /* border: 0.9em solid #ed028c; */
     box-sizing: border-box;
 
-    font-family: 'Lush';
-    src: url('app/fonts/Lush.ttf') format('truetype');
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    /* src: url('app/fonts/Lush.ttf') format('truetype'); */
     font-weight: bold;
 }
 

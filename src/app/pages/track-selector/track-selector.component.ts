@@ -35,7 +35,6 @@ export class TrackSelectorComponent implements OnInit {
  itemStyleObject() {
   if (!this.getStylesService.getStyles()) {
    return {
-    border: '0.2rem solid white',
     background: 'black',
     marginTop: '0.4em',
     marginBottom: '0.4em'
