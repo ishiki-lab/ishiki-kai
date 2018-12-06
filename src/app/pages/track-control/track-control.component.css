@@ -27,8 +27,18 @@
     padding: 0.3em;
 }
 
+.container .back-button-wrapper {
+    margin-top: 4em;
+    margin-bottom: 2em;
+    width: 80%;
+}
+
+.player-control-icon.back {
+    transform: scale(1.7, 1);
+}
+
 .container .treatment {
-    margin-top: 7em;
+    margin-top: 3em;
     display: flex;
     flex-direction: column;
     justify-content: center;

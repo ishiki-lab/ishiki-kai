@@ -1,7 +1,7 @@
 
 <div class="container" [ngStyle]="styleObjectBorder()">
-  <div class="back-button">
-      <mat-icon class="player-control-icon" (click)="backClicked()">arrow_back </mat-icon>
+  <div class="back-button-wrapper">
+      <mat-icon class="player-control-icon back" (click)="backClicked()">arrow_back </mat-icon>
   </div>
   <div (click)="scrubForward()" class="trackNameBox" [ngStyle]="styleObject()">
     <div class="trackNameText">{{serverData | async}}</div>
