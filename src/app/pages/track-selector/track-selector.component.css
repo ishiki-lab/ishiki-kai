@@ -5,6 +5,11 @@
   font-size: 2em;
 }
 
+.selector-heading {
+  font-size: 1.7em;
+  padding-bottom: 0.5em;
+}
+
 #mainBox {
   padding-top: 2rem;
   padding-bottom: 2em;
@@ -22,16 +27,6 @@
   padding-top:0.3em;
   padding-bottom: 0.3em;
 }
-
-
-#mainBox > :nth-child(odd)
-{
-    background: #29143b;
-}
-#mainBox > :nth-child(even)
-{
-    background: #600039;
-} 
 
 .item .link {
   text-decoration: none;

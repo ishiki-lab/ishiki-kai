@@ -7,7 +7,7 @@ import { TrackControlComponent } from './pages/track-control/track-control.compo
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/splash',
+    redirectTo: '/tracks',
     pathMatch: 'full'
   },
   {

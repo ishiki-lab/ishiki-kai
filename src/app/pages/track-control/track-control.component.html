@@ -1,17 +1,24 @@
 
 <div class="container" [ngStyle]="styleObjectBorder()">
+  <div class="back-button-wrapper">
+      <mat-icon class="back" (click)="backClicked()">arrow_back </mat-icon>
+  </div>
   <div (click)="scrubForward()" class="trackNameBox" [ngStyle]="styleObject()">
     <div class="trackNameText">{{serverData | async}}</div>
   </div>
   <div class="treatment" [ngStyle]="styleObject()">
-    <div class="text">Treatment</div>
-    <div class="playback">
-      <!-- <div class="play"><mat-icon>play_arrow</mat-icon></div> -->
-      <mat-icon *ngIf="playing; else notPlaying" (click)="pauseMusic()">pause</mat-icon>
+    <div class="text track-counter">Track 1 / 10</div>
+    <div class="player-controls">
+      <mat-icon class="player-control-icon prev">skip_previous</mat-icon>
+      <mat-icon class="player-control-icon play-pause" *ngIf="playing; else notPlaying" (click)="pauseMusic()">pause</mat-icon>
       <ng-template #notPlaying>
-        <mat-icon (click)="playMusic()">play_arrow </mat-icon>
+        <mat-icon class="player-control-icon play-pause" (click)="playMusic()">play_arrow </mat-icon>
       </ng-template>
+      <mat-icon class="player-control-icon next">skip_next</mat-icon>
+    </div>
+    <div class="playback">
       <div class="bar"></div>
     </div>
   </div>
+  <div class="timer">15:45 / 30:00</div>
 </div>
