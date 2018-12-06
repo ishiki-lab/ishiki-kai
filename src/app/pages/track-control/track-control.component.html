@@ -1,6 +1,6 @@
 
 <div class="container" [ngStyle]="styleObjectBorder()">
-  <div class="trackNameBox" [ngStyle]="styleObject()">
+  <div (click)="scrubForward()" class="trackNameBox" [ngStyle]="styleObject()">
     <div class="trackNameText">{{serverData | async}}</div>
   </div>
   <div class="treatment" [ngStyle]="styleObject()">

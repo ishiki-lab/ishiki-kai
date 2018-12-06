@@ -6,12 +6,17 @@ import { HttpClient } from '@angular/common/http';
 })
 export class GetTracksService {
 
-  hostname: string = 'black-pearl.local';
+  // hostname: string = 'black-pearl.local';
+  hostname: string = window.location.hostname;
 
   constructor(private httpClient: HttpClient) { }
 
   getTracks() {
     return this.httpClient.get('http://' + this.hostname + '/get-track-list');
+  }
+
+  scrubForward() {
+    return this.httpClient.get('http://' + this.hostname + '/scrub-forward');
   }
 
   getSingleTrack(id) {
