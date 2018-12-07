@@ -90,7 +90,7 @@ export class TrackControlComponent implements OnInit {
     this.playing = !this.playing;
     this.getTracksService.playSingleTrack(this.id).subscribe(data => {
       this.duration = this.hhmmss(data)
-      this.totalTicks = Math.floor(+data);
+      // this.totalTicks = Math.floor(+data);
       console.log(data);
     });
   }
