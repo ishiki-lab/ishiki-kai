@@ -23,6 +23,7 @@ export class TrackControlComponent implements OnInit {
   now = '00:00:00'
   totalTicks: any = 8;
   ticks: number = 0;
+  i_progress: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -68,6 +69,7 @@ export class TrackControlComponent implements OnInit {
       if (this.playing && (this.ticks <= +this.totalTicks)) {
         console.log('tick...');
         this.now = this.hhmmss(this.ticks += 1); 
+        this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
       }
     }, 1000);
 

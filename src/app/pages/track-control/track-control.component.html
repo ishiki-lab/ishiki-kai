@@ -17,9 +17,9 @@
       <mat-icon class="player-control-icon next">skip_next</mat-icon>
     </div>
     <div class="playback">
-      <div class="progress"></div>
+      <div [ngStyle]="{'width':  + this.i_progress + 'vw'}" class="progress"></div>
       <div class="position-slider"></div>
-      <div class="remaining"></div>
+      <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}"  class="remaining"></div>
     </div>
   </div>
   <div class="timer">{{now}} / {{duration}}</div>
