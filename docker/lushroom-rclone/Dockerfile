@@ -30,10 +30,6 @@ RUN crontab /etc/cron.d/rclone-cron
 # create the log file
 RUN touch /var/log/cron.log
 
-# run an initial rclone update
-RUN mkdir -p /opt/rclone/tracks
-RUN rclone -vv --config /media/usb/rclone_lushrooms.conf sync /media/usb/tracks lushrooms:Tracks
-
 # run the cron command
 CMD cron && tail -f /var/log/cron.log
 
