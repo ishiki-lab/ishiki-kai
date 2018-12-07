@@ -17,6 +17,8 @@ export class TrackControlComponent implements OnInit {
   id: string;
   private sub: any;
   playing = false;
+  duration = 'XX:XX:XX'
+  now = '00:00:00'
 
   constructor(
     private route: ActivatedRoute,
@@ -24,6 +26,19 @@ export class TrackControlComponent implements OnInit {
     private getStylesService: GetStylesService,
     private _location: Location
   ) {}
+
+  pad(num): string {
+    return ("0"+num).slice(-2);
+  }
+
+  hhmmss(secs): string {
+    secs = Math.floor(secs);
+    var minutes = Math.floor(secs / 60);
+    secs = secs%60;
+    var hours = Math.floor(minutes/60)
+    minutes = minutes%60;
+    return `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(secs)}`;
+  }
 
   backClicked() {
     this._location.back();
@@ -64,6 +79,7 @@ export class TrackControlComponent implements OnInit {
   playMusic() {
     this.playing = !this.playing;
     this.getTracksService.playSingleTrack(this.id).subscribe(data => {
+      this.duration = this.hhmmss(data)
       console.log(data);
     });
   }
