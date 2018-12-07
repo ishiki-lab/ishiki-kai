@@ -2,8 +2,10 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {Location} from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { GetTracksService } from '../services/get-tracks.service';
-import { of, Observable } from 'rxjs';
+import { of, Observable} from 'rxjs';
 import { GetStylesService } from '../services/get-styles.service';
+import { interval } from 'rxjs';
+import { map } from 'rxjs/operators'
 
 @Component({
   selector: 'app-track-control',
@@ -19,6 +21,7 @@ export class TrackControlComponent implements OnInit {
   playing = false;
   duration = 'XX:XX:XX'
   now = '00:00:00'
+  ticks: number = 0;
 
   constructor(
     private route: ActivatedRoute,
@@ -60,6 +63,12 @@ export class TrackControlComponent implements OnInit {
   }
   }
   ngOnInit() {
+    setInterval(() => { 
+      if (this.playing) {
+        console.log('tick...');
+        this.now = this.hhmmss(this.ticks += 1); 
+      }
+    }, 1000);
 
     this.sub = this.route.params.subscribe(params => {
       this.id = params['id'];
