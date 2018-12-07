@@ -101,6 +101,7 @@ export class TrackControlComponent implements OnInit {
 
   scrubForward() {
     this.getTracksService.scrubForward().subscribe(data => {
+      this.now = this.hhmmss(data)
       console.log(data);
     });
   }
