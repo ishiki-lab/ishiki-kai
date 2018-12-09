@@ -45,6 +45,10 @@ export class TrackControlComponent implements OnInit {
     return `${this.pad(hours)}:${this.pad(minutes)}:${this.pad(secs)}`;
   }
 
+  isPlaying() {
+    return this.playing && this.ticks < this.totalTicks;
+  }
+
   backClicked() {
     this._location.back();
   }
@@ -67,7 +71,7 @@ export class TrackControlComponent implements OnInit {
   
   ngOnInit() {
     setInterval(() => { 
-      if (this.playing && (this.ticks <= +this.totalTicks)) {
+      if (this.playing && (this.ticks < +this.totalTicks)) {
         console.log('tick...');
         this.now = this.hhmmss(this.ticks += 1); 
         this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
