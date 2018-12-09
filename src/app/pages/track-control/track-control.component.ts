@@ -21,7 +21,7 @@ export class TrackControlComponent implements OnInit {
   playing = false;
   duration = 'XX:XX:XX'
   now = '00:00:00'
-  totalTicks: any = 8;
+  totalTicks: any = 0;
   ticks: number = 0;
   i_progress: number = 0;
 
@@ -59,11 +59,12 @@ export class TrackControlComponent implements OnInit {
 
   styleObjectBorder() {
     if (!this.getStylesService.getStyles()) {
-    return {
-      border: 'none'
-    };
+      return {
+        border: 'none'
+      };
+    }
   }
-  }
+  
   ngOnInit() {
     setInterval(() => { 
       if (this.playing && (this.ticks <= +this.totalTicks)) {
@@ -92,7 +93,7 @@ export class TrackControlComponent implements OnInit {
     this.playing = !this.playing;
     this.getTracksService.playSingleTrack(this.id).subscribe(data => {
       this.duration = this.hhmmss(data)
-      // this.totalTicks = Math.floor(+data);
+      this.totalTicks = Math.floor(+data);
       console.log(data);
     });
   }
