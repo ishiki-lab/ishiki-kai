@@ -6,7 +6,7 @@ PORT = 4223
 
 debug = False
 verbose = False
-reading_interval = 1.0
+# reading_interval = 1.0
 
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_dmx import BrickletDMX
@@ -16,12 +16,10 @@ from os.path import join, splitext
 from os import listdir
 import math, time, datetime
 from numpy import array, zeros, array_equal
-import pysrt
+# import pysrt
 import signal
 import sys
-from pysrt import SubRipFile
-from pysrt import SubRipItem
-from pysrt import SubRipTime
+from pysrt import SubRipFile, SubRipItem, SubRipTime
 
 from tf_device_ids import deviceIdentifiersList
 
