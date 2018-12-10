@@ -3,12 +3,22 @@
 <div *ngIf="serverData != null; else elseBlock">
   <div id="mainBox" [ngStyle]="styleObject()">
     <div class="selector-heading">Select treatment:</div>
-    <div *ngFor="let track of serverData | async" [ngStyle]="itemStyleObject()">
-      <a [routerLink]="['/player',track.ID]">
+    <div *ngFor="let item of serverData | async" [ngStyle]="itemStyleObject()">
+
+      <a *ngIf="!item.IsDir; else folderLink" [routerLink]="['/player',item.ID]">
         <div class="item" >
-          <div class="text">{{ track.Name }}</div>
+          <div class="text">{{ item.Name }}</div>
         </div>
       </a>
+
+      <ng-template #folderLink>
+        <a [routerLink]="['/tracks',item.ID]">
+          <div class="item" >
+            <div class="text">{{ item.Name }} ></div>
+          </div>
+        </a> 
+      </ng-template>
+
     </div>
   </div>
 </div>

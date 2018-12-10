@@ -46,7 +46,8 @@ export class TrackSelectorComponent implements OnInit {
     let resLength = trackRes.length;
     let processed = [];
     for (let i = 0; i < resLength; i++) {
-      console.log(trackRes[i]);
+      // remove underscores and numbers from each track name
+      // content.json returns a null object so don't include it!
       if (trackRes[i]) {
         trackRes[i].Name = trackRes[i].Name.replace(/_/g, ' ');
         trackRes[i].Name = trackRes[i].Name.replace(/[0-9]/g, '');
@@ -63,8 +64,6 @@ export class TrackSelectorComponent implements OnInit {
 
     this.getTracksService.getTracks().subscribe(
       (data: any) => {
-        console.log('from service: ', data);
-        
         this.serverData = of(
           this.processTracks(data)
         );
