@@ -11,8 +11,14 @@ export class GetTracksService {
 
   constructor(private httpClient: HttpClient) { }
 
-  getTracks() {
-    return this.httpClient.get('http://' + this.hostname + '/get-track-list');
+  getTracks(id) {
+    let idQuery: string = '';
+
+    if (id) {
+      idQuery = '?id=' + id;
+    }
+
+    return this.httpClient.get('http://' + this.hostname + '/get-track-list' + idQuery);
   }
 
   scrubForward() {

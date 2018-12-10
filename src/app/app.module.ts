@@ -48,6 +48,7 @@ import {
   MatTooltipModule,
   MatTreeModule,
 } from '@angular/material';
+import { CleanPathPipe } from './pages/pipes/clean-path.pipe';
 
 @NgModule({
   declarations: [
@@ -55,7 +56,8 @@ import {
     TrackSelectorComponent,
     TrackComponent,
     SplashScreenComponent,
-    TrackControlComponent
+    TrackControlComponent,
+    CleanPathPipe
   ],
   imports: [
     BrowserModule,

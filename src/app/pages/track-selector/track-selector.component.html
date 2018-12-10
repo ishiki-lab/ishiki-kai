@@ -7,14 +7,14 @@
 
       <a *ngIf="!item.IsDir; else folderLink" [routerLink]="['/player',item.ID]">
         <div class="item" >
-          <div class="text">{{ item.Name }}</div>
+          <div class="text">{{ item.Name | cleanPath }}</div>
         </div>
       </a>
 
       <ng-template #folderLink>
-        <a [routerLink]="['/tracks',item.ID]">
+        <a href="/tracks?id={{item.ID}}">
           <div class="item" >
-            <div class="text">{{ item.Name }} ></div>
+            <div class="text">{{ item.Name | cleanPath }} ></div>
           </div>
         </a> 
       </ng-template>

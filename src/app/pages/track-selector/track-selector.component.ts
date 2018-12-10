@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { of, Observable } from 'rxjs';
 import { GetTracksService } from '../services/get-tracks.service';
 import { GetStylesService } from '../services/get-styles.service';
-
+import { ActivatedRoute  } from '@angular/router';
 
 @Component({
   selector: 'app-track-selector',
@@ -14,11 +14,13 @@ export class TrackSelectorComponent implements OnInit {
   title = 'mw_serve';
   serverData: Observable<any>;
   errorResponse = '';
+  folderId = null;
 
   constructor(
               private httpClient: HttpClient,
               private getTracksService: GetTracksService,
-              private getStylesService: GetStylesService
+              private getStylesService: GetStylesService,
+              private route: ActivatedRoute 
               ) {
   }
 
@@ -42,30 +44,15 @@ export class TrackSelectorComponent implements OnInit {
     }
   }
 
-  processTracks(trackRes) {
-    let resLength = trackRes.length;
-    let processed = [];
-    for (let i = 0; i < resLength; i++) {
-      // remove underscores and numbers from each track name
-      // content.json returns a null object so don't include it!
-      if (trackRes[i]) {
-        trackRes[i].Name = trackRes[i].Name.replace(/_/g, ' ');
-        trackRes[i].Name = trackRes[i].Name.replace(/[0-9]/g, '');
-        processed.push(
-          trackRes[i]
-        );
-      }
-    } 
-    return processed;
-  } 
-
   ngOnInit () {
     // console.log(window.location.hostname);
 
-    this.getTracksService.getTracks().subscribe(
+    this.folderId = this.route.snapshot.queryParamMap.get("id");
+
+    this.getTracksService.getTracks(this.folderId).subscribe(
       (data: any) => {
         this.serverData = of(
-          this.processTracks(data)
+          data
         );
       },
       (err: any) => {
