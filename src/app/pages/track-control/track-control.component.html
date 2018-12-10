@@ -10,15 +10,17 @@
     <div class="text track-counter">Track 1 / 10</div>
     <div class="player-controls">
       <mat-icon class="player-control-icon prev">skip_previous</mat-icon>
-      <mat-icon class="player-control-icon play-pause" *ngIf="playing; else notPlaying" (click)="pauseMusic()">pause</mat-icon>
+      <mat-icon class="player-control-icon play-pause" *ngIf="isPlaying(); else notPlaying" (click)="pauseMusic()">pause</mat-icon>
       <ng-template #notPlaying>
         <mat-icon class="player-control-icon play-pause" (click)="playMusic()">play_arrow </mat-icon>
       </ng-template>
       <mat-icon class="player-control-icon next">skip_next</mat-icon>
     </div>
     <div class="playback">
-      <div class="bar"></div>
+      <div [ngStyle]="{'width':  + this.i_progress + 'vw'}" class="progress"></div>
+      <div class="position-slider"></div>
+      <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}"  class="remaining"></div>
     </div>
   </div>
-  <div class="timer">15:45 / 30:00</div>
+  <div class="timer">{{now}} / {{duration}}</div>
 </div>

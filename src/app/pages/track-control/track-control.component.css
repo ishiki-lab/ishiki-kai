@@ -105,13 +105,32 @@ mat-icon.back {
 .mat-icon:hover {
     cursor: pointer;
 }
-.playback .bar
+
+.playback .progress
 {
     margin-top: 3em;
     margin-bottom: 1em;
     height: 0.3em;
-    width: 70vw;
+    width: 20vw;
+    background-color: white;
+}
+
+.playback .remaining
+{
+    margin-top: 3em;
+    margin-bottom: 1em;
+    height: 0.3em;
+    width: 80vw;
     background-color: #424242
+}
+
+.playback .position-slider
+{
+    margin-top: 3em;
+    margin-bottom: 1em;
+    height: 0.6em;
+    width: 9px;
+    background-color: white;
 }
 
 .timer {
