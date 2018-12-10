@@ -1,10 +1,12 @@
 
 <div class="container" [ngStyle]="styleObjectBorder()">
   <div class="back-button-wrapper">
-      <mat-icon class="back" (click)="backClicked()">arrow_back </mat-icon>
+      <a [routerLink]="['/tracks']">
+        <mat-icon class="back" (click)="backClicked()">arrow_back</mat-icon>
+      </a>
   </div>
   <div (click)="scrubForward()" class="trackNameBox" [ngStyle]="styleObject()">
-    <div class="trackNameText">{{serverData | async}}</div>
+    <div class="trackNameText">{{serverData | async | cleanPath}}</div>
   </div>
   <div class="treatment" [ngStyle]="styleObject()">
     <div class="text track-counter">Track 1 / 10</div>
