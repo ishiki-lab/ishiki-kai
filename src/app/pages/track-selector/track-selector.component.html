@@ -6,7 +6,7 @@
     <div *ngFor="let track of serverData | async" [ngStyle]="itemStyleObject()">
       <a [routerLink]="['/player',track.ID]">
         <div class="item" >
-          <div class="text">{{ track.Name.slice(0, track.Name.length-4) }}</div>
+          <div class="text">{{ track.Name }}</div>
         </div>
       </a>
     </div>

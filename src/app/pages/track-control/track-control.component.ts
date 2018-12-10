@@ -81,6 +81,8 @@ export class TrackControlComponent implements OnInit {
     this.sub = this.route.params.subscribe(params => {
       this.id = params['id'];
     });
+
+    
     this.getTracksService.getSingleTrack(this.id).subscribe(
       (data: any) => {
         console.log('from single track service: ', data);

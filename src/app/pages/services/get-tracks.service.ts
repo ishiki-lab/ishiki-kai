@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 export class GetTracksService {
 
   // hostname: string = 'black-pearl.local';
-  hostname: string = window.location.hostname;
+  hostname: string = '172.24.3.120';
 
   constructor(private httpClient: HttpClient) { }
 
