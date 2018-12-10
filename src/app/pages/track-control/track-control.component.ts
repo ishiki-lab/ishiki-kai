@@ -82,11 +82,11 @@ export class TrackControlComponent implements OnInit {
       this.id = params['id'];
     });
 
-    
+
     this.getTracksService.getSingleTrack(this.id).subscribe(
       (data: any) => {
         console.log('from single track service: ', data);
-        this.serverData = of(data.slice(0, data.length - 4));
+        this.serverData = of(data);
       },
       (err: any) => {
         console.log('error', err);

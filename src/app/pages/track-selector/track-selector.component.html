@@ -14,7 +14,10 @@
       <ng-template #folderLink>
         <a href="/tracks?id={{item.ID}}">
           <div class="item" >
-            <div class="text">{{ item.Name | cleanPath }} ></div>
+            <div class="text">
+              {{ item.Name | cleanPath }}
+              <mat-icon>arrow_right_alt</mat-icon>
+            </div>
           </div>
         </a> 
       </ng-template>

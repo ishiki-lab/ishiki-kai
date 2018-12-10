@@ -51,6 +51,8 @@ export class TrackSelectorComponent implements OnInit {
 
     this.getTracksService.getTracks(this.folderId).subscribe(
       (data: any) => {
+        console.log('tracks: ', data);
+        
         this.serverData = of(
           data
         );
