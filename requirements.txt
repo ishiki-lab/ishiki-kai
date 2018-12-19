@@ -1,4 +1,6 @@
 tinkerforge
+pynput
 pysrt
 numpy
-
+phue
+python-vlc
