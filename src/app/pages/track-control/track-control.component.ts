@@ -49,10 +49,6 @@ export class TrackControlComponent implements OnInit {
     return this.playing && this.ticks < this.totalTicks;
   }
 
-  backClicked() {
-    this._location.back();
-  }
-
   styleObject() {
     if (!this.getStylesService.getStyles()) {
       return {
