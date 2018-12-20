@@ -26,18 +26,22 @@ Install brick daemon and optionally brick viewer from [https://www.tinkerforge.c
 ### Python pre-requisites
 
 ```
-$ curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
-$ sudo python get-pip.py
-$ sudo pip3 install -r requirements.txt
+curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
+sudo python get-pip.py
+sudo pip3 install -r requirements.txt
 ```
 
 ### Record DMX stream
 
+TODO
 
 ### Edit .srt files
 
+TODO
 
 #### Sound and light format\
+
+TODO
 
 ```
 HUE#(hue,sat,bri,transitiontime)
@@ -54,6 +58,8 @@ where:
 
 
 ### Play sound and light
+
+TODO
 
 When playing, it is possible to pause and resume the sound and light stream, however on MacOS X it is necessary to either:
 
