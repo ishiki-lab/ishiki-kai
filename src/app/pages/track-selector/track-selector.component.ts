@@ -80,6 +80,7 @@ export class TrackSelectorComponent implements OnInit {
       (err: any) => {
         console.log('error', err);
         this.errorResponse = err;
+        this.router.navigate([`/tracks`]);
       }
     );
   }

@@ -9,7 +9,7 @@
     <div class="trackNameText">{{currentTrack.Name | cleanPath}}</div>
   </div>
   <div class="treatment" [ngStyle]="styleObject()">
-    <div class="text track-counter">Track {{hrId}} / {{numTracks}}</div>
+    <div class="text track-counter">Track {{hrId + 1}} / {{numTracks}}</div>
     <div class="player-controls">
       <mat-icon (click)="previous()" class="player-control-icon prev">skip_previous</mat-icon>
       <mat-icon class="player-control-icon play-pause" *ngIf="isPlaying(); else notPlaying" (click)="pauseMusic()">pause</mat-icon>

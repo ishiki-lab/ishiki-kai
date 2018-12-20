@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {Location} from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import {Router} from '@angular/router';
 import { GetTracksService } from '../services/get-tracks.service';
 import { of, Observable} from 'rxjs';
 import { GetStylesService } from '../services/get-styles.service';
@@ -28,13 +29,14 @@ export class TrackControlComponent implements OnInit {
   playlist: any = null;
   numTracks: number = 0;
   currentTrack: any = null;
-  hrId: number = 1;
+  hrId: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private getTracksService: GetTracksService,
     private getStylesService: GetStylesService,
-    private _location: Location
+    private _location: Location,
+    private router: Router
   ) {}
 
   pad(num): string {
@@ -55,13 +57,13 @@ export class TrackControlComponent implements OnInit {
   }
 
   next() {
-    this.hrId++;
-    console.log('next!');
+    this.hrId = ((++this.hrId) % (this.numTracks));
+    this.currentTrack = this.playlist[this.hrId];
   }
 
   previous() {
-    this.hrId--;
-    console.log('previous!');
+    this.hrId = ((--this.hrId) % (this.numTracks));
+    this.currentTrack = this.playlist[this.hrId];
   }
 
   styleObject() {
@@ -105,6 +107,7 @@ export class TrackControlComponent implements OnInit {
       (err: any) => {
         console.log('error', err);
         this.errorResponse = err;
+        this.router.navigate([`/tracks`]);
       }
     );
   }
