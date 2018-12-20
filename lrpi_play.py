@@ -219,9 +219,10 @@ def main():
                         print("Registering %s as slave DMX device for capturing DMX frames" % tf[0])
                         dmx = BrickletDMX(tf[0], ipcon)
                         dmx.set_dmx_mode(dmx.DMX_MODE_MASTER)
+                        channels = int((int(MAX_BRIGHTNESS)/255.0)*ones(512,)*255)
                         dmx.write_frame([255,255])
                         sleep(1)
-                        channels = int((int(MAX_BRIGHTNESS)/255.0)*ones(512)*255)
+                        channels = int((int(MAX_BRIGHTNESS)/255.0)*zeros(512,)*255)
                         dmx.write_frame(channels)
                     dmxcount += 1
 
