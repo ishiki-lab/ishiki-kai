@@ -137,15 +137,6 @@ def time_convert(t):
     hours, minutes, seconds = block.split(":")
     return(int(hours),int(minutes),int(seconds), int(milliseconds))
 
-# def on_press(key):
-#     global scheduler, player
-#     try:
-#         print('alphanumeric key {0} pressed'.format(
-#             key.char))
-#     except AttributeError:
-#         print('special key {0} pressed'.format(
-#             key))
-
 class ExitException(Exception):
     def __init__(self, key):
         global scheduler, player, ipcon
@@ -226,11 +217,7 @@ def main():
                     if dmxcount == 0:
                         print("Registering %s as slave DMX device for capturing DMX frames" % tf[0])
                         dmx = BrickletDMX(tf[0], ipcon)
-                        # dmx.set_dmx_mode(BrickletDMX.DMX_MODE_SLAVE)
                         dmx.set_dmx_mode(dmx.DMX_MODE_MASTER)
-                        # dmx.register_callback(BrickletDMX.CALLBACK_FRAME, dmxread_callback)
-                        # dmx.set_frame_callback_config(False, False, True, False)
-                        # signal.signal(signal.SIGINT, signal_handler)
                         dmx.write_frame([255,255])
                         sleep(1)
                         dmx.write_frame([0,0])
@@ -268,7 +255,6 @@ def main():
 
     scheduler = BackgroundScheduler()
     scheduler.add_job(tick, 'interval', seconds=TICK_TIME)
-    # scheduler.start(paused=True)
     if PLAY_AUDIO:
         player.play()
     scheduler.start(paused=False)
@@ -280,18 +266,6 @@ def main():
             listener.join()
         except ExitException as e:
             print("Exiting ...")
-
-    # try:
-    #     # This is here to simulate application activity (which keeps the main thread alive).
-    #     while True:
-    #         sleep(0.01)
-    #
-    # except (KeyboardInterrupt, SystemExit):
-    #     # Not strictly necessary if daemonic mode is enabled but should be done if possible
-    #     scheduler.shutdown()
-    #     player.stop()
-    #     exit(0)
-
 
 if __name__ == "__main__":
     main()
