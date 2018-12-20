@@ -87,11 +87,12 @@ export class TrackControlComponent implements OnInit {
       if (this.playing && (this.ticks < +this.totalTicks)) {
         console.log('tick...');
         this.now = this.hhmmss(this.ticks += 1); 
-        this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
-      } else if (this.ticks >= +this.totalTicks) {
+      } else if (this.ticks >= +this.totalTicks && this.ticks != 0 && this.playing) {
         this.now = '00:00:00' 
         this.ticks = 0; 
+        this.playing = false;
       }
+      this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
 
     this.sub = this.route.params.subscribe(params => {
