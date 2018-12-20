@@ -26,6 +26,7 @@ Install brick daemon and optionally brick viewer from [https://www.tinkerforge.c
 ### Python pre-requisites
 
 ```
+cd lrpi_record
 curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
 sudo python get-pip.py
 sudo pip3 install -r requirements.txt
