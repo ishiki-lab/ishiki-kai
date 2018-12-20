@@ -88,6 +88,9 @@ export class TrackControlComponent implements OnInit {
         console.log('tick...');
         this.now = this.hhmmss(this.ticks += 1); 
         this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
+      } else if (this.ticks >= +this.totalTicks) {
+        this.now = '00:00:00' 
+        this.ticks = 0; 
       }
     }, 1000);
 

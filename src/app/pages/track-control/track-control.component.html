@@ -5,7 +5,7 @@
         <mat-icon class="back">arrow_back</mat-icon>
       </a>
   </div>
-  <div (click)="scrubForward()" class="trackNameBox" [ngStyle]="styleObject()">
+  <div class="trackNameBox" [ngStyle]="styleObject()">
     <div class="trackNameText">{{currentTrack.Name | cleanPath}}</div>
   </div>
   <div class="treatment" [ngStyle]="styleObject()">
