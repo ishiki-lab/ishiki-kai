@@ -28,6 +28,7 @@ export class TrackControlComponent implements OnInit {
   playlist: any = null;
   numTracks: number = 0;
   currentTrack: any = null;
+  hrId: number = 1;
 
   constructor(
     private route: ActivatedRoute,
@@ -51,6 +52,16 @@ export class TrackControlComponent implements OnInit {
 
   isPlaying() {
     return this.playing && this.ticks < this.totalTicks;
+  }
+
+  next() {
+    this.hrId++;
+    console.log('next!');
+  }
+
+  previous() {
+    this.hrId--;
+    console.log('previous!');
   }
 
   styleObject() {
