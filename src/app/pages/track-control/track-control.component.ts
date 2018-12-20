@@ -25,6 +25,10 @@ export class TrackControlComponent implements OnInit {
   ticks: number = 0;
   i_progress: number = 0;
 
+  playlist: any = null;
+  numTracks: number = 0;
+  currentTrack: any = null;
+
   constructor(
     private route: ActivatedRoute,
     private getTracksService: GetTracksService,
@@ -78,6 +82,9 @@ export class TrackControlComponent implements OnInit {
       this.id = params['id'];
     });
 
+    this.playlist = this.getTracksService.getPlaylist();
+    this.numTracks = this.playlist.length;
+    this.currentTrack = this.playlist[0];
 
     this.getTracksService.getSingleTrack(this.id).subscribe(
       (data: any) => {
@@ -93,7 +100,7 @@ export class TrackControlComponent implements OnInit {
 
   playMusic() {
     this.playing = !this.playing;
-    this.getTracksService.playSingleTrack(this.id).subscribe(data => {
+    this.getTracksService.playSingleTrack(this.currentTrack.ID).subscribe(data => {
       this.duration = this.hhmmss(data)
       this.totalTicks = Math.floor(+data);
       console.log(data);
@@ -103,7 +110,7 @@ export class TrackControlComponent implements OnInit {
   pauseMusic() {
     this.playing = !this.playing;
     console.log(this.playing);
-    this.getTracksService.pauseSingleTrack(this.id).subscribe(data => {
+    this.getTracksService.pauseSingleTrack(this.currentTrack.ID).subscribe(data => {
       console.log(data);
     });
   }

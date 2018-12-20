@@ -7,10 +7,26 @@ import { HttpClient } from '@angular/common/http';
 export class GetTracksService {
 
   // hostname: string = 'black-pearl.local';
-  // hostname: string = '172.24.3.120';
   hostname: string = window.location.hostname;
+  testnum: number = 0;
+  playlist: any = null;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(
+    private httpClient: HttpClient
+  ) { }
+
+  incT() {
+    this.testnum++;
+    console.log(this.testnum);
+  }
+
+  setPlaylist(data) {
+    this.playlist = data;
+  }
+
+  getPlaylist() {
+    return this.playlist;
+  }
 
   getTracks(id) {
     let idQuery: string = '';

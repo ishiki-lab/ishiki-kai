@@ -17,7 +17,7 @@ const routes: Routes = [
     path: 'tracks', component: TrackSelectorComponent
   },  
   {
-    path: 'player/:id', component: TrackControlComponent
+    path: 'player', component: TrackControlComponent
   }
 ];
 
