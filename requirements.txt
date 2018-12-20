@@ -4,3 +4,4 @@ pysrt
 numpy
 phue
 python-vlc
+pytz
