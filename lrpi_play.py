@@ -15,7 +15,7 @@ import argparse
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_dmx import BrickletDMX
 from tf_device_ids import deviceIdentifiersList
-from numpy import array
+from numpy import array, ones
 
 HOST = "127.0.0.1"
 PORT = 4223
@@ -95,7 +95,7 @@ def trigger_light(subs):
                     bridge.set_light(l, cmd)
             if scope[0:3] == "DMX":
                 l = int(scope[3:])
-                channels = int(MAX_BRIGHTNESS)*(array(items.split(",")).astype(int))
+                channels = int(int(MAX_BRIGHTNESS)/255.0*(array(items.split(",")).astype(int)))
                 # channels = array(map(lambda i: int(MAX_BRIGHTNESS)*i, channels))
                 if DEBUG:
                     print("Trigger DMX:", l, channels)
@@ -221,7 +221,8 @@ def main():
                         dmx.set_dmx_mode(dmx.DMX_MODE_MASTER)
                         dmx.write_frame([255,255])
                         sleep(1)
-                        dmx.write_frame([0,0])
+                        channels = int((int(MAX_BRIGHTNESS)/255.0)*ones(512)*255)
+                        dmx.write_frame(channels)
                     dmxcount += 1
 
     if PLAY_AUDIO:
