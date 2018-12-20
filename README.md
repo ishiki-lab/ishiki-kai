@@ -8,6 +8,17 @@ Python 3 is required to run lrpi_dmxrecord and lrpi_play.
 
 A simple way to install Python 3 is to install the [Miniconda Python distribution version 3.7](https://conda.io/miniconda.html).
 
+### Install git and get the source code
+
+If you don't have it already, [download and install git](https://git-scm.com/downloads) for your operating system.
+
+Then clone the lrpi_record repository.
+
+```
+git clone https://github.com/LUSHDigital/lrpi_record.git
+```
+
+
 ### Tinkerforge brick daemon
 
 Install brick daemon and optionally brick viewer from [https://www.tinkerforge.com/en/doc/Downloads.html](https://www.tinkerforge.com/en/doc/Downloads.html)
