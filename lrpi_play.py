@@ -95,7 +95,7 @@ def trigger_light(subs):
                     bridge.set_light(l, cmd)
             if scope[0:3] == "DMX":
                 l = int(scope[3:])
-                 = *array(items.split(",")).astype(int)
+                channels = array(items.split(",")).astype(int)
                 channels = map(lambda i: int(MAX_BRIGHTNESS)*i, channels)
                 if DEBUG:
                     print("Trigger DMX:", l, channels)
