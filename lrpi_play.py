@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+#
+# LushRoom sound and light player
+# Standalone player
+#
 
 from phue import Bridge
 from random import random
