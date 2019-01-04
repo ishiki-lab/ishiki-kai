@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 from config import PI_PASSWORD
 
 # env.hosts = ["%s:%s" % ("raspberrypi.local", 22)]
-env.hosts = ["%s:%s" % ("10.0.0.4", 22)]
+env.hosts = ["%s:%s" % ("lushroom.local", 22)]
 env.user = "lush"
 env.password = PI_PASSWORD
 
@@ -53,6 +53,8 @@ RASPBIAN_VERSION = "KeDei Raspbian rpi_v6_3_stretch_kernel_4_15_18"
     reboot
 """
 
+def list_usb():
+    sudo('ls /media/usb/')
 
 def prepare_card():
     uninstall_packages()
@@ -167,7 +169,7 @@ def install_software_apt_prerequisites():
     print('Installing software APT prerequisites')
     sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
     sudo('apt-get -y install python-requests python-pygame')
-    sudo('apt-get -y install ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
+    sudo('apt-get -y install screen ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
     sudo('apt-get -y install libsmbclient libssh-4 libpcre3 fonts-freefont-ttf espeak alsa-tools alsa-utils')
     sudo('apt-get -y install python3-gpiozero python-rpi.gpio python-pigpio python-gpiozero')
     sudo('apt-get -y install pigpio python3-pigpio python3-rpi.gpio raspi-gpio wiringpi')
