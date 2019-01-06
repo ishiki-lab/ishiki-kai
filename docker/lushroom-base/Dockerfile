@@ -1,3 +1,5 @@
+# lushroom-base Dockerfile
+
 FROM resin/rpi-raspbian:stretch
 
 ENTRYPOINT []
@@ -27,7 +29,6 @@ RUN pip3 install influxdb
 RUN pip3 install colour
 
 RUN [ "cross-build-end" ]
-
 
 # build command: sudo docker build -t lushroom-base .
 # get resin.io stretch raspbian image. Has QEMU built in
