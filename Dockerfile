@@ -1,44 +1,37 @@
-# sample build command: sudo docker build -t mw_rclone .
-# sample run command: sudo docker run -d -p 80:80 arupiot/media_warrior_base:develop
-# running resin.io rpi image on ubuntu with qemu
-# (but) resin images have qemu built in anyway...
-# sudo docker run -v /usr/bin/qemu-arm-static:/usr/bin/qemu-arm-static --rm -ti resin/rpi-raspbian
+# lushroom-rclone Dockerfile
 
-# get media warrior rpi image. (QEMU/Python/dbus/etc)
-FROM lrpi_rpi_base:local
+# in order to run this, a bind mount to the /media/usb directory must be created
+# so that the rclone config and service account files are visible to this
+# docker container - see example below
+# docker run -it --name lushroom-rclone -v /media/usb:/media/usb lushdigital/lushroom-rclone:latest
 
-RUN mkdir -p /media/usb/tracks
+FROM lushdigital/lushroom-base:latest
 
 RUN [ "cross-build-start" ]
-# ADD media-warrior-07dec249ae7a.json /opt/GCP
-# ADD rclone1.43.1_expect.sh /
-# install everything needed to set up the 'Pi as a hotspot
-# install expect/rclone
-# get gdrive service account details from usb stick
-# set up gdrive remote
-# creates a remote called arupiot-expect
-# && \ /opt/media_warrior/mw_serve/docker/rclone/rclone_expect.sh
-# sync with gdrive
-# sample mlp are in mlp_samples_test
-# RUN rclone lsf arupiot-expect:mlp_samples_test
-# Sync songs from the gdrive
 
-WORKDIR /opt/media_warrior/mw_rclone
-RUN mkdir -p /media/usb/rclone
-COPY rclone.conf /root/.rclone.conf
-COPY lush-rooms-stage-global-f0347a1c7551.json /media/usb/lush-rooms-stage-global-f0347a1c7551.json
+# install dependencies
+RUN apt-get update && apt-get -y install cron p7zip-full unzip
 
-RUN apt-get install man && \
-    apt-get install p7zip-full
+# install rclone
+RUN mkdir -p /opt/rclone
+WORKDIR /opt/rclone
+RUN cd /opt/rclone ; wget --no-check-certificate https://raw.github.com/pageauc/rclone4pi/master/rclone-install.sh
+RUN cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh
+RUN rclone --version
 
-RUN curl -L https://rclone.org/install.sh | bash && \
-    rclone --version
+# add the rclone command crontab file in the cron directory
+ADD rclone-cron /etc/cron.d/rclone-cron
 
-RUN rclone sync lush-gsuite-drive:Tracks/00_Test/ /media/usb/tracks -v -P
+# give execution rights to the crontab file
+RUN chmod 0644 /etc/cron.d/rclone-cron
 
-# TODO:
-# set up rclone cron job
-# set up rclone chronjob (updated every evening?)
+# apply the cron job
+RUN crontab /etc/cron.d/rclone-cron
 
+# create the log file
+RUN touch /var/log/cron.log
+
+# run the cron command
+CMD cron && tail -f /var/log/cron.log
 
 RUN [ "cross-build-end" ]
