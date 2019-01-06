@@ -76,6 +76,9 @@ def draw_time():
    show_text(current_dt, font_regular, WHITE, [480/2,320 - FONT_SIZE/2])
 
 def show_text(text, font, colour, coordinates):
+    text_surface = font.render('%s' % text, True,BLACK)
+    rect = text_surface.get_rect(center=(coordinates[0]+2,coordinates[1]+2))
+    lcd.blit(text_surface, rect)
     text_surface = font.render('%s' % text, True, colour)
     rect = text_surface.get_rect(center=coordinates)
     lcd.blit(text_surface, rect)
