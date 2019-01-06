@@ -1,0 +1,6 @@
+pygame
+numpy
+scipy
+evdev
+netifaces
+apscheduler
