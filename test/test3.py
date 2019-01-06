@@ -18,15 +18,16 @@ YELLOW     = (255, 255,   0)
 PINK       = (255, 192, 203)
 LBLUE      = (191, 238, 244)
 
+os.putenv('SDL_DIRECTFB_LINUX_INPUT', '1')
 os.putenv('SDL_VIDEODRIVER', 'fbcon')
 os.putenv('SDL_FBDEV', '/dev/fb0')
 os.putenv('SDL_MOUSEDRV', 'TSLIB')
 os.putenv('SDL_MOUSEDEV', '/dev/input/event0')
 #os.putenv('SDL_MOUSEDEV', '/devices/virtual/input/input0')
 
-os.environ["SDL_FBDEV"] = "/dev/fb0"
-os.environ["SDL_MOUSEDRV"] = "TSLIB"
-os.environ["SDL_MOUSEDEV"] = "/dev/input/event0"
+#os.environ["SDL_FBDEV"] = "/dev/fb0"
+#os.environ["SDL_MOUSEDRV"] = "TSLIB"
+#os.environ["SDL_MOUSEDEV"] = "/dev/input/event0"
 
 pygame.init()
 pygame.mouse.set_visible(False)

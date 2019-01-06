@@ -2,18 +2,23 @@
 
 import netifaces
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
 import os, time
 import evdev
 from evdev import ecodes
 from scipy.interpolate import interp1d
 import pygame
 from pygame.locals import *
-import os
-from time import sleep
+from time import sleep, tzname, daylight, gmtime, strftime
+from os.path import exists, join
+from os import listdir, putenv, getenv, environ
+from os import name as osname
+from random import random
+from socket import gethostname
+from datetime import datetime as dt
 
-DELAY = 5 # delay for updating the screen in seconds
+DELAY = 60 # delay for updating the screen information in seconds
 FONT_SIZE = 30
+IMAGES_PATH = '/media/usb/Images'
 
 DIM = [480,320] # screen framebuffer dimensions
 WHITE      = (255, 255, 255)
@@ -27,10 +32,10 @@ YELLOW     = (255, 255,   0)
 PINK       = (255, 192, 203)
 LBLUE      = (191, 238, 244)
 
-os.putenv('SDL_VIDEODRIVER', 'fbcon')
-os.putenv('SDL_FBDEV', '/dev/fb0')
-os.putenv('SDL_MOUSEDRV', 'TSLIB')
-os.putenv('SDL_MOUSEDEV', '/dev/input/event0')
+putenv('SDL_VIDEODRIVER', 'fbcon')
+putenv('SDL_FBDEV', '/dev/fb0')
+putenv('SDL_MOUSEDRV', 'TSLIB')
+putenv('SDL_MOUSEDEV', '/dev/input/event0')
 
 lcd = None
 
@@ -52,21 +57,66 @@ def print_ipaddresses():
     addresses = get_ipaddresses(adapters)
     print(addresses)
 
+def get_imagenames(path):
+    items = listdir(path)
+    images_list = []
+    for names in items:
+       if names.endswith(".jpg"):
+           images_list.append(names)
+    return(images_list)
+
+def draw_time():
+   global FONT_SIZE
+   global lcd
+   font_regular = pygame.font.Font(None, FONT_SIZE)
+   #current_dt = dt.now()
+   current_dt = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+   #print(current_dt)
+   pygame.draw.rect(lcd, BLACK, pygame.Rect(0,320-int(FONT_SIZE*1.2),480,320))
+   show_text(current_dt, font_regular, WHITE, [480/2,320 - FONT_SIZE/2])
+
+def show_text(text, font, colour, coordinates):
+    text_surface = font.render('%s' % text, True, colour)
+    rect = text_surface.get_rect(center=coordinates)
+    lcd.blit(text_surface, rect)
+    pygame.display.update()
+
 def draw_screen():
     global FONT_SIZE
     global lcd
     lcd.fill((0,0,0))
     pygame.display.update()
-    font_big = pygame.font.Font(None, FONT_SIZE)
+    images = get_imagenames(IMAGES_PATH)
+    font_regular = pygame.font.Font(None, FONT_SIZE)
+    font_big = pygame.font.Font(None, int(FONT_SIZE*1.5))
+    #print(images)
+    logo_name = join(IMAGES_PATH,'logo.png')
+    if len(images)>0:
+        image_number = int(random()*len(images))
+        image_name = join(IMAGES_PATH,images[image_number])
+        if exists(image_name):
+            image = pygame.image.load(image_name)
+            lcd.blit(image, (0,0))
+    if exists(logo_name):
+        image = pygame.image.load(logo_name)
+        lcd.blit(image, (0,0))
+    row = 1
+    # get and print hostname
+    hostname = gethostname()
+    show_text(hostname, font_big,WHITE, [480/2,80+FONT_SIZE*(row)])
+    row += 1
+    # get timezone / location information
+    timezone = 'time zone: %s' % tzname[time.daylight]
+    show_text(timezone, font_regular, WHITE, [480/2,80+FONT_SIZE*(row)])
+    row += 1
+    # get mac and ip addresses of network interfaces
     adapters = netifaces.interfaces()
     addresses = get_ipaddresses(adapters)
-    print(addresses)
+    #print(addresses)
     for i in range(len(addresses)):
-        print(addresses[i])
-        text_surface = font_big.render('%s - %s - %s' % addresses[i], True, WHITE)
-        rect = text_surface.get_rect(center=[480/2,50+320/(len(addresses)+1)*i])
-        lcd.blit(text_surface, rect)
-        pygame.display.update()
+        #print(addresses[i])
+        address = '%s - %s - %s' % addresses[i]
+        show_text(address, font_regular, WHITE, [480/2,80+FONT_SIZE*(row+i)])
 
 def main():
     global DELAY
@@ -76,6 +126,7 @@ def main():
     pygame.mouse.set_visible(False)
     lcd = pygame.display.set_mode(DIM)
     lcd.fill((0,0,0))
+    pygame.display.flip()
     pygame.display.update()
  
     draw_screen()
@@ -83,9 +134,10 @@ def main():
     scheduler = BackgroundScheduler()
     #scheduler.add_job(print_ipaddresses, 'interval', seconds=DELAY)
     scheduler.add_job(draw_screen, 'interval', seconds=DELAY)
+    scheduler.add_job(draw_time, 'interval', seconds=1)
     scheduler.start()
 
-    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+    print('Press Ctrl+{0} to exit'.format('Break' if osname == 'nt' else 'C'))
 
     try:
         # This is here to simulate application activity (which keeps the main thread alive).
