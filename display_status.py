@@ -109,7 +109,7 @@ def draw_screen():
     show_text(hostname, font_big,WHITE, [480/2,80+FONT_SIZE*(row)])
     row += 1
     # get timezone / location information
-    timezone = 'time zone: %s' % tzname[time.daylight]
+    timezone = 'time zone: %s' % tzname[0]
     show_text(timezone, font_regular, WHITE, [480/2,80+FONT_SIZE*(row)])
     row += 1
     # get mac and ip addresses of network interfaces
