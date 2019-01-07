@@ -50,6 +50,10 @@ export class GetTracksService {
     return this.httpClient.get('http://' + this.hostname + '/play-single-track?id=' + id);
   }
 
+  playPause() {
+    return this.httpClient.get('http://' + this.hostname + '/play-pause');
+  }
+
   pauseSingleTrack(id) {
     return this.httpClient.get('http://' + this.hostname + '/pause-track?id=' + id);
   }

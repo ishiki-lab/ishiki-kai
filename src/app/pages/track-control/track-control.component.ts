@@ -20,6 +20,7 @@ export class TrackControlComponent implements OnInit {
   id: string;
   private sub: any;
   playing = false;
+  started = false;
   duration = 'XX:XX:XX'
   now = '00:00:00'
   totalTicks: any = 0;
@@ -85,12 +86,12 @@ export class TrackControlComponent implements OnInit {
   ngOnInit() {
     setInterval(() => { 
       if (this.playing && (this.ticks < +this.totalTicks)) {
-        console.log('tick...');
         this.now = this.hhmmss(this.ticks += 1); 
       } else if (this.ticks >= +this.totalTicks && this.ticks != 0 && this.playing) {
         this.now = '00:00:00' 
         this.ticks = 0; 
         this.playing = false;
+        this.started = false;
       }
       this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
@@ -103,37 +104,34 @@ export class TrackControlComponent implements OnInit {
     this.numTracks = this.playlist.length;
     this.currentTrack = this.playlist[0];
 
-    this.getTracksService.getSingleTrack(this.id).subscribe(
-      (data: any) => {
-        console.log('from single track service: ', data);
-        this.serverData = of(data);
-      },
-      (err: any) => {
-        console.log('error', err);
-        this.errorResponse = err;
-        this.router.navigate([`/tracks`]);
-      }
-    );
   }
 
-  playMusic() {
+  play() {
     this.playing = !this.playing;
-    this.getTracksService.playSingleTrack(this.currentTrack.ID).subscribe(data => {
+    if (!this.started) {
+      this.getTracksService.playSingleTrack(this.currentTrack.ID).subscribe(data => {
+        this.duration = this.hhmmss(data)
+        this.started = true;
+        this.totalTicks = Math.floor(+data);
+        console.log(data);
+      });
+    } else {
+      this.getTracksService.playPause().subscribe(data => {
+        this.duration = this.hhmmss(data)
+        console.log(data);
+      });  
+    }
+  }
+
+  pause() {
+    this.playing = !this.playing;
+    this.getTracksService.playPause().subscribe(data => {
       this.duration = this.hhmmss(data)
-      this.totalTicks = Math.floor(+data);
       console.log(data);
     });
   }
 
-  pauseMusic() {
-    this.playing = !this.playing;
-    console.log(this.playing);
-    this.getTracksService.pauseSingleTrack(this.currentTrack.ID).subscribe(data => {
-      console.log(data);
-    });
-  }
-
-  stopMusic() {
+  stop() {
     this.getTracksService.stopMusic().subscribe(data => {
       console.log(data);
     });
