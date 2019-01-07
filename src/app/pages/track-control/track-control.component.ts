@@ -63,8 +63,10 @@ export class TrackControlComponent implements OnInit {
   }
 
   previous() {
-    this.hrId = ((--this.hrId) % (this.numTracks));
-    this.currentTrack = this.playlist[this.hrId];
+    if (this.hrId > 0) {
+      this.hrId = ((--this.hrId) % (this.numTracks));
+      this.currentTrack = this.playlist[this.hrId];
+    }
   }
 
   styleObject() {
