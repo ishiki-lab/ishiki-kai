@@ -21,6 +21,7 @@ export class TrackControlComponent implements OnInit {
   private sub: any;
   playing = false;
   started = false;
+  skipped = false;
   duration = 'XX:XX:XX';
   now = '00:00:00';
   totalTicks: any = 0;
@@ -59,7 +60,7 @@ export class TrackControlComponent implements OnInit {
 
   isWaiting() {
     return (this.playing && this.duration === 'XX:XX:XX') ||
-           (!this.playing && this.ticks > 0);
+           (!this.playing && this.ticks > 0 && this.skipped);
   }
 
   styleObject() {
@@ -129,23 +130,33 @@ export class TrackControlComponent implements OnInit {
 
   next() {
     this.hrId = ((++this.hrId) % (this.numTracks));
+    this.fadeToTrack(this.hrId);
+  }
 
-    // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
+  previous() {
+    if (this.hrId > 0) {
+      this.hrId = ((--this.hrId) % (this.numTracks));
+      this.currentTrack = this.playlist[this.hrId];
+      this.fadeToTrack(this.hrId);
+    }
+  }
 
-    console.log(this.playlist[this.hrId].ID);
-    console.log(this.hrId);
-
+  fadeToTrack(id) {
+     // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
+    
     if (this.playing) {
-      this.playing = false
+      this.skipped = true;
+      this.playing = false;
       this.getTracksService.crossfade(
-        this.playlist[this.hrId].ID
+        this.playlist[id].ID
       ).subscribe(data => {
         if (data > 0) {
           this.playing = true
           this.ticks = 0;
           this.duration = this.hhmmss(data)
-          this.currentTrack = this.playlist[this.hrId];
+          this.currentTrack = this.playlist[id];
           this.totalTicks = Math.floor(+data);
+          this.skipped = false;
           console.log(data);
         } else {
           console.log('ERROR ON CROSSFADE!');
@@ -153,15 +164,9 @@ export class TrackControlComponent implements OnInit {
         
       });  
     } else {
-      this.currentTrack = this.playlist[this.hrId];
+      this.currentTrack = this.playlist[id];
     }
-  }
 
-  previous() {
-    if (this.hrId > 0) {
-      this.hrId = ((--this.hrId) % (this.numTracks));
-      this.currentTrack = this.playlist[this.hrId];
-    }
   }
 
   stop() {
