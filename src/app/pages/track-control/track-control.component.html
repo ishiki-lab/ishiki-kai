@@ -12,10 +12,22 @@
       <div class="text track-counter">Track {{hrId + 1}} / {{numTracks}}</div>
       <div class="player-controls">
         <mat-icon (click)="previous()" class="player-control-icon prev">skip_previous</mat-icon>
-        <mat-icon class="player-control-icon play-pause" *ngIf="isPlaying(); else notPlaying" (click)="pause()">pause</mat-icon>
-        <ng-template #notPlaying>
-          <mat-icon class="player-control-icon play-pause" (click)="play()">play_arrow </mat-icon>
+
+        <div class="player-control-icon play-pause" *ngIf="isWaiting(); else notWaiting">
+          <mat-spinner ></mat-spinner>
+        </div>
+        
+
+        <ng-template #notWaiting>
+          <mat-icon class="player-control-icon play-pause" *ngIf="isPlaying(); else notPlaying" (click)="pause()">pause</mat-icon>
+
+          <ng-template #notPlaying>
+            <mat-icon class="player-control-icon play-pause" (click)="play()">play_arrow </mat-icon>
+          </ng-template>
+
         </ng-template>
+
+
         <mat-icon (click)="next()" class="player-control-icon next">skip_next</mat-icon>
       </div>
       <div class="playback">

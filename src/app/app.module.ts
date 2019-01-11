@@ -10,6 +10,8 @@ import {AppRoutingModule } from './app-routing.module';
 import { SplashScreenComponent } from './pages/splash-screen/splash-screen.component';
 import { TrackControlComponent } from './pages/track-control/track-control.component';
 
+import { CleanPathPipe } from './pages/pipes/clean-path.pipe';
+
 // material
 import {
   MatAutocompleteModule,
@@ -48,7 +50,6 @@ import {
   MatTooltipModule,
   MatTreeModule,
 } from '@angular/material';
-import { CleanPathPipe } from './pages/pipes/clean-path.pipe';
 
 @NgModule({
   declarations: [
@@ -63,7 +64,8 @@ import { CleanPathPipe } from './pages/pipes/clean-path.pipe';
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule
   ],
   providers: [],
   bootstrap: [AppComponent]

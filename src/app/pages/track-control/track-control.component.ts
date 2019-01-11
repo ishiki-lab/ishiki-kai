@@ -21,8 +21,8 @@ export class TrackControlComponent implements OnInit {
   private sub: any;
   playing = false;
   started = false;
-  duration = 'XX:XX:XX'
-  now = '00:00:00'
+  duration = 'XX:XX:XX';
+  now = '00:00:00';
   totalTicks: any = 0;
   ticks: number = 0;
   i_progress: number = 0;
@@ -55,6 +55,11 @@ export class TrackControlComponent implements OnInit {
 
   isPlaying() {
     return this.playing && this.ticks < this.totalTicks;
+  }
+
+  isWaiting() {
+    return (this.playing && this.duration === 'XX:XX:XX') ||
+           (!this.playing && this.ticks > 0);
   }
 
   styleObject() {
