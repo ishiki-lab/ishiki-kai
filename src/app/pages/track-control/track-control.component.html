@@ -13,7 +13,7 @@
       <div class="player-controls">
         <mat-icon (click)="previous(4)" class="player-control-icon prev">skip_previous</mat-icon>
 
-        <div class="player-control-icon play-pause" *ngIf="loading; else notloading">
+        <div class="player-control-icon play-pause loading" *ngIf="loading; else notloading">
           <mat-spinner ></mat-spinner>
         </div>
         

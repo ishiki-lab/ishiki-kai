@@ -138,27 +138,31 @@ export class TrackControlComponent implements OnInit {
   }
 
   next(interval) {
-    this.hrId = ((++this.hrId) % (this.numTracks));
-    this.fadeToTrack(
-      this.hrId, 
-      this.playing ? 4 : 0
-    );
+    if(!this.loading) {
+      this.hrId = ((++this.hrId) % (this.numTracks));
+      this.fadeToTrack(
+        this.hrId, 
+        this.playing ? interval : 0
+      );
+    }
   }
 
   previous(interval) {
-    if (this.hrId > 0) {
-      this.hrId = ((--this.hrId) % (this.numTracks));
-      this.currentTrack = this.playlist[this.hrId];
-      this.fadeToTrack(
-        this.hrId, 
-        this.playing ? 4 : 0
-      );
+    if(!this.loading) {
+      if (this.hrId > 0) {
+        this.hrId = ((--this.hrId) % (this.numTracks));
+        this.currentTrack = this.playlist[this.hrId];
+        this.fadeToTrack(
+          this.hrId, 
+          this.playing ? interval : 0
+        );
+      }
     }
   }
 
   fadeToTrack(id, interval) {
      // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
-    ;
+    
     if (this.playing || this.started || interval === 0) {
       this.loading = true
       this.skipped = true;

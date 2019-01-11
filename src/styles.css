@@ -31,3 +31,16 @@ a {
     font-family: "Trebuchet MS", Helvetica, sans-serif;
     font-weight: bold;
 }
+
+
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: black;
+    
+}
+
+.player-control-icon.play-pause.loading .mat-spinner.mat-progress-spinner,
+.player-control-icon.play-pause.loading .mat-spinner.mat-progress-spinner svg
+ {
+    width: 1em !important;
+    height: 1em !important;
+}
