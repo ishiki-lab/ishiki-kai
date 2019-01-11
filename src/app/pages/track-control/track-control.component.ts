@@ -19,9 +19,10 @@ export class TrackControlComponent implements OnInit {
   errorResponse = '';
   id: string;
   private sub: any;
-  playing = false;
   started = false;
+  playing = false;
   skipped = false;
+  loading = false;
   duration = 'XX:XX:XX';
   now = '00:00:00';
   totalTicks: any = 0;
@@ -86,9 +87,13 @@ export class TrackControlComponent implements OnInit {
       } else if (this.ticks >= +this.totalTicks && this.ticks != 0 && this.playing) {
         this.now = '00:00:00' 
         this.ticks = 0; 
-        // this.playing = false;
-        // this.started = false;
-        this.next();
+        // Play the next track in the playlist
+        // automatically
+        this.started = false;
+        this.playing = false;
+        this.skipped = false;
+        this.duration = 'XX:XX:XX';
+        this.next(0);
       }
       this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
@@ -104,16 +109,20 @@ export class TrackControlComponent implements OnInit {
   }
 
   play() {
-    this.playing = !this.playing;
+    this.loading = true;
     if (!this.started) {
       this.getTracksService.playSingleTrack(this.currentTrack.ID).subscribe(data => {
+        this.loading = false;
         this.duration = this.hhmmss(data)
         this.started = true;
+        this.playing = true;
         this.totalTicks = Math.floor(+data);
         console.log(data);
       });
     } else {
       this.getTracksService.playPause().subscribe(data => {
+        this.loading = false;
+        this.playing = true;
         this.duration = this.hhmmss(data)
         console.log(data);
       });  
@@ -121,36 +130,45 @@ export class TrackControlComponent implements OnInit {
   }
 
   pause() {
-    this.playing = !this.playing;
+    this.playing = false;
     this.getTracksService.playPause().subscribe(data => {
       this.duration = this.hhmmss(data)
       console.log(data);
     });
   }
 
-  next() {
+  next(interval) {
     this.hrId = ((++this.hrId) % (this.numTracks));
-    this.fadeToTrack(this.hrId);
+    this.fadeToTrack(
+      this.hrId, 
+      this.playing ? 4 : 0
+    );
   }
 
-  previous() {
+  previous(interval) {
     if (this.hrId > 0) {
       this.hrId = ((--this.hrId) % (this.numTracks));
       this.currentTrack = this.playlist[this.hrId];
-      this.fadeToTrack(this.hrId);
+      this.fadeToTrack(
+        this.hrId, 
+        this.playing ? 4 : 0
+      );
     }
   }
 
-  fadeToTrack(id) {
+  fadeToTrack(id, interval) {
      // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
-    
-    if (this.playing) {
+    ;
+    if (this.playing || this.started || interval === 0) {
+      this.loading = true
       this.skipped = true;
       this.playing = false;
       this.getTracksService.crossfade(
-        this.playlist[id].ID
+        this.playlist[id].ID,
+        interval
       ).subscribe(data => {
         if (data > 0) {
+          this.loading = false
           this.playing = true
           this.ticks = 0;
           this.duration = this.hhmmss(data)

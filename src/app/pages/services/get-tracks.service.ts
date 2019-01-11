@@ -54,8 +54,8 @@ export class GetTracksService {
     return this.httpClient.get('http://' + this.hostname + '/play-pause');
   }
 
-  crossfade(id) {
-    return this.httpClient.get('http://' + this.hostname + '/crossfade?id=' + id);
+  crossfade(id, interval) {
+    return this.httpClient.get('http://' + this.hostname + '/crossfade?id=' + id + '&interval=' + interval);
   }
 
   pauseSingleTrack(id) {
