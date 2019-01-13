@@ -52,7 +52,7 @@ services:
   #  command: python3 omx-player-service.py
   #  restart: always
   watchtower:
-    image: v2tec/watchtower
+    image: "v2tec/watchtower:armhf-latest"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
