@@ -1,6 +1,6 @@
 # lrpi_display
 
-THis LushRoom Pi module displays diagnostic information on the display.
+This LushRoom Pi module displays diagnostic information on the display.
 
 It displays the following information:
 
@@ -12,8 +12,10 @@ It displays the following information:
 If it finds images in the `/media/usb/Images` folder, it puts them randomly as background.
 If it finds a logo.png image in the `/media/usb/Images` folder, it displays it at the top of the screen.
 
-As it is intended to display on a Raspberry Pi 3.5" touch screen "hat", it is recommended to format the images with 480x320 pixels dimensions 
+As it is intended to display on a Raspberry Pi 3.5" touch screen "hat", it is recommended to format the images with 480x320 pixels dimensions
 and the logo with 480x80 pixels dimensions.
+
+<img src="https://github.com/LUSHDigital/LushRooms/blob/master/images/lrpi_display.jpg?raw=true" width="40%" height="40%">
 
 ## Reference documentation for Raspberry Pi touchscreens
 
