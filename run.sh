@@ -4,4 +4,4 @@
 # so that the display program can access the logo and background images
 # docker run -it --name lushroom-display -v /media/usb:/media/usb lushdigital/lushroom-display:latest
 
-docker run -it -rm --name lushroom-display -v /media/usb:/media/usb lushdigital/lushroom-display:latest
+docker run -it --rm --name lushroom-display -v /media/usb:/media/usb lushdigital/lushroom-display:latest
