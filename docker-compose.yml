@@ -25,7 +25,7 @@ services:
     build: ../lrpi_rclone
     container_name: lushroom-rclone
     privileged: true
-    image: "lushdigital/lrpi-rclone:latest"
+    image: "lushdigital/lushroom-rclone:latest"
     volumes:
        - /media/usb:/media/usb
     restart: always
