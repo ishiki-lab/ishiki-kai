@@ -1,0 +1,14 @@
+*config_local.py
+*notes.txt
+examples
+*env
+drivers
+lushroom1-pi.local-22
+
+# osx
+.DS_Store
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class

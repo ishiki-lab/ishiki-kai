@@ -1,0 +1,7 @@
+# test line, listing folders
+#* * * * * rclone --config /media/usb/rclone_lushrooms.conf lsf lushrooms:Tracks >> /var/log/cron.log 2>&1
+# sync tracks at 23:00PM
+0 23 * * * rclone --config /media/usb/rclone_lushrooms.conf sync lushrooms:Tracks /media/usb/tracks >> /var/log/cron.log 2>&1
+0 23 * * * rclone --config /media/usb/rclone_lushrooms.conf sync lushrooms:Images /media/usb/images >> /var/log/cron.log 2>&1
+# sync at reboot
+@reboot rclone --config /media/usb/rclone_lushrooms.conf sync lushrooms:Tracks /media/usb/tracks >> /var/log/cron.log 2>&1
