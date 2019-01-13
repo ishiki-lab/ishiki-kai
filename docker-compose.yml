@@ -1,45 +1,59 @@
 version: '3'
 services:
-  brickd:
-    build: ../lrpi-brickd
-    container_name: brickd
-    privileged: true
-    image: "lushdigital/lrpi-brickd:latest"
-    volumes:
-      - "/etc/opt/lushroom:/etc/opt/lushroom"
-    restart: always
-  commands:
-    build: ../lrpi-commands
-    container_name: commands
-    privileged: true
-    links:
-      - brickd
-    depends_on:
-      - brickd
-    image: "lushdigital/lrpi-commands:latest"
-    volumes:
-      - "/etc/opt/lushroom:/etc/opt/lushroom"
-    env_file: .env
-    restart: always
+  #brickd:
+  #  build: ../lrpi_brickd
+  #  container_name: lushroom-brickd
+  #  privileged: true
+  #  image: "lushdigital/lushroom-brickd:latest"
+  #  volumes:
+  #    - "/opt/lushroom:/opt/lushroom"
+  #  restart: always
+  #commands:
+  #  build: ../lrpi_commands
+  #  container_name: lushroom-commands
+  #  privileged: true
+  #  links:
+  #    - brickd
+  #  depends_on:
+  #    - brickd
+  #  image: "lushdigital/lushroom-commands:latest"
+  #  volumes:
+  #    - "/opt/lushroom:/opt/lushroom"
+  #  env_file: .env
+  #  restart: always
   rclone:
-    build: ../lrpi-rclone
-    container_name: rclone
+    build: ../lrpi_rclone
+    container_name: lushroom-rclone
     privileged: true
     image: "lushdigital/lrpi-commands:latest"
     volumes:
        - /media/usb:/media/usb
     restart: always
-  player:
-    container_name: player
-    build: ../lrpi-player
-    image: "lushdigital/lrpi-player:latest"
-    privileged: true
-    links:
-      - brickd
-    depends_on:
-      - brickd
+  #display:
+  #  build: ../lrpi_display
+  #  container_name: lushroom-display
+  #  privileged: true
+  #  image: "lushdigital/lushroom-display:latest"
+  #  volumes:
+  #     - /media/usb:/media/usb
+  #  restart: always
+  #player:
+  #  container_name: player
+  #  build: ../lrpi-player
+  #  image: "lushdigital/lrpi-player:latest"
+  #  privileged: true
+  #  links:
+  #    - brickd
+  #  depends_on:
+  #    - brickd
+  #  volumes:
+  #     - /media/usb/tracks:/media/usb/tracks
+  #     - /opt/vc
+  #  command: python3 omx-player-service.py
+  #  restart: always
+  watchtower:
+    image: v2tec/watchtower
     volumes:
-       - /media/usb/tracks:/media/usb/tracks
-       - /opt/vc
-    command: python3 omx-player-service.py
-    restart: always
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+    command: --interval 30
