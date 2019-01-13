@@ -15,6 +15,7 @@ from os import name as osname
 from random import random
 from socket import gethostname
 from datetime import datetime as dt
+from signal import alarm, signal, SIGALRM, SIGKILL
 
 DELAY = 60 # delay for updating the screen information in seconds
 FONT_SIZE = 30
@@ -121,13 +122,41 @@ def draw_screen():
         address = '%s - %s - %s' % addresses[i]
         show_text(address, font_regular, WHITE, [480/2,80+FONT_SIZE*(row+i)])
 
+
+class Alarm(Exception):
+    pass
+
+def alarm_handler(signum, frame):
+    raise Alarm
+
+    signal(SIGALRM, alarm_handler)
+    alarm(3)
+    try:
+        pygame.init()
+        DISPLAYSURFACE = pygame.display.set_mode((DISPLAYWIDTH, DISPLAYHEIGHT)) 
+        alarm(0)
+    except Alarm:
+        raise KeyboardInterrupt
+
+    pygame.display.set_caption('Drawing')
+
 def main():
     global DELAY
     global lcd
 
-    pygame.init()
+    signal(SIGALRM, alarm_handler)
+    alarm(3)
+
+    try:
+        pygame.init()
+        lcd = pygame.display.set_mode(DIM)
+        alarm(0)
+    except Alarm:
+        raise KeyboardInterrupt
+
+    #pygame.init()
     pygame.mouse.set_visible(False)
-    lcd = pygame.display.set_mode(DIM)
+    #lcd = pygame.display.set_mode(DIM)
     lcd.fill((0,0,0))
     pygame.display.flip()
     pygame.display.update()
