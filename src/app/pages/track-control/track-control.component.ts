@@ -113,13 +113,12 @@ export class TrackControlComponent implements OnInit {
         this.ticks = 0; 
         // Play the next track in the playlist
         // automatically
-        this.started = false;
         this.playing = false;
         this.skipped = false;
         this.duration = 'XX:XX:XX';
         // TODO: needs to loop on LOOP tracks?
         // Skip only on command
-        this.next(0);
+        this.next(undefined);
       }
       this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
@@ -188,8 +187,11 @@ export class TrackControlComponent implements OnInit {
 
   fadeToTrack(id, interval) {
     // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
-    this.crossfading = true;
-    if (this.playing || this.started || interval === 0) {
+    if (
+        this.playing || this.started || 
+        (interval === 0 && this.duration === 'XX:XX:XX' && this.started)
+      ) {
+      this.crossfading = true;
       this.loading = true
       this.skipped = true;
       this.playing = false;
