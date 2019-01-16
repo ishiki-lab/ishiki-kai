@@ -6,7 +6,9 @@
         </a>
     </div>
     <div class="trackNameBox" [ngStyle]="styleObject()">
-      <div class="trackNameText">{{currentTrack.Name | cleanPath}}</div>
+      <div [@simpleFadeAnimation]="crossfading ? 'out' : 'in'" class="trackNameText">
+        {{currentTrack.Name | cleanPath}}
+      </div>
     </div>
     <div class="treatment" [ngStyle]="styleObject()">
       <div class="text track-counter">Track {{hrId + 1}} / {{numTracks}}</div>

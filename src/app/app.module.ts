@@ -12,6 +12,8 @@ import { TrackControlComponent } from './pages/track-control/track-control.compo
 
 import { CleanPathPipe } from './pages/pipes/clean-path.pipe';
 
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 // material
 import {
   MatAutocompleteModule,
@@ -65,7 +67,8 @@ import {
     HttpClientModule,
     AppRoutingModule,
     MatIconModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

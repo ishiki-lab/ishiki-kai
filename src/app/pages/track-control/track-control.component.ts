@@ -6,13 +6,36 @@ import { GetTracksService } from '../services/get-tracks.service';
 import { of, Observable} from 'rxjs';
 import { GetStylesService } from '../services/get-styles.service';
 import { interval } from 'rxjs';
-import { map } from 'rxjs/operators'
+import { map } from 'rxjs/operators';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+  // ...
+} from '@angular/animations';
 
 @Component({
   selector: 'app-track-control',
   templateUrl: './track-control.component.html',
   styleUrls: ['./track-control.component.css'],
-  // encapsulation: ViewEncapsulation.ShadowDom
+  animations: [
+    // the fade-in/fade-out animation.
+    trigger('simpleFadeAnimation', [
+
+      // the "in" style determines the "resting" state of the element when it is visible.
+      state('in', style({opacity: 1})),
+      state('out', style({opacity: 0})),
+
+      transition('out => in', [
+        animate('0.4s')
+      ]),
+      transition('in => out', [
+        animate('4s')
+      ]),
+    ])
+  ]
 })
 export class TrackControlComponent implements OnInit {
   serverData: Observable<any>;
@@ -23,6 +46,7 @@ export class TrackControlComponent implements OnInit {
   playing = false;
   skipped = false;
   loading = false;
+  crossfading = false;
   duration = 'XX:XX:XX';
   now = '00:00:00';
   totalTicks: any = 0;
@@ -93,6 +117,8 @@ export class TrackControlComponent implements OnInit {
         this.playing = false;
         this.skipped = false;
         this.duration = 'XX:XX:XX';
+        // TODO: needs to loop on LOOP tracks?
+        // Skip only on command
         this.next(0);
       }
       this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
@@ -161,8 +187,8 @@ export class TrackControlComponent implements OnInit {
   }
 
   fadeToTrack(id, interval) {
-     // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
-    
+    // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
+    this.crossfading = true;
     if (this.playing || this.started || interval === 0) {
       this.loading = true
       this.skipped = true;
@@ -179,6 +205,7 @@ export class TrackControlComponent implements OnInit {
           this.currentTrack = this.playlist[id];
           this.totalTicks = Math.floor(+data);
           this.skipped = false;
+          this.crossfading = false;
           console.log(data);
         } else {
           console.log('ERROR ON CROSSFADE!');
