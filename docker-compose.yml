@@ -22,7 +22,6 @@ services:
   #  env_file: .env
   #  restart: always
   rclone:
-    build: ../lrpi_rclone
     container_name: lushroom-rclone
     privileged: true
     image: "lushdigital/lushroom-rclone:latest"
@@ -37,20 +36,21 @@ services:
   #  volumes:
   #     - /media/usb:/media/usb
   #  restart: always
-  #player:
-  #  container_name: player
-  #  build: ../lrpi-player
-  #  image: "lushdigital/lrpi-player:latest"
-  #  privileged: true
+  player:
+   container_name: lushroom-player
+   image: "lushdigital/lushroom-player:dev"
+   privileged: true
   #  links:
   #    - brickd
   #  depends_on:
   #    - brickd
-  #  volumes:
-  #     - /media/usb/tracks:/media/usb/tracks
-  #     - /opt/vc
-  #  command: python3 omx-player-service.py
-  #  restart: always
+   volumes:
+      - /media/usb:/media/usb
+      - /opt/vc:/opt/vc
+      - /dev/vchiq:/dev/vchiq
+      - /dev/fb0:/dev/fb0
+   command: python3 omx-player-service.py
+   restart: always
   watchtower:
     image: "v2tec/watchtower:armhf-latest"
     volumes:
