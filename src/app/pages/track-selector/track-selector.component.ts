@@ -4,6 +4,7 @@ import { of, Observable } from 'rxjs';
 import { GetTracksService } from '../services/get-tracks.service';
 import { GetStylesService } from '../services/get-styles.service';
 import { ActivatedRoute  } from '@angular/router';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-track-selector',
@@ -20,7 +21,8 @@ export class TrackSelectorComponent implements OnInit {
               private httpClient: HttpClient,
               private getTracksService: GetTracksService,
               private getStylesService: GetStylesService,
-              private route: ActivatedRoute 
+              private route: ActivatedRoute,
+              private router: Router 
               ) {
   }
 
@@ -45,13 +47,31 @@ export class TrackSelectorComponent implements OnInit {
   }
 
   ngOnInit () {
-    // console.log(window.location.hostname);
 
     this.folderId = this.route.snapshot.queryParamMap.get("id");
+
+    this.getTracksService.incT();
 
     this.getTracksService.getTracks(this.folderId).subscribe(
       (data: any) => {
         console.log('tracks: ', data);
+
+        let dataLen = data.length;
+        let isPlaylist: boolean = true;
+
+        for (let i = 0; i < dataLen; i++) {
+          if (data[i].IsDir === true) {
+            isPlaylist = false;
+            break;
+          }
+        }
+
+        if (isPlaylist) {
+          this.getTracksService.setPlaylist(data);
+          this.router.navigate([`/player`], {relativeTo: this.route, skipLocationChange: true});
+        }
+
+        console.log('playlist? : ', isPlaylist);
         
         this.serverData = of(
           data
@@ -60,6 +80,7 @@ export class TrackSelectorComponent implements OnInit {
       (err: any) => {
         console.log('error', err);
         this.errorResponse = err;
+        this.router.navigate([`/tracks`]);
       }
     );
   }

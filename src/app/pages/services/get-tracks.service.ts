@@ -7,9 +7,26 @@ import { HttpClient } from '@angular/common/http';
 export class GetTracksService {
 
   // hostname: string = 'black-pearl.local';
-  hostname: string = '172.24.3.120';
+  hostname: string = window.location.hostname;
+  testnum: number = 0;
+  playlist: any = null;
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(
+    private httpClient: HttpClient
+  ) { }
+
+  incT() {
+    console.log(this.testnum);
+    this.testnum++;
+  }
+
+  setPlaylist(data) {
+    this.playlist = data;
+  }
+
+  getPlaylist() {
+    return this.playlist;
+  }
 
   getTracks(id) {
     let idQuery: string = '';
@@ -31,6 +48,14 @@ export class GetTracksService {
 
   playSingleTrack(id) {
     return this.httpClient.get('http://' + this.hostname + '/play-single-track?id=' + id);
+  }
+
+  playPause() {
+    return this.httpClient.get('http://' + this.hostname + '/play-pause');
+  }
+
+  crossfade(id, interval) {
+    return this.httpClient.get('http://' + this.hostname + '/crossfade?id=' + id + '&interval=' + interval);
   }
 
   pauseSingleTrack(id) {

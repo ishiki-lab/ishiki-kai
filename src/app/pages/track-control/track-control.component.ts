@@ -1,35 +1,69 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import {Location} from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
+import {Router} from '@angular/router';
 import { GetTracksService } from '../services/get-tracks.service';
 import { of, Observable} from 'rxjs';
 import { GetStylesService } from '../services/get-styles.service';
 import { interval } from 'rxjs';
-import { map } from 'rxjs/operators'
+import { map } from 'rxjs/operators';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition,
+  // ...
+} from '@angular/animations';
 
 @Component({
   selector: 'app-track-control',
   templateUrl: './track-control.component.html',
   styleUrls: ['./track-control.component.css'],
-  // encapsulation: ViewEncapsulation.ShadowDom
+  animations: [
+    // the fade-in/fade-out animation.
+    trigger('simpleFadeAnimation', [
+
+      // the "in" style determines the "resting" state of the element when it is visible.
+      state('in', style({opacity: 1})),
+      state('out', style({opacity: 0})),
+
+      transition('out => in', [
+        animate('0.4s')
+      ]),
+      transition('in => out', [
+        animate('4s')
+      ]),
+    ])
+  ]
 })
 export class TrackControlComponent implements OnInit {
   serverData: Observable<any>;
   errorResponse = '';
   id: string;
   private sub: any;
+  started = false;
   playing = false;
-  duration = 'XX:XX:XX'
-  now = '00:00:00'
+  skipped = false;
+  loading = false;
+  crossfading = false;
+  duration = 'XX:XX:XX';
+  now = '00:00:00';
   totalTicks: any = 0;
   ticks: number = 0;
   i_progress: number = 0;
+
+  playlist: any = null;
+  numTracks: number = 0;
+  currentTrack: any = null;
+  hrId: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private getTracksService: GetTracksService,
     private getStylesService: GetStylesService,
-    private _location: Location
+    private _location: Location,
+    private router: Router
   ) {}
 
   pad(num): string {
@@ -49,8 +83,9 @@ export class TrackControlComponent implements OnInit {
     return this.playing && this.ticks < this.totalTicks;
   }
 
-  backClicked() {
-    this._location.back();
+  isWaiting() {
+    return (this.playing && this.duration === 'XX:XX:XX') ||
+           (!this.playing && this.ticks > 0 && this.skipped);
   }
 
   styleObject() {
@@ -72,47 +107,120 @@ export class TrackControlComponent implements OnInit {
   ngOnInit() {
     setInterval(() => { 
       if (this.playing && (this.ticks < +this.totalTicks)) {
-        console.log('tick...');
         this.now = this.hhmmss(this.ticks += 1); 
-        this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
+      } else if (this.ticks >= +this.totalTicks && this.ticks != 0 && this.playing) {
+        this.now = '00:00:00' 
+        this.ticks = 0; 
+        // Play the next track in the playlist
+        // automatically
+        this.playing = false;
+        this.skipped = false;
+        this.duration = 'XX:XX:XX';
+        // TODO: needs to loop on LOOP tracks?
+        // Skip only on command
+        this.next(undefined);
       }
+      this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
 
     this.sub = this.route.params.subscribe(params => {
       this.id = params['id'];
     });
 
+    this.playlist = this.getTracksService.getPlaylist();
+    this.numTracks = this.playlist.length;
+    this.currentTrack = this.playlist[0];
 
-    this.getTracksService.getSingleTrack(this.id).subscribe(
-      (data: any) => {
-        console.log('from single track service: ', data);
-        this.serverData = of(data);
-      },
-      (err: any) => {
-        console.log('error', err);
-        this.errorResponse = err;
-      }
-    );
   }
 
-  playMusic() {
-    this.playing = !this.playing;
-    this.getTracksService.playSingleTrack(this.id).subscribe(data => {
+  play() {
+    this.loading = true;
+    if (!this.started) {
+      this.getTracksService.playSingleTrack(this.currentTrack.ID).subscribe(data => {
+        this.loading = false;
+        this.duration = this.hhmmss(data)
+        this.started = true;
+        this.playing = true;
+        this.totalTicks = Math.floor(+data);
+        console.log(data);
+      });
+    } else {
+      this.getTracksService.playPause().subscribe(data => {
+        this.loading = false;
+        this.playing = true;
+        this.duration = this.hhmmss(data)
+        console.log(data);
+      });  
+    }
+  }
+
+  pause() {
+    this.playing = false;
+    this.getTracksService.playPause().subscribe(data => {
       this.duration = this.hhmmss(data)
-      this.totalTicks = Math.floor(+data);
       console.log(data);
     });
   }
 
-  pauseMusic() {
-    this.playing = !this.playing;
-    console.log(this.playing);
-    this.getTracksService.pauseSingleTrack(this.id).subscribe(data => {
-      console.log(data);
-    });
+  next(interval) {
+    if(!this.loading) {
+      this.hrId = ((++this.hrId) % (this.numTracks));
+      this.fadeToTrack(
+        this.hrId, 
+        this.playing ? interval : 0
+      );
+    }
   }
 
-  stopMusic() {
+  previous(interval) {
+    if(!this.loading) {
+      if (this.hrId > 0) {
+        this.hrId = ((--this.hrId) % (this.numTracks));
+        this.currentTrack = this.playlist[this.hrId];
+        this.fadeToTrack(
+          this.hrId, 
+          this.playing ? interval : 0
+        );
+      }
+    }
+  }
+
+  fadeToTrack(id, interval) {
+    // if we're not playing a track, we're just scrolling through, but if a track is playing we need to fade to a track
+    if (
+        this.playing || this.started || 
+        (interval === 0 && this.duration === 'XX:XX:XX' && this.started)
+      ) {
+      this.crossfading = true;
+      this.loading = true
+      this.skipped = true;
+      this.playing = false;
+      this.getTracksService.crossfade(
+        this.playlist[id].ID,
+        interval
+      ).subscribe(data => {
+        if (data > 0) {
+          this.loading = false
+          this.playing = true
+          this.ticks = 0;
+          this.duration = this.hhmmss(data)
+          this.currentTrack = this.playlist[id];
+          this.totalTicks = Math.floor(+data);
+          this.skipped = false;
+          this.crossfading = false;
+          console.log(data);
+        } else {
+          console.log('ERROR ON CROSSFADE!');
+        }
+        
+      });  
+    } else {
+      this.currentTrack = this.playlist[id];
+    }
+
+  }
+
+  stop() {
     this.getTracksService.stopMusic().subscribe(data => {
       console.log(data);
     });
