@@ -10,6 +10,10 @@ import {AppRoutingModule } from './app-routing.module';
 import { SplashScreenComponent } from './pages/splash-screen/splash-screen.component';
 import { TrackControlComponent } from './pages/track-control/track-control.component';
 
+import { CleanPathPipe } from './pages/pipes/clean-path.pipe';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 // material
 import {
   MatAutocompleteModule,
@@ -55,13 +59,16 @@ import {
     TrackSelectorComponent,
     TrackComponent,
     SplashScreenComponent,
-    TrackControlComponent
+    TrackControlComponent,
+    CleanPathPipe
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
-    MatIconModule
+    MatIconModule,
+    MatProgressSpinnerModule,
+    BrowserAnimationsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

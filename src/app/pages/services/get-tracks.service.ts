@@ -5,25 +5,64 @@ import { HttpClient } from '@angular/common/http';
   providedIn: 'root'
 })
 export class GetTracksService {
-  constructor(private httpClient: HttpClient) { }
 
-  getTracks() {
-    return this.httpClient.get('http://' + window.location.hostname + '/get-track-list');
+  // hostname: string = 'black-pearl.local';
+  hostname: string = window.location.hostname;
+  testnum: number = 0;
+  playlist: any = null;
+
+  constructor(
+    private httpClient: HttpClient
+  ) { }
+
+  incT() {
+    console.log(this.testnum);
+    this.testnum++;
+  }
+
+  setPlaylist(data) {
+    this.playlist = data;
+  }
+
+  getPlaylist() {
+    return this.playlist;
+  }
+
+  getTracks(id) {
+    let idQuery: string = '';
+
+    if (id) {
+      idQuery = '?id=' + id;
+    }
+
+    return this.httpClient.get('http://' + this.hostname + '/get-track-list' + idQuery);
+  }
+
+  scrubForward() {
+    return this.httpClient.get('http://' + this.hostname + '/scrub-forward');
   }
 
   getSingleTrack(id) {
-    return this.httpClient.get('http://' + window.location.hostname + '/get-single-track?id=' + id);
+    return this.httpClient.get('http://' + this.hostname + '/get-single-track?id=' + id);
   }
 
   playSingleTrack(id) {
-    return this.httpClient.get('http://' + window.location.hostname + '/play-single-track?id=' + id);
+    return this.httpClient.get('http://' + this.hostname + '/play-single-track?id=' + id);
+  }
+
+  playPause() {
+    return this.httpClient.get('http://' + this.hostname + '/play-pause');
+  }
+
+  crossfade(id, interval) {
+    return this.httpClient.get('http://' + this.hostname + '/crossfade?id=' + id + '&interval=' + interval);
   }
 
   pauseSingleTrack(id) {
-    return this.httpClient.get('http://' + window.location.hostname + '/pause-track?id=' + id);
+    return this.httpClient.get('http://' + this.hostname + '/pause-track?id=' + id);
   }
 
   stopMusic() {
-    return this.httpClient.get('http://' + window.location.hostname + '/stop');
+    return this.httpClient.get('http://' + this.hostname + '/stop');
   }
 }

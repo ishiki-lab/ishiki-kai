@@ -1,17 +1,55 @@
-
-<div class="container" [ngStyle]="styleObjectBorder()">
-  <div class="trackNameBox" [ngStyle]="styleObject()">
-    <div class="trackNameText">{{serverData | async}}</div>
-  </div>
-  <div class="treatment" [ngStyle]="styleObject()">
-    <div class="text">Treatment</div>
-    <div class="playback">
-      <!-- <div class="play"><mat-icon>play_arrow</mat-icon></div> -->
-      <mat-icon *ngIf="playing; else notPlaying" (click)="stopMusic()">stop</mat-icon>
-      <ng-template #notPlaying>
-        <mat-icon (click)="playMusic()">play_arrow </mat-icon>
-      </ng-template>
-      <div class="bar"></div>
+<div *ngIf="this.numTracks > 0; else noTracks">
+  <div class="container" [ngStyle]="styleObjectBorder()">
+    <div class="back-button-wrapper">
+        <a [routerLink]="['/tracks']">
+          <mat-icon class="back">arrow_back</mat-icon>
+        </a>
     </div>
+    <div class="trackNameBox" [ngStyle]="styleObject()">
+      <div [@simpleFadeAnimation]="crossfading ? 'out' : 'in'" class="trackNameText">
+        {{currentTrack.Name | cleanPath}}
+      </div>
+    </div>
+    <div class="treatment" [ngStyle]="styleObject()">
+      <div class="text track-counter">Track {{hrId + 1}} / {{numTracks}}</div>
+      <div class="player-controls">
+        <mat-icon (click)="previous(4)" class="player-control-icon prev">skip_previous</mat-icon>
+
+        <div class="player-control-icon play-pause loading" *ngIf="loading; else notloading">
+          <mat-spinner ></mat-spinner>
+        </div>
+        
+
+        <ng-template #notloading>
+          <mat-icon class="player-control-icon play-pause" *ngIf="isPlaying(); else notPlaying" (click)="pause()">pause</mat-icon>
+
+          <ng-template #notPlaying>
+            <mat-icon class="player-control-icon play-pause" (click)="play()">play_arrow </mat-icon>
+          </ng-template>
+
+        </ng-template>
+
+
+        <mat-icon (click)="next(4)" class="player-control-icon next">skip_next</mat-icon>
+      </div>
+      <div class="playback">
+        <div [ngStyle]="{'width':  + this.i_progress + 'vw'}" class="progress"></div>
+        <div class="position-slider"></div>
+        <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}"  class="remaining"></div>
+      </div>
+    </div>
+    <div class="timer">{{now}} / {{duration}}</div>
   </div>
 </div>
+<ng-template #noTracks>
+  <div class="container" [ngStyle]="styleObjectBorder()">
+    <div class="back-button-wrapper">
+        <a [routerLink]="['/tracks']">
+          <mat-icon class="back">arrow_back</mat-icon>
+        </a>
+    </div>
+    <div class="trackNameBox" [ngStyle]="styleObject()">
+      <div class="trackNameText">No tracks found...</div>
+    </div>
+  </div>
+</ng-template>

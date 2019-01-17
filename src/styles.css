@@ -23,22 +23,24 @@ a {
     width: 100%;
     min-height: 100vh;
 
-    text-transform: uppercase;
     color: white;
     
-    
     background: #000000;
-    /* border: 0.9em solid #ed028c; */
     box-sizing: border-box;
 
-    font-family: 'Lush';
-    src: url('app/fonts/Lush.ttf') format('truetype');
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
     font-weight: bold;
 }
 
-@font-face
-{
-    font-family: 'Lush';
-    src: url('app/fonts/Lush.ttf') format('truetype');
-    font-weight: bold;
+
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: black;
+    
+}
+
+.player-control-icon.play-pause.loading .mat-spinner.mat-progress-spinner,
+.player-control-icon.play-pause.loading .mat-spinner.mat-progress-spinner svg
+ {
+    width: 1em !important;
+    height: 1em !important;
 }

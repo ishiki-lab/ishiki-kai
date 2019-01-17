@@ -2,16 +2,28 @@
 
 <div *ngIf="serverData != null; else elseBlock">
   <div id="mainBox" [ngStyle]="styleObject()">
-   
-    <div *ngFor="let datum of serverData | async" [ngStyle]="itemStyleObject()">
-      <a [routerLink]="['/player',datum.ID]">
+    <div class="selector-heading">Select treatment:</div>
+    <div *ngFor="let item of serverData | async" [ngStyle]="itemStyleObject()">
+
+      <a *ngIf="!item.IsDir; else folderLink" [routerLink]="['/player',item.ID]">
         <div class="item" >
-          <div class="text">{{ datum.Name.slice(0, datum.Name.length-4) }}</div>
+          <div class="text">{{ item.Name | cleanPath }}</div>
         </div>
       </a>
+
+      <ng-template #folderLink>
+        <a href="/tracks?id={{item.ID}}">
+          <div class="item" >
+            <div class="text">
+              {{ item.Name | cleanPath }}
+              <mat-icon>arrow_right_alt</mat-icon>
+            </div>
+          </div>
+        </a> 
+      </ng-template>
+
     </div>
   </div>
-  <!-- <app-track></app-track> -->
 </div>
 <ng-template #elseBlock>
   <div class="error">{{ errorResponse.message }}</div>

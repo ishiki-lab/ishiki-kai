@@ -7,7 +7,7 @@ import { TrackControlComponent } from './pages/track-control/track-control.compo
 const routes: Routes = [
   {
     path: '',
-    redirectTo: '/splash',
+    redirectTo: '/tracks',
     pathMatch: 'full'
   },
   {
@@ -15,9 +15,9 @@ const routes: Routes = [
   },
   {
     path: 'tracks', component: TrackSelectorComponent
-  },
+  },  
   {
-    path: 'player/:id', component: TrackControlComponent
+    path: 'player', component: TrackControlComponent
   }
 ];
 
