@@ -35,7 +35,7 @@
       <div class="playback">
         <div [ngStyle]="{'width':  + this.i_progress + 'vw'}" class="progress"></div>
         <div class="position-slider"></div>
-        <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}"  class="remaining"></div>
+        <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}" (click)="tapToSeek($event)" class="remaining"></div>
       </div>
     </div>
     <div class="timer">{{now}} / {{duration}}</div>

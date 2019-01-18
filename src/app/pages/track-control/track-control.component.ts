@@ -220,6 +220,16 @@ export class TrackControlComponent implements OnInit {
 
   }
 
+  tapToSeek(e) {
+    if (this.started) {
+      console.log(
+        Math.floor(
+          (e.offsetX/e.srcElement.offsetWidth)*100
+        ) + "% along ", e.srcElement
+      );
+    }
+  }
+
   stop() {
     this.getTracksService.stopMusic().subscribe(data => {
       console.log(data);
