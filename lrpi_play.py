@@ -9,7 +9,6 @@ from random import random
 from time import sleep, time, perf_counter
 from pysrt import SubRipFile, SubRipItem, SubRipTime
 from pysrt import open as srtopen
-from threading import Timer
 from datetime import datetime, timedelta
 from pynput import keyboard
 from pytz import utc
