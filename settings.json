@@ -1,0 +1,16 @@
+{
+  "url": "",
+  "public_key": "",
+  "private_key": "",
+  "uuid": "",
+  "name": "locationXX-pi",
+  "hue1_name": "locationXX-hue",
+  "hue2_name": "locationYY-hue",
+  "influx_host": "",
+  "influx_port": "",
+  "influx_dbname": "",
+  "influx_ssl": "True",
+  "influx_username": "",
+  "influx_password": "",
+}
+

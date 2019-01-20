@@ -190,7 +190,7 @@ def install_dev_apt_prerequisites():
     sudo('apt-get -y remove python-pip python3-pip ; apt-get -y --allow-unauthenticated install python-pip python3-pip')
     sudo('apt-get -y install python-requests python-pygame libts-bin libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev')
     sudo('apt-get -y install python-requests python-numpy python-scipy python3-numpy python3-scipy')
-    sudo('apt-get -y install screen ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
+    sudo('apt-get -y install ntpdate screen ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
     sudo('apt-get -y install libsmbclient libssh-4 libpcre3 fonts-freefont-ttf espeak alsa-tools alsa-utils')
     sudo('apt-get -y install python3-gpiozero python-rpi.gpio python-pigpio python-gpiozero')
     sudo('apt-get -y install pigpio python3-pigpio python3-rpi.gpio raspi-gpio wiringpi')
@@ -243,6 +243,16 @@ def install_rclone():
     sudo('cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh')
     sudo('rclone --version')
     print('Installing rclone clompleted')
+
+def install_tinkerforge_brickd():
+    print('Installing Tinkerforge brickd')
+    if not exists('/opt/brickd', use_sudo=True):
+        sudo('mkdir /opt/brickd')
+    sudo('cd /opt/brickd ; wget http://download.tinkerforge.com/tools/brickd/linux/brickd-2.3.2_armhf.deb')
+    sudo('cd /opt/brickd ; dpkg -i brickd-2.3.2_armhf.deb')
+    print('Installing Tinkerforge brickd clompleted')
+
+
 
 def erase_usb_stick():
     print('Erasing all files from /media/usb')
