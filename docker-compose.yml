@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   #brickd:
   #  build: ../lrpi_brickd
@@ -22,38 +23,66 @@ services:
   #  env_file: .env
   #  restart: always
   rclone:
-    build: ../lrpi_rclone
+  # build: ../lrpi_rclone
     container_name: lushroom-rclone
     privileged: true
     image: "lushdigital/lushroom-rclone:latest"
     volumes:
        - /media/usb:/media/usb
     restart: always
-  #display:
+  display:
   #  build: ../lrpi_display
-  #  container_name: lushroom-display
-  #  privileged: true
-  #  image: "lushdigital/lushroom-display:latest"
-  #  volumes:
-  #     - /media/usb:/media/usb
-  #  restart: always
-  #player:
-  #  container_name: player
+    container_name: lushroom-display
+    privileged: true
+    network_mode: host
+    image: "lushdigital/lushroom-display:latest"
+    volumes:
+       - /media/usb:/media/usb
+       - /dev/fb0:/dev/fb0
+       - /dev/input/event0:/dev/input/event0
+    environment:
+       - HOSTNAME
+    restart: always
+  player:
+    container_name: lushroom-player
   #  build: ../lrpi-player
-  #  image: "lushdigital/lrpi-player:latest"
-  #  privileged: true
+    image: "lushdigital/lushroom-player:dev"
+    privileged: true
+    ports:
+       - 80:80
   #  links:
   #    - brickd
   #  depends_on:
   #    - brickd
-  #  volumes:
-  #     - /media/usb/tracks:/media/usb/tracks
-  #     - /opt/vc
-  #  command: python3 omx-player-service.py
+    volumes:
+       - /media/usb:/media/usb
+       - /dev/vchiq:/dev/vchiq
+       - /opt/vc:/opt/vc
+  #  command: python3 flask/Server.py
   #  restart: always
+  # docker run -it --rm -d -p 80:80 -v /opt/vc:/opt/vc -v /media/usb:/media/usb --device /dev/vchiq:/dev/vchiq --device /dev/fb0:/dev/fb0 lushdigital/lushroom-player:dev
   watchtower:
     image: "v2tec/watchtower:armhf-latest"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /root/.docker/config.json:/config.json
     command: --interval 30
+    restart: always
+  portainer:
+    image: "portainer/portainer"
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    ports:
+      - 9000:9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+
+#docker run --privileged -it --rm --name lushroom-display --network host \
+#    -v /media/usb:/media/usb \
+#    -v /dev/fb0:/dev/fb0 \
+#    -v /dev/input/event0:/dev/input/event0 \
+#    -e HOSTNAME=$HOSTNAME lushdigital/lushroom-display:latest
