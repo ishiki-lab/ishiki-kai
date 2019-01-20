@@ -14,7 +14,7 @@ import {Router} from '@angular/router';
 export class TrackSelectorComponent implements OnInit {
   title = 'mw_serve';
   serverData: Observable<any>;
-  errorResponse = '';
+  errorResponse: any = {};
   folderId = null;
 
   constructor(
@@ -54,10 +54,16 @@ export class TrackSelectorComponent implements OnInit {
 
     this.getTracksService.getTracks(this.folderId).subscribe(
       (data: any) => {
-        console.log('tracks: ', data);
+        console.log('tracks: ', data, ' length: ', data.length);
 
         let dataLen = data.length;
         let isPlaylist: boolean = true;
+
+        if (data.length === undefined) {
+          this.errorResponse['message'] = 'Is the usb stick plugged in?' 
+          this.serverData = null;
+          return;
+        }
 
         for (let i = 0; i < dataLen; i++) {
           if (data[i].IsDir === true) {
