@@ -9,8 +9,8 @@ from os import system, chdir, walk
 from shutil import copyfile
 
 MEDIA_DIR = "/media/usb/tracks"
-RCLONE_CMD = "rclone lsjson lushrooms:Tracks/%s"
-RCLONE_COPY_CMD = "rclone copy %s lushrooms:Tracks/%s"
+RCLONE_CMD = "rclone --config /media/usb/rclone_lushrooms.conf lsjson lushrooms:Tracks/%s"
+RCLONE_COPY_CMD = "rclone --config /media/usb/rclone_lushrooms.conf copy %s lushrooms:Tracks/%s"
 FILENAME = "content.json"
 
 debug = True
