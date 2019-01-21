@@ -14,7 +14,7 @@ def mount_usb():
     print('%s mounted' % MOUNT_DIR)
 
 def get_creds():
-    wifi_path = os.path.join(MOUNT_DIR, "lushroom", "wifi.json")
+    wifi_path = os.path.join(MOUNT_DIR, "wifi.json")
     if os.path.exists(wifi_path):
         with open(wifi_path) as f:
             wifi_json = json.loads(f.read())
@@ -37,11 +37,11 @@ def add_creds(ssid, psk):
     subprocess.call(cmd, shell=True)
     time.sleep(3)
 
-
 if __name__ == '__main__':
     mount_usb()
     # TODO change_hostname
     # TODO authorisation
     ssid, psk = get_creds()
     if ssid is not None and not already_has_creds(ssid, psk):
+        print("Adding SSID=%s and PASSWORD=%s to wpa_supplicant.conf" % (ssid, psk))
         add_creds(ssid, psk)
