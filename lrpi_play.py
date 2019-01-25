@@ -30,7 +30,7 @@ MAX_BRIGHTNESS = 200
 SRT_FILENAME = "Surround_Test_Audio.srt"
 AUDIO_FILENAME = "Surround_Test_Audio.m4a"
 HUE_IP_ADDRESS = "10.0.0.2"
-TICK_TIME = 0.1 # seconds
+TICK_TIME = 1 # seconds
 PLAY_HUE = True
 PLAY_AUDIO = True
 PLAY_DMX = True
@@ -121,7 +121,7 @@ def tick():
     ts = SubRipTime(seconds = t)
     tsd = SubRipTime(seconds = t+1*TICK_TIME)
     # print(dir(player))
-    pp = player.get_position()
+    pp = player.getPosition()
     ptms = player.get_time()/1000.0
     pt = SubRipTime(seconds=(player.get_time()/1000.0))
     ptd = SubRipTime(seconds=(player.get_time()/1000.0+1*TICK_TIME))

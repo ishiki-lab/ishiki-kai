@@ -6,3 +6,5 @@ phue
 python-vlc
 pytz
 apscheduler
+requests
+
