@@ -13,29 +13,50 @@ from typing import List, Any
 
 import json
 import time
-from requests import post
+from requests import get
 from sys import exit
 
 # TOD: add hue discovery using uPNP - https://www.meethue.com/api/nupnp
 
 HUE_URL = "https://www.meethue.com/api/nupnp"
-response = post(HUE_URL)
-print(dir(response))
+response = get(HUE_URL)
+# print(dir(response))
 print(response.content)
 #print(json.loads(response.json()))
 
-# HUE_IP_ADDRESS = "192.168.1.129"
-HUE_IP_ADDRESS = "10.0.0.2"
+HUE_IP_ADDRESS = "192.168.1.129"
+# HUE_IP_ADDRESS = "10.0.0.2"
 TRANSITION_TIME = 10
 MAX_BRIGHTNESS = 255
 INTERVAL = 1 # seconds
 previous_time = 0
 bridge = None
+hue_list = [[]]
 
-def set_filter(address: str, *args: List[Any]) -> None:
-    global bridge
-    global TRANSITION_TIME
-    global previous_time
+def hue_build_lookup_table(lights):
+    #print(lights)
+    hue_l = [[]]
+    i = 1
+    for j in range(len(lights)+1):
+        for l in lights:
+            #print(dir(l))
+            #lname = "lamp   "+l.name+"   "
+            lname = str(l.name)
+            #print(lname)
+            #print("testing", str(j), lname.find(str(i)), len(hue), l.name.find(str(i)), l.light_id, l.name, l.bridge.ip, l.bridge.name, str(i+1))
+            if lname.find(str(j))>=0:
+                #if str(i) in lname:
+                print(j, lname.find(str(j)), l.light_id, l.name, l.bridge.ip, l.bridge.name)
+                if len(hue_l)<=j:
+                   hue_l.append([l.light_id])
+                else:
+                   hue_l[j].append(l.light_id)
+        i += 1
+    return(hue_l)
+
+def play_hue(address: str, *args: List[Any]) -> None:
+    global bridge, TRANSITION_TIME, previous_time, hue_list
+    # print(hue_list)
     #print(len(args))
     #if not len(args) == 4 or type(args[0]) is not float or type(args[1]) is not float:
     #    return
@@ -62,16 +83,24 @@ def set_filter(address: str, *args: List[Any]) -> None:
 
     hue_n = args[0][0][-1]
 
-    print(hue_n,h,s,v)
+    # print(hue_n,hue_list[int(hue_n)],h,s,v)
+    print(hue_n,hue_list[int(hue_n)],h,s,v)
 
     current_time = time.time()
     elapsed_time = current_time - previous_time
     #print(current_time, previous_time, elapsed_time)
 
-    cmd =  {'transitiontime' : int(TRANSITION_TIME), 'on' : True, 'bri' : int(v), 'sat' : int(s), 'hue' : int(h)}
+    on = True
+    if v<=10:
+        on = False
+
+    cmd =  {'transitiontime' : int(TRANSITION_TIME), 'on' : on, 'bri' : int(v), 'sat' : int(s), 'hue' : int(h)}
+    # print(cmd, hue_list,hue_list[int(hue_n)])
     if (elapsed_time > INTERVAL):
-        print(hue_n,h,s,v)
-        bridge.set_light(int(hue_n), cmd)
+        for hl in hue_list[int(hue_n)]:
+            # print(hue_n,hl,h,s,v)
+            bridge.set_light(hl, cmd)
+        # bridge.set_light(int(hue_n), cmd)
         previous_time = time.time()
 
     #filterno = address[-1]
@@ -106,11 +135,14 @@ if __name__ == "__main__":
     light_names = bridge.get_light_objects('name')
     print("Light names:", light_names)
 
+    hue_list = hue_build_lookup_table(lights)
+    print(hue_list)
+
     dispatcher = dispatcher.Dispatcher()
-    print(dir(dispatcher))
+    # print(dir(dispatcher))
 
     for h in range(512):
-        dispatcher.map("/hue%s" % h, set_filter, "HUE%s" % h)
+        dispatcher.map("/hue%s" % h, play_hue, "HUE%s" % h)
 
     for h in range(512):
         dispatcher.map("/dmx%s" % h, print_dmx, "DMX%s" % h)
