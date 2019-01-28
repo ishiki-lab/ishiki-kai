@@ -46,7 +46,7 @@ services:
   player:
     container_name: lushroom-player
   #  build: ../lrpi-player
-    image: "lushdigital/lushroom-player:dev"
+    image: "lushdigital/lushroom-player:latest"
     privileged: true
     ports:
        - 80:80
