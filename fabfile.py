@@ -12,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 from config import PI_PASSWORD
 
 # env.hosts = ["%s:%s" % ("raspberrypi.local", 22)]
-env.hosts = ["%s:%s" % ("lushroom1-pi.local", 22)]
+env.hosts = ["%s:%s" % ("noname.local", 22)]
 env.user = "lush"
 env.password = PI_PASSWORD
 
@@ -34,7 +34,8 @@ env.password = PI_PASSWORD
 
 # Raspbian supporting KeDei touch screen
 # http://www.kedei.net/raspberry/v6_1/rpi_35_v6_3_stretch_kernel_4_15_18.rar
-RASPBIAN_VERSION = "KeDei Raspbian rpi_v6_3_stretch_kernel_4_15_18"
+# RASPBIAN_VERSION = "KeDei Raspbian rpi_v6_3_stretch_kernel_4_15_18"
+RASPBIAN_VERSION = "Raspbian rpi_v6_3_stretch_kernel_4_15_18"
 
 ############################################################################
 ##              Preparing the base disc image from JESSIE_VERSION
@@ -105,7 +106,37 @@ def halt():
     sudo('halt')
 
 def kedei_install_SPI_touchscreen_drivers():
-    pass
+    waveshare_download_touchscreen_driver()
+    waveshare_install_touchscreen_driver()
+
+def waveshare_download_touchscreen_driver():
+    # git clone https://github.com/waveshare/LCD-show.git
+    print('Downloading Waveshare touchscreen drivers. This operation may take a very long time')
+    if not exists('/opt/waveshare', use_sudo=True):
+        sudo('mkdir /opt/waveshare')
+    sudo('cd /opt/waveshare ; git clone https://github.com/waveshare/LCD-show.git')
+    sudo('pwd')
+
+def waveshare_install_touchscreen_driver():
+    if exists('/opt/waveshare/LCD-show', use_sudo=True):
+        print('Installing Waveshare touchscreen driver')
+
+        # Enable I2C
+        # See https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c#installing-kernel-support-manually
+        sudo('echo "dtparam=i2c1=on" | sudo tee -a /boot/config.txt')
+        sudo('echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt')
+        sudo('echo "i2c-bcm2708" | sudo tee -a /etc/modules')
+        sudo('echo "i2c-dev" | sudo tee -a /etc/modules')
+
+        # Disable Serial Console
+        sudo('sudo sed -i \'s/console=serial0,115200//\' /boot/cmdline.txt')
+        sudo('sudo sed -i \'s/console=ttyAMA0,115200//\' /boot/cmdline.txt')
+        sudo('sudo sed -i \'s/kgdboc=ttyAMA0,115200//\' /boot/cmdline.txt')
+
+        sudo('cd /opt/waveshare/LCD-show ; ./LCD35B-show-V2')
+        print('Installing new kernel for Waveshare touchscreen driver completed')
+
+def kedei_install_SPI_touchscreen_drivers():
     kedei_copy_touchscreen_drivers()
     # kedei_download_touchscreen_drivers()
     kedei_untar_touchscreen_drivers()
@@ -191,7 +222,7 @@ def install_dev_apt_prerequisites():
     sudo('apt-get -y install python-requests python-pygame libts-bin libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev')
     sudo('apt-get -y install python-requests python-numpy python-scipy python3-numpy python3-scipy')
     sudo('apt-get -y install ntpdate screen ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
-    sudo('apt-get -y install libsmbclient libssh-4 libpcre3 fonts-freefont-ttf espeak alsa-tools alsa-utils')
+    sudo('apt-get -y install uuid libsmbclient libssh-4 libpcre3 fonts-freefont-ttf espeak alsa-tools alsa-utils')
     sudo('apt-get -y install python3-gpiozero python-rpi.gpio python-pigpio python-gpiozero')
     sudo('apt-get -y install pigpio python3-pigpio python3-rpi.gpio raspi-gpio wiringpi')
     sudo('apt-get -y install fbset fbi i2c-tools avahi-utils')
@@ -384,6 +415,18 @@ def add_bootstrap():
     # sudo("chown root /etc/rc.local")
     # sudo("chgrp root /etc/rc.local")
 
+def install_docker():
+    # install docker
+    run("curl -sSL get.docker.com | sh")
+    # sets up service
+    run("sudo systemctl enable docker")
+    # allows pi use to use docker
+    run("sudo usermod -aG docker pi")
+    # installs docker compose
+    sudo("curl --silent --show-error --retry 5 https://bootstrap.pypa.io/"
+         "get-pip.py | sudo python2.7")
+    sudo("pip install docker-compose")
+
 """
 
 def add_resize():
@@ -403,17 +446,6 @@ def build_bootstrap():
          'lushroom-bootstrap:latest' % tag)
     sudo('docker push lushroom/lushroom-bootstrap:latest')
 
-def install_docker():
-    # install docker
-    run("curl -sSL get.docker.com | sh")
-    # sets up service
-    run("sudo systemctl enable docker")
-    # allows pi use to use docker
-    run("sudo usermod -aG docker pi")
-    # installs docker compose
-    sudo("curl --silent --show-error --retry 5 https://bootstrap.pypa.io/"
-         "get-pip.py | sudo python2.7")
-    sudo("pip install docker-compose")
 
 
 ############################################################################

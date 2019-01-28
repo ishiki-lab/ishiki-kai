@@ -4,8 +4,8 @@
   "private_key": "",
   "uuid": "",
   "name": "locationXX-pi",
-  "hue1_name": "locationXX-hue",
-  "hue2_name": "locationYY-hue",
+  "hue1_ip": "192.168.1.5",
+  "hue2_ip": "192.168.1.6",
   "influx_host": "",
   "influx_port": "",
   "influx_dbname": "",
@@ -13,4 +13,3 @@
   "influx_username": "",
   "influx_password": "",
 }
-
