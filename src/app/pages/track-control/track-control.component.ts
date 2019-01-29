@@ -222,11 +222,25 @@ export class TrackControlComponent implements OnInit {
 
   tapToSeek(e) {
     if (this.started) {
-      console.log(
-        Math.floor(
-          (e.offsetX/e.srcElement.offsetWidth)*100
-        ) + "% along ", e.srcElement
+
+      console.log('bar width: ', 
+        document.getElementById('progress-bar').offsetWidth
       );
+      
+
+      let positionPercentage = Math.floor(
+        (e.offsetX/e.srcElement.offsetWidth)*100
+      );
+      console.log(
+        positionPercentage
+         + "% along ", e.srcElement
+      );
+
+      this.getTracksService.tapToSeek(positionPercentage).subscribe(data => {
+        this.now = this.hhmmss(data)
+        this.ticks = +data;
+        console.log(data);
+      });
     }
   }
 
@@ -237,11 +251,4 @@ export class TrackControlComponent implements OnInit {
     this.playing = false;
   }
 
-  scrubForward() {
-    this.getTracksService.scrubForward().subscribe(data => {
-      this.now = this.hhmmss(data)
-      this.ticks = +data;
-      console.log(data);
-    });
-  }
 }
