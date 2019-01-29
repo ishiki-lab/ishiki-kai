@@ -224,8 +224,14 @@ export class TrackControlComponent implements OnInit {
     return Math.floor(( (a + b) / barWidth ) * 100.0);
   }
 
+  // Only seek if we have an mp4 on our hands, MLPs will break everything
+  trackIsMp4() {
+    let filename = this.currentTrack.Name;
+    return filename.substring(filename.lastIndexOf('.')+1, filename.length) === 'mp4';
+  }
+
   tapToSeek(e, direction) {
-    if (this.started) {
+    if (this.started && this.trackIsMp4()) {
 
       let progressBarWidth = document.getElementById('progress-bar').offsetWidth;
       let clickedBarWidth = e.srcElement.offsetWidth;
@@ -233,12 +239,17 @@ export class TrackControlComponent implements OnInit {
       let a = progressBarWidth - clickedBarWidth;
       let b = clickedBarWidth * 
       (e.offsetX/e.srcElement.offsetWidth);
-      let progressAlongFullBar = 50.0;
+      let progressAlongFullBar = 50.0; // go to the middle of the track if something goes wrong
 
       if (direction === 'f') {
         progressAlongFullBar = this.getClickedProgressBarPercentage(a, b, progressBarWidth);  
       } else if (direction === 'b') {
         progressAlongFullBar = this.getClickedProgressBarPercentage(b, 0, progressBarWidth);
+      }
+
+      if (progressAlongFullBar === 100) {
+        // Don't seek right to the end, omxplayer will fall over
+        progressAlongFullBar = 98.0
       }
 
       this.getTracksService.tapToSeek(progressAlongFullBar).subscribe(data => {
