@@ -33,9 +33,9 @@
         <mat-icon (click)="next(4)" class="player-control-icon next">skip_next</mat-icon>
       </div>
       <div class="playback" id='progress-bar'>
-        <div [ngStyle]="{'width':  + this.i_progress + 'vw'}" class="progress"></div>
+        <div [ngStyle]="{'width':  + this.i_progress + 'vw'}" (click)="tapToSeek($event, 'b')" class="progress"></div>
         <div class="position-slider"></div>
-        <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}" (click)="tapToSeek($event)" class="remaining"></div>
+        <div [ngStyle]="{'width':  + (100 - this.i_progress) + 'vw'}" (click)="tapToSeek($event, 'f')" class="remaining"></div>
       </div>
     </div>
     <div class="timer">{{now}} / {{duration}}</div>

@@ -220,50 +220,30 @@ export class TrackControlComponent implements OnInit {
 
   }
 
-  tapToSeek(e) {
+  getClickedProgressBarPercentage(a, b, barWidth) {
+    return Math.floor(( (a + b) / barWidth ) * 100.0);
+  }
+
+  tapToSeek(e, direction) {
     if (this.started) {
 
-      console.log('bar width: ', 
-        document.getElementById('progress-bar').offsetWidth
-      );
-
       let progressBarWidth = document.getElementById('progress-bar').offsetWidth;
-      let remainingWidth = e.srcElement.offsetWidth;
-      let positionPercentage = Math.floor(
-        (e.offsetX/e.srcElement.offsetWidth)*100
-      );
+      let clickedBarWidth = e.srcElement.offsetWidth;
 
-      console.log('remaining width: ', 
-        e.srcElement.offsetWidth
-      );
+      let a = progressBarWidth - clickedBarWidth;
+      let b = clickedBarWidth * 
+      (e.offsetX/e.srcElement.offsetWidth);
+      let progressAlongFullBar = 50.0;
 
-      console.log('if remaining clicked, actual percentage: ',
-       (( 
-         (progressBarWidth - remainingWidth) +
-        (remainingWidth * 
-          (e.offsetX/e.srcElement.offsetWidth)   
-          )
-       ) / progressBarWidth) * 100
-      )
-
-      let progressAlongFullBar = Math.floor(
-        (( 
-          (progressBarWidth - remainingWidth) +
-         (remainingWidth * 
-           (e.offsetX/e.srcElement.offsetWidth)   
-           )
-        ) / progressBarWidth) * 100 
-      );
-    
-      console.log(
-        progressAlongFullBar
-         + "% along progress bar"
-      );
+      if (direction === 'f') {
+        progressAlongFullBar = this.getClickedProgressBarPercentage(a, b, progressBarWidth);  
+      } else if (direction === 'b') {
+        progressAlongFullBar = this.getClickedProgressBarPercentage(b, 0, progressBarWidth);
+      }
 
       this.getTracksService.tapToSeek(progressAlongFullBar).subscribe(data => {
         this.now = this.hhmmss(data)
         this.ticks = +data;
-        console.log(data);
       });
     }
   }
