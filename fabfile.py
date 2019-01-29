@@ -105,7 +105,7 @@ def halt():
     print('System halt')
     sudo('halt')
 
-def kedei_install_SPI_touchscreen_drivers():
+def waveshare_install_SPI_touchscreen_drivers():
     waveshare_download_touchscreen_driver()
     waveshare_install_touchscreen_driver()
 
