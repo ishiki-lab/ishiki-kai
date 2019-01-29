@@ -226,17 +226,41 @@ export class TrackControlComponent implements OnInit {
       console.log('bar width: ', 
         document.getElementById('progress-bar').offsetWidth
       );
-      
 
+      let progressBarWidth = document.getElementById('progress-bar').offsetWidth;
+      let remainingWidth = e.srcElement.offsetWidth;
       let positionPercentage = Math.floor(
         (e.offsetX/e.srcElement.offsetWidth)*100
       );
-      console.log(
-        positionPercentage
-         + "% along ", e.srcElement
+
+      console.log('remaining width: ', 
+        e.srcElement.offsetWidth
       );
 
-      this.getTracksService.tapToSeek(positionPercentage).subscribe(data => {
+      console.log('if remaining clicked, actual percentage: ',
+       (( 
+         (progressBarWidth - remainingWidth) +
+        (remainingWidth * 
+          (e.offsetX/e.srcElement.offsetWidth)   
+          )
+       ) / progressBarWidth) * 100
+      )
+
+      let progressAlongFullBar = Math.floor(
+        (( 
+          (progressBarWidth - remainingWidth) +
+         (remainingWidth * 
+           (e.offsetX/e.srcElement.offsetWidth)   
+           )
+        ) / progressBarWidth) * 100 
+      );
+    
+      console.log(
+        progressAlongFullBar
+         + "% along progress bar"
+      );
+
+      this.getTracksService.tapToSeek(progressAlongFullBar).subscribe(data => {
         this.now = this.hhmmss(data)
         this.ticks = +data;
         console.log(data);
