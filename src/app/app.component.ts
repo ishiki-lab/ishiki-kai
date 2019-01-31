@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SettingsService } from './pages/services/settings.service';
 
 @Component({
   selector: 'app-root',
@@ -7,12 +8,25 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppComponent implements OnInit {
   title = 'mw_serve';
+  settings: any;
+  roomName: string = '?';
 
 
-  constructor() {
+  constructor(
+    private settingsService: SettingsService
+  ) {
   }
 
   ngOnInit () {
+
+    this.settingsService.getSettings()
+    .subscribe(
+      (settings: any) => {
+        this.settings = settings;
+        console.log(this.settings);
+        this.roomName = settings.roomName
+      }
+    )
 
   }
 }

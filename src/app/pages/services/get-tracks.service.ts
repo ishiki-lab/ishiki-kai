@@ -6,8 +6,8 @@ import { HttpClient } from '@angular/common/http';
 })
 export class GetTracksService {
 
-  // hostname: string = 'black-pearl.local';
-  hostname: string = window.location.hostname;
+  hostname: string = 'lushroom-dev-jason.local';
+  // hostname: string = window.location.hostname;
   testnum: number = 0;
   playlist: any = null;
 

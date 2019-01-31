@@ -5,6 +5,7 @@ import { GetTracksService } from '../services/get-tracks.service';
 import { GetStylesService } from '../services/get-styles.service';
 import { ActivatedRoute  } from '@angular/router';
 import {Router} from '@angular/router';
+import { SettingsService } from '../services/settings.service';
 
 @Component({
   selector: 'app-track-selector',
@@ -16,11 +17,14 @@ export class TrackSelectorComponent implements OnInit {
   serverData: Observable<any>;
   errorResponse: any = {};
   folderId = null;
+  settings: any;
+  roomName: string = '?';
 
   constructor(
               private httpClient: HttpClient,
               private getTracksService: GetTracksService,
               private getStylesService: GetStylesService,
+              private settingsService: SettingsService,
               private route: ActivatedRoute,
               private router: Router 
               ) {
@@ -49,8 +53,6 @@ export class TrackSelectorComponent implements OnInit {
   ngOnInit () {
 
     this.folderId = this.route.snapshot.queryParamMap.get("id");
-
-    this.getTracksService.incT();
 
     this.getTracksService.getTracks(this.folderId).subscribe(
       (data: any) => {
