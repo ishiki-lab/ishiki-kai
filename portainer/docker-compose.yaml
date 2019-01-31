@@ -1,0 +1,18 @@
+# /home/lushroom/docker-compose.yaml
+
+version: '3'
+
+services:
+  portainer:
+    image: "portainer/portainer"
+    restart: always
+    network_mode: host
+    ports:
+      - 9000:9000
+    volumes:
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+
+

@@ -11,7 +11,6 @@
 
 import os
 
-
 def list_media_devices():
     # If the major number is 8, that indicates it to be a disk device.
     #
