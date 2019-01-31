@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -7,7 +8,7 @@ import { HttpClient } from '@angular/common/http';
 export class SettingsService {
 
   // hostname: string = 'lushroom-dev-jason.local';
-  hostname: string = window.location.hostname;
+  hostname: string = environment.hostname;
   settings: object = null;
 
   constructor(
