@@ -38,8 +38,8 @@ export class GetTracksService {
     return this.httpClient.get('http://' + this.hostname + '/get-track-list' + idQuery);
   }
 
-  scrubForward() {
-    return this.httpClient.get('http://' + this.hostname + '/scrub-forward');
+  tapToSeek(postition: number) {
+    return this.httpClient.get('http://' + this.hostname + '/seek?position=' + postition);
   }
 
   getSingleTrack(id) {

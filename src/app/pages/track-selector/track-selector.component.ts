@@ -62,7 +62,7 @@ export class TrackSelectorComponent implements OnInit {
         let isPlaylist: boolean = true;
 
         if (data.length === undefined) {
-          this.errorResponse['message'] = 'Is the usb stick plugged in?' 
+          this.errorResponse['message'] = 'Syncing may not have completed yet. Alternatively, is the usb stick plugged in?' 
           this.serverData = null;
           return;
         }
