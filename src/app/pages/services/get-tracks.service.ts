@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class GetTracksService {
 
-  // hostname: string = 'black-pearl.local';
+  // hostname: string = 'lushroom-dev-jason.local';
   hostname: string = window.location.hostname;
   testnum: number = 0;
   playlist: any = null;
@@ -38,8 +38,8 @@ export class GetTracksService {
     return this.httpClient.get('http://' + this.hostname + '/get-track-list' + idQuery);
   }
 
-  scrubForward() {
-    return this.httpClient.get('http://' + this.hostname + '/scrub-forward');
+  tapToSeek(postition: number) {
+    return this.httpClient.get('http://' + this.hostname + '/seek?position=' + postition);
   }
 
   getSingleTrack(id) {
