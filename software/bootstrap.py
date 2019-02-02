@@ -26,7 +26,10 @@ def start():
         existing_settings_file = "/opt/lushroom/settings.json"
         if os.path.exists(existing_settings_file):
             with open(existing_settings_file, "r") as f:
-                existing_settings = json.loads(f.read())
+                try:
+                    existing_settings = json.loads(f.read())
+                except Exception as e:
+                    existing_settings = None
             os.remove(existing_settings_file)
         else:
             existing_settings = None

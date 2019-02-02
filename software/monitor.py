@@ -5,7 +5,6 @@ import time
 from bootstrap import start
 
 def main():
-    start()
     context = pyudev.Context()
     monitor = pyudev.Monitor.from_netlink(context)
     monitor.filter_by(subsystem='usb')

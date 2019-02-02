@@ -64,7 +64,7 @@ RASPBIAN_VERSION = "2018-11-13-raspbian-stretch-lite"
     Network Options > Wi-fi <enter country, SSID & passphrase>
     Interfacing Options > SSH > Yes
     Finish
-    "sudo reboot now"
+    Then check ip address with "ifconfig"
 """
 
 
@@ -87,6 +87,8 @@ def create_settings(number):
         "description": "A Lushroom",
         "hue1_ip": "192.168.1.5",
         "hue2_ip": "192.168.1.6",
+        "hue1_name": "room 1",
+        "hue2_name": "room 2",
         "influx_host": "",
         "influx_port": "",
         "influx_dbname": "",
@@ -141,7 +143,6 @@ def prepare_card(config="default"):
     install_docker()
     reduce_writes()
     set_boot_config(config)
-    add_resize()
     remove_bloat()
 
     # add our bootstrap software
@@ -149,8 +150,17 @@ def prepare_card(config="default"):
 
     set_hostname()
 
+    print("*****************  After this run fab fix_install ********************")
     # this is crashing at end of install/opt
-    # waveshare_install_SPI_touchscreen_drivers()
+    waveshare_install_SPI_touchscreen_drivers()
+    sudo("shutdown now")
+
+def finish_prepare():
+    fix_install()
+    sudo("apt-get clean")
+    sudo("python3 /opt/lushroom/clean_wifi.py")
+    sudo("rm /opt/lushroom/clean_wifi.py")
+    sudo("raspi-config --expand-rootfs")
     sudo("shutdown now")
 
 
@@ -211,7 +221,6 @@ def set_ssh_config():
 def set_ssh_config_dev():
     env.key_filename = get_cert_path(private=True)
     _add_config_file("sshd_config_dev", "/etc/ssh/sshd_config", "root", chmod="600")
-    put("sshd_config_dev", "/etc/ssh/sshd_config", use_sudo=True)
     sudo("sudo systemctl restart ssh")
 
 
@@ -297,6 +306,13 @@ def _add_config_file(name, dst, owner, chmod=None):
     sudo("chown %s %s" % (owner, dst))
     sudo("chgrp %s %s" % (owner, dst))
 
+
+def _add_software_file(name, dst, owner, chmod=755):
+    put("software/%s" % name, dst, use_sudo=True)
+    sudo("chmod %s %s" % (chmod, dst))
+    sudo("chown %s %s" % (owner, dst))
+    sudo("chgrp %s %s" % (owner, dst))
+
 def reboot():
     print('System reboot')
     sudo('reboot')
@@ -308,6 +324,9 @@ def halt():
 def waveshare_install_SPI_touchscreen_drivers():
     waveshare_download_touchscreen_driver()
     waveshare_install_touchscreen_driver()
+
+def fix_install():
+    sudo("apt --fix-broken install")
 
 def waveshare_download_touchscreen_driver():
 
@@ -435,15 +454,16 @@ def install_dev_pip_prerequisites():
     print('Installing software PIP prerequisites')
     # sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
     # sudo('pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pygameui') # not working
-    sudo('pip install evdev')
-    sudo('pip install tinkerforge')
-    #sudo('pip install numpy') # numpy is already installed by pygame
-    sudo('pip install pysrt')
-    sudo('pip install phue')
-    sudo('pip install pytz')
-    sudo('pip install apscheduler')
-    sudo('pip install pygameui')
+    # sudo('pip install evdev')
+    # sudo('pip install tinkerforge')
+    # #sudo('pip install numpy') # numpy is already installed by pygame
+    # sudo('pip install pysrt')
+    # sudo('pip install phue')
+    # sudo('pip install pytz')
+    # sudo('pip install apscheduler')
+    # sudo('pip install pygameui')
     # sudo('pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org  pygameui') # not working
+    install_pygameui()
     sudo('pip3 install evdev')
     sudo('pip3 install tinkerforge')
     sudo('pip3 install pysrt')
@@ -459,13 +479,13 @@ def install_dev_pip_prerequisites():
     sudo('pip3 install omxplayer-wrapper')
     print('Installing software PIP prerequisites completed')
 
-# def install_pygameui():
-#     print('Installing pygameui')
-#     if not exists('/opt/pygameui', use_sudo=True):
-#         sudo('mkdir /opt/pygameui')
-#     sudo('cd /opt/pygameui ; git clone https://github.com/fictorial/pygameui.git /opt/pygameui')
-#     sudo('cd /opt/pygameui ; python setup.py install')
-#     print('Installing pygameui completed')
+def install_pygameui():
+    print('Installing pygameui')
+    if not exists('/opt/pygameui', use_sudo=True):
+        sudo('mkdir /opt/pygameui')
+    sudo('cd /opt/pygameui ; git clone https://github.com/fictorial/pygameui.git /opt/pygameui')
+    sudo('cd /opt/pygameui ; python setup.py install')
+    print('Installing pygameui completed')
 
 def install_rclone():
     print('Installing rclone')
@@ -586,17 +606,16 @@ def add_bootstrap():
 
     sudo("mkdir -p /opt/lushroom")
 
-    put("software/start.sh", "/opt/lushroom/start.sh", use_sudo=True)
-    sudo("chmod 755 /opt/lushroom/start.sh")
+    file_names = ["start.sh",
+                  "bootstrap.py",
+                  "mount.py",
+                  "monitor.py",
+                  "clean_wifi.py",
+                  "docker-tunnel.service.template"
+                  ]
 
-    put("software/bootstrap.py", "/opt/lushroom/bootstrap.py", use_sudo=True)
-    sudo("chmod 755 /opt/lushroom/bootstrap.py")
-
-    put("software/mount.py", "/opt/lushroom/mount.py", use_sudo=True)
-    sudo("chmod 755 /opt/lushroom/mount.py")
-
-    put("software/docker-tunnel.service.template", "/opt/lushroom/docker-tunnel.service.template", use_sudo=True)
-    sudo("chmod 644 /opt/lushroom/docker-tunnel.service.template")
+    for name in file_names:
+        _add_software_file(name, "/opt/lushroom/%s" % name, "root")
 
     _add_config_file("lushroom-bootstrap.service", "/etc/systemd/system/lushroom-bootstrap.service", "root", chmod=755)
 
