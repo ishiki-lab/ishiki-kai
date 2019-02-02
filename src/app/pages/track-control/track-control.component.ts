@@ -105,6 +105,28 @@ export class TrackControlComponent implements OnInit {
   }
   
   ngOnInit() {
+
+    this.playlist = this.getTracksService.getPlaylist();
+    this.numTracks = this.playlist.length;
+    this.currentTrack = this.playlist[0];
+
+    if (this.getTracksService.getInternalStatus()) {
+      let status = this.getTracksService.getInternalStatus();
+      this.totalTicks = status.trackDuration;
+      this.started = true;
+      this.duration = this.hhmmss(status.trackDuration)
+      this.ticks = status.position;
+      this.playing = true;
+      this.playing = status.playerState === "Playing"
+      console.log(this.playlist);
+      for (let i = 0; i < this.playlist.length; i++) {
+        if (this.playlist[i].Name === status.source.split("/").pop()) {
+          this.currentTrack = this.playlist[i]; 
+          this.hrId = i;
+        }
+      }  
+    }
+
     setInterval(() => { 
       if (this.playing && (this.ticks < +this.totalTicks)) {
         this.now = this.hhmmss(this.ticks += 1); 
@@ -126,10 +148,6 @@ export class TrackControlComponent implements OnInit {
     this.sub = this.route.params.subscribe(params => {
       this.id = params['id'];
     });
-
-    this.playlist = this.getTracksService.getPlaylist();
-    this.numTracks = this.playlist.length;
-    this.currentTrack = this.playlist[0];
 
   }
 

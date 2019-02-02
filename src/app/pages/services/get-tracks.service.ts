@@ -10,6 +10,7 @@ export class GetTracksService {
   hostname: string = environment.hostname;
   testnum: number = 0;
   playlist: any = null;
+  status: any = null;
 
   constructor(
     private httpClient: HttpClient
@@ -26,6 +27,14 @@ export class GetTracksService {
 
   getPlaylist() {
     return this.playlist;
+  }
+
+  setStatus(value) {
+    this.status = value;
+  }
+
+  getInternalStatus() {
+    return this.status;
   }
 
   getStatus() {
