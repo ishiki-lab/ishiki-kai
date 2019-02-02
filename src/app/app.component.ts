@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { SettingsService } from './pages/services/settings.service';
+import { GetTracksService } from './pages/services/get-tracks.service';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +14,8 @@ export class AppComponent implements OnInit {
 
 
   constructor(
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
+    private tracksService: GetTracksService
   ) {
   }
 
@@ -27,6 +29,5 @@ export class AppComponent implements OnInit {
         this.roomName = settings.roomName
       }
     )
-
   }
 }

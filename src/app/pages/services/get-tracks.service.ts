@@ -28,6 +28,10 @@ export class GetTracksService {
     return this.playlist;
   }
 
+  getStatus() {
+    return this.httpClient.get('http://' + this.hostname + '/status');  
+  }
+
   getTracks(id) {
     let idQuery: string = '';
 

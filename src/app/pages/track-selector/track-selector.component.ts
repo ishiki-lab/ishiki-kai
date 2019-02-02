@@ -3,9 +3,10 @@ import { HttpClient } from '@angular/common/http';
 import { of, Observable } from 'rxjs';
 import { GetTracksService } from '../services/get-tracks.service';
 import { GetStylesService } from '../services/get-styles.service';
-import { ActivatedRoute  } from '@angular/router';
-import {Router} from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { SettingsService } from '../services/settings.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-track-selector',
@@ -21,22 +22,22 @@ export class TrackSelectorComponent implements OnInit {
   roomName: string = '?';
 
   constructor(
-              private httpClient: HttpClient,
-              private getTracksService: GetTracksService,
-              private getStylesService: GetStylesService,
-              private settingsService: SettingsService,
-              private route: ActivatedRoute,
-              private router: Router 
-              ) {
+    private httpClient: HttpClient,
+    private getTracksService: GetTracksService,
+    private getStylesService: GetStylesService,
+    private settingsService: SettingsService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {
   }
 
 
   styleObject() {
     if (!this.getStylesService.getStyles()) {
-      return{
+      return {
         border: 'none',
         paddingTop: '1.6rem'
-       };
+      };
     }
   }
 
@@ -50,46 +51,69 @@ export class TrackSelectorComponent implements OnInit {
     }
   }
 
-  ngOnInit () {
+  ngOnInit() {
 
     this.folderId = this.route.snapshot.queryParamMap.get("id");
 
-    this.getTracksService.getTracks(this.folderId).subscribe(
-      (data: any) => {
-        console.log('tracks: ', data, ' length: ', data.length);
+    forkJoin(
+      this.getTracksService.getStatus(),
+      this.getTracksService.getTracks(this.folderId)
+    ).subscribe(
+      ([s, d]) => {
+        let status: any = s;
+        let data: any = d;
+        console.log('s: ', status);
+        console.log('t: ', data);
+        if (status.canControl && status.playerState && status.source) {
+          console.log('Player is active, updating this page...');
+          this.getTracksService.setPlaylist(status.playlist);
+          this.router.navigate([`/player`], { relativeTo: this.route, skipLocationChange: true });
+        } else {
 
-        let dataLen = data.length;
-        let isPlaylist: boolean = true;
+          console.log('tracks: ', data, ' length: ', data.length);
 
-        if (data.length === undefined) {
-          this.errorResponse['message'] = 'Syncing may not have completed yet. Alternatively, is the usb stick plugged in?' 
-          this.serverData = null;
-          return;
-        }
+          let dataLen = data.length;
+          let isPlaylist: boolean = true;
 
-        for (let i = 0; i < dataLen; i++) {
-          if (data[i].IsDir === true) {
-            isPlaylist = false;
-            break;
+          if (data.length === undefined && !data.playlist) {
+            this.errorResponse['message'] = 'Syncing may not have completed yet. Alternatively, is the usb stick plugged in?'
+            this.serverData = null;
+            return;
           }
-        }
 
-        if (isPlaylist) {
-          this.getTracksService.setPlaylist(data);
-          this.router.navigate([`/player`], {relativeTo: this.route, skipLocationChange: true});
-        }
+          if (data.playlist) {
+            data = data.playlist;
+            dataLen = data.length;
+          }
 
-        console.log('playlist? : ', isPlaylist);
-        
-        this.serverData = of(
-          data
-        );
+          console.log('playlist: ', data);
+
+          for (let i = 0; i < dataLen; i++) {
+            if (data[i].IsDir === true) {
+              isPlaylist = false;
+              break;
+            }
+          }
+
+          if (isPlaylist) {
+            this.getTracksService.setPlaylist(data);
+            this.router.navigate([`/player`], { relativeTo: this.route, skipLocationChange: true });
+          }
+
+          console.log('playlist? : ', isPlaylist);
+
+          this.serverData = of(
+            data
+          );
+        }
       },
       (err: any) => {
         console.log('error', err);
         this.errorResponse = err;
         this.router.navigate([`/tracks`]);
       }
-    );
+    )
+
+
   }
 }
