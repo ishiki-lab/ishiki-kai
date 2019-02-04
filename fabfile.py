@@ -26,18 +26,18 @@ default_host = ACCESS_IP if ACCESS_IP is not None else "%s.local" % ORIGINAL_HOS
 default_hosts = ["%s:%s" % (default_host, 22)]
 renamed_hosts = ["%s.local:%s" % (NEW_HOSTNAME, 22)]
 
-CERTS_DIR = os.path.abspath(os.path .join(os.path.dirname(__file__), "..", "certs"))
+CERTS_DIR = os.path.abspath(os.path .join(os.path.dirname(__file__), "..", "lrpi_access_keys"))
 USB_DIR = os.path.abspath(os.path .join(os.path.dirname(__file__), "..", "usb"))
 
 if not os.path.exists(CERTS_DIR):
     raise Exception("couldn't find certs")
 
 
-def get_cert_path(private=False):
+def get_cert_path(private=False, certs_name=CERTS_NAME):
     if private:
-        return os.path.join(CERTS_DIR, CERTS_NAME)
+        return os.path.join(CERTS_DIR, certs_name)
     else:
-        return os.path.join(CERTS_DIR, "%s.pub" % CERTS_NAME)
+        return os.path.join(CERTS_DIR, "%s.pub" % certs_name)
 
 env.hosts = default_host
 env.user = NEW_USERNAME
@@ -74,13 +74,24 @@ RASPBIAN_VERSION = "2018-11-13-raspbian-stretch-lite"
 def create_settings(number):
 
     public, private = newkeys(1024)
-    private_key = private.exportKey('PEM').decode("utf-8")
-    public_key = public.exportKey('OpenSSH').decode("utf-8")
+
+    public_key_file = get_cert_path(private=False, certs_name="lushroom_id_rsa")
+    private_key_file = get_cert_path(private=True, certs_name="lushroom_id_rsa")
+
+    with open(public_key_file, "r") as f:
+        public_key = f.read()
+
+    with open(private_key_file, "r") as f:
+        private_key = f.read()
+
+    # private_key = private.exportKey('PEM').decode("utf-8")
+    # public_key = public.exportKey('OpenSSH').decode("utf-8")
+
     device_uuid = str(uuid.uuid4())
 
     settings = {
         "url": "https://lushroom.com/api/config/%s" % device_uuid,
-        "public_key": "%s lushroom-%s@lushroom.com" % (public_key, number),
+        "public_key": public_key,
         "private_key": private_key,
         "uuid": device_uuid,
         "name": "lushroom-%s" % number,
@@ -115,7 +126,7 @@ def create_settings(number):
         f.write(json.dumps(settings, sort_keys=True, indent=4))
 
 
-def prepare_card(config="default"):
+def prepare_card_1(config="default"):
     """
     Prepares the base image
     """
@@ -144,23 +155,21 @@ def prepare_card(config="default"):
     reduce_writes()
     set_boot_config(config)
     remove_bloat()
-
-    # add our bootstrap software
-    add_bootstrap()
+    configure_rsyslog()
 
     set_hostname()
 
-    print("*****************  After this run fab fix_install ********************")
     # this is crashing at end of install/opt
     waveshare_install_SPI_touchscreen_drivers()
     sudo("shutdown now")
 
-def finish_prepare():
+def prepare_card_2():
     fix_install()
-    sudo("apt-get clean")
+    sudo("apt-get clean -y")
+    # add our bootstrap software
+    add_bootstrap()
     sudo("python3 /opt/lushroom/clean_wifi.py")
     sudo("rm /opt/lushroom/clean_wifi.py")
-    sudo("raspi-config --expand-rootfs")
     sudo("shutdown now")
 
 
@@ -169,11 +178,14 @@ def dev_setup():
     prepares a base image
     """
 
-    set_ssh_config_dev() # allows password login
-    install_samba()
-    install_dev_apt_prerequisites()
+    # set_ssh_config_dev() # allows password login
+    # install_samba()
+    # install_dev_apt_prerequisites()
     install_dev_pip_prerequisites()
     create_lushroom_dev()
+    # re-adds the resize
+    name = "resize_once.txt"
+    _add_software_file(name, "/opt/lushroom/%s" % name, "root")
 
 ###############################################################################################
 
@@ -202,6 +214,10 @@ def create_new_user():
 def change_default_password():
     crypted_password = crypt(CHANGED_PASSWORD, 'salt')
     sudo('usermod --password %s %s' % (crypted_password, ORIGINAL_USERNAME), pty=False)
+
+
+def configure_rsyslog():
+    _add_config_file("rsyslog.conf", "/etc/rsyslog.conf", "root", chmod="644")
 
 
 def copy_certs():
@@ -316,6 +332,10 @@ def _add_software_file(name, dst, owner, chmod=755):
 def reboot():
     print('System reboot')
     sudo('reboot')
+
+def shutdown():
+    print('shutdown')
+    sudo('shutdown now')
 
 def halt():
     print('System halt')
@@ -453,7 +473,7 @@ def install_dev_apt_prerequisites():
 def install_dev_pip_prerequisites():
     print('Installing software PIP prerequisites')
     # sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
-    # sudo('pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pygameui') # not working
+    # # sudo('pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pygameui') # not working
     # sudo('pip install evdev')
     # sudo('pip install tinkerforge')
     # #sudo('pip install numpy') # numpy is already installed by pygame
@@ -481,8 +501,10 @@ def install_dev_pip_prerequisites():
 
 def install_pygameui():
     print('Installing pygameui')
-    if not exists('/opt/pygameui', use_sudo=True):
-        sudo('mkdir /opt/pygameui')
+
+    if exists('/opt/pygameui', use_sudo=True):
+        sudo('rm -rf /opt/pygameui')
+    sudo('mkdir /opt/pygameui')
     sudo('cd /opt/pygameui ; git clone https://github.com/fictorial/pygameui.git /opt/pygameui')
     sudo('cd /opt/pygameui ; python setup.py install')
     print('Installing pygameui completed')
@@ -611,6 +633,7 @@ def add_bootstrap():
                   "mount.py",
                   "monitor.py",
                   "clean_wifi.py",
+                  "resize_once.txt",
                   "docker-tunnel.service.template"
                   ]
 

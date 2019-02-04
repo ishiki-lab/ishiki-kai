@@ -1,4 +1,9 @@
 # /etc/systemd/system/lushroom-bootstrap.service
+
+[Unit]
+Description=Lushroom Bootstrap Service
+After=docker.service
+
 [Service]
 Type=simple
 ExecStart=/opt/lushroom/start.sh
