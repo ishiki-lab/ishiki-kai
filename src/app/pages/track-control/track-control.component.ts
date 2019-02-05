@@ -109,8 +109,10 @@ export class TrackControlComponent implements OnInit {
     this.playlist = this.getTracksService.getPlaylist();
     this.numTracks = this.playlist.length;
     this.currentTrack = this.playlist[0];
+    let status = this.getTracksService.getInternalStatus();
+    console.log('internal status: ', status);
 
-    if (this.getTracksService.getInternalStatus()) {
+    if (status.playerState) {
       let status = this.getTracksService.getInternalStatus();
       this.totalTicks = status.trackDuration;
       this.started = true;
@@ -118,7 +120,7 @@ export class TrackControlComponent implements OnInit {
       this.ticks = status.position;
       this.playing = true;
       this.playing = status.playerState === "Playing"
-      console.log(this.playlist);
+      console.log('pl from internal status: ', this.playlist);
       for (let i = 0; i < this.playlist.length; i++) {
         if (this.playlist[i].Name === status.source.split("/").pop()) {
           this.currentTrack = this.playlist[i]; 
@@ -291,8 +293,10 @@ export class TrackControlComponent implements OnInit {
   }
 
   stop() {
-    this.getTracksService.stopMusic().subscribe(data => {
-      console.log(data);
+    this.getTracksService.stopMusic().subscribe(stopRes => {
+      if (stopRes === 0) {
+        this.router.navigate([`/tracks`], { relativeTo: this.route, skipLocationChange: true });  
+      }
     });
     this.playing = false;
   }

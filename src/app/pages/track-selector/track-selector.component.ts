@@ -6,7 +6,6 @@ import { GetStylesService } from '../services/get-styles.service';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { SettingsService } from '../services/settings.service';
-import { forkJoin } from 'rxjs';
 import { switchMap, map, mergeMap } from 'rxjs/operators';
 
 
@@ -56,17 +55,17 @@ export class TrackSelectorComponent implements OnInit {
   ngOnInit() {
 
     this.folderId = this.route.snapshot.queryParamMap.get("id");
-    // let status: any = this.getTracksService.getInternalStatus();
 
     this.getTracksService.getStatus().pipe(
       switchMap((status: any) => {
         console.log('status in switchMap: ', status);
         if ( !(status.canControl || status.playerState || status.source) ) {
-          console.log('player is idle, getting tracks');
+          console.log('player is idle, getting tracks...');
           return this.getTracksService.getTracks(this.folderId)
         } else {
           console.log('Player is active, updating this page...');
           this.getTracksService.setPlaylist(status.playlist);
+          // update the shared service with the status to pass to the track controller
           this.getTracksService.setStatus(status);
           this.router.navigate([`/player`], { relativeTo: this.route, skipLocationChange: true });
           
@@ -75,6 +74,8 @@ export class TrackSelectorComponent implements OnInit {
       })
     ).subscribe(
       (d: any) => {
+        console.log('In the playlist processor');
+        
         let data: any = d;
 
         console.log('tracks: ', data, ' length: ', data.length);
@@ -120,67 +121,6 @@ export class TrackSelectorComponent implements OnInit {
         this.router.navigate([`/tracks`]);
       }
     )
-
-    // forkJoin(
-    //   this.getTracksService.getStatus(),
-    //   this.getTracksService.getTracks(this.folderId)
-    // ).subscribe(
-    //   ([s, d]) => {
-    //     let status: any = s;
-    //     let data: any = d;
-    //     console.log('s: ', status);
-    //     console.log('t: ', data);
-    //     if (status.canControl && status.playerState && status.source) {
-    //       console.log('Player is active, updating this page...');
-    //       this.getTracksService.setPlaylist(status.playlist);
-    //       this.getTracksService.setStatus(status);
-    //       this.router.navigate([`/player`], { relativeTo: this.route, skipLocationChange: true });
-    //     } else {
-
-    //       console.log('tracks: ', data, ' length: ', data.length);
-
-    //       let dataLen = data.length;
-    //       let isPlaylist: boolean = true;
-
-    //       if (data.length === undefined && !data.playlist) {
-    //         this.errorResponse['message'] = 'Syncing may not have completed yet. Alternatively, is the usb stick plugged in?'
-    //         this.serverData = null;
-    //         return;
-    //       }
-
-    //       if (data.playlist) {
-    //         data = data.playlist;
-    //         dataLen = data.length;
-    //       }
-
-    //       console.log('playlist: ', data);
-
-    //       for (let i = 0; i < dataLen; i++) {
-    //         if (data[i].IsDir === true) {
-    //           isPlaylist = false;
-    //           break;
-    //         }
-    //       }
-
-    //       if (isPlaylist) {
-    //         this.getTracksService.setPlaylist(data);
-    //         this.router.navigate([`/player`], { relativeTo: this.route, skipLocationChange: true });
-    //       }
-
-    //       console.log('playlist? : ', isPlaylist);
-
-    //       this.serverData = of(
-    //         data
-    //       );
-    //     }
-    //   },
-    //   (err: any) => {
-    //     console.log('error', err);
-    //     this.errorResponse = err;
-    //     this.router.navigate([`/tracks`]);
-    //   }
-    // )
-
 
   }
 }
