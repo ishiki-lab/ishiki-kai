@@ -152,7 +152,7 @@ def prepare_card_1(config="default"):
     install_pip()
     install_extra_libs()
     install_docker()
-    reduce_writes()
+
     set_boot_config(config)
     remove_bloat()
     configure_rsyslog()
@@ -170,7 +170,10 @@ def prepare_card_2():
     add_bootstrap()
     sudo("python3 /opt/lushroom/clean_wifi.py")
     sudo("rm /opt/lushroom/clean_wifi.py")
-    sudo("shutdown now")
+
+
+def prepare_card_3():
+    reduce_writes()
 
 
 def dev_setup():
@@ -184,8 +187,8 @@ def dev_setup():
     install_dev_pip_prerequisites()
     create_lushroom_dev()
     # re-adds the resize
-    name = "resize_once.txt"
-    _add_software_file(name, "/opt/lushroom/%s" % name, "root")
+    # name = "resize_once.txt"
+    # _add_software_file(name, "/opt/lushroom/%s" % name, "root")
 
 ###############################################################################################
 
@@ -482,7 +485,7 @@ def install_dev_pip_prerequisites():
     # sudo('pip install pytz')
     # sudo('pip install apscheduler')
     # sudo('pip install pygameui')
-    # sudo('pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org  pygameui') # not working
+    # # sudo('pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org  pygameui') # not working
     install_pygameui()
     sudo('pip3 install evdev')
     sudo('pip3 install tinkerforge')

@@ -15,7 +15,7 @@ fi
 if [ -f /media/usb/docker-compose.yaml ]; then
     echo "docker compose up"
     docker-compose -f /media/usb/docker-compose.yaml pull
-    docker-compose -f /media/usb/docker-compose.yaml up --force-recreate
+    docker-compose -f /media/usb/docker-compose.yaml up --force-recreate -d
 fi
 
 echo "monitoring usb"
