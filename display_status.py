@@ -18,10 +18,28 @@ from datetime import datetime as dt
 from signal import alarm, signal, SIGALRM, SIGKILL
 
 DELAY = 60 # delay for updating the screen information in seconds
-FONT_SIZE = 30
+FONT_SIZE = 45
 IMAGES_PATH = '/media/usb/Images'
 
-DIM = [480,320] # screen framebuffer dimensions
+# DIM = None # screen framebuffer dimensions
+# SCREEN_WIDTH = None
+# SCREEN_HEIGHT = None
+
+
+
+time.sleep(0.75)
+pygame.init()
+time.sleep(0.75)
+display_info = pygame.display.Info()
+SCREEN_WIDTH = display_info.current_w
+SCREEN_HEIGHT = display_info.current_h
+DIM = (SCREEN_WIDTH, SCREEN_HEIGHT)
+
+putenv('SDL_VIDEODRIVER', 'fbcon')
+putenv('SDL_FBDEV', '/dev/fb0')
+putenv('SDL_MOUSEDRV', 'TSLIB')
+putenv('SDL_MOUSEDEV', '/dev/input/event0')
+
 WHITE      = (255, 255, 255)
 BLACK      = (  0,   0,   0)
 BLUE       = (  0,   0, 255)
@@ -33,10 +51,6 @@ YELLOW     = (255, 255,   0)
 PINK       = (255, 192, 203)
 LBLUE      = (191, 238, 244)
 
-putenv('SDL_VIDEODRIVER', 'fbcon')
-putenv('SDL_FBDEV', '/dev/fb0')
-putenv('SDL_MOUSEDRV', 'TSLIB')
-putenv('SDL_MOUSEDEV', '/dev/input/event0')
 
 lcd = None
 
@@ -73,8 +87,8 @@ def draw_time():
    #current_dt = dt.now()
    current_dt = strftime("%Y-%m-%d %H:%M:%S", gmtime())
    #print(current_dt)
-   pygame.draw.rect(lcd, BLACK, pygame.Rect(0,320-int(FONT_SIZE*1.2),480,320))
-   show_text(current_dt, font_regular, WHITE, [480/2,320 - FONT_SIZE/2])
+   pygame.draw.rect(lcd, BLACK, pygame.Rect(0, SCREEN_HEIGHT -int(FONT_SIZE*1.2), SCREEN_WIDTH, SCREEN_HEIGHT))
+   show_text(current_dt, font_regular, WHITE, [SCREEN_WIDTH/2, SCREEN_HEIGHT - FONT_SIZE/2])
 
 def show_text(text, font, colour, coordinates):
     text_surface = font.render('%s' % text, True,BLACK)
@@ -95,23 +109,27 @@ def draw_screen():
     font_big = pygame.font.Font(None, int(FONT_SIZE*1.5))
     #print(images)
     logo_name = join(IMAGES_PATH,'logo.png')
+
     if len(images)>0:
         image_number = int(random()*len(images))
         image_name = join(IMAGES_PATH,images[image_number])
         if exists(image_name):
             image = pygame.image.load(image_name)
-            lcd.blit(image, (0,0))
+            resized_image = pygame.transform.scale(image, (SCREEN_WIDTH, SCREEN_HEIGHT))
+            lcd.blit(resized_image, (0, 0))
     if exists(logo_name):
         image = pygame.image.load(logo_name)
-        lcd.blit(image, (0,0))
+        resized_image = pygame.transform.scale(image, (SCREEN_WIDTH, int(SCREEN_HEIGHT/5)))
+        lcd.blit(resized_image, (0,0))
     row = 1
+    text_x_offset = int(SCREEN_HEIGHT/3)
     # get and print hostname
     hostname = gethostname()
-    show_text(hostname, font_big,WHITE, [480/2,80+FONT_SIZE*(row)])
+    show_text(hostname, font_big, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
     row += 1
     # get timezone / location information
     timezone = 'time zone: %s' % tzname[0]
-    show_text(timezone, font_regular, WHITE, [480/2,80+FONT_SIZE*(row)])
+    show_text(timezone, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
     row += 1
     # get mac and ip addresses of network interfaces
     adapters = netifaces.interfaces()
@@ -120,7 +138,7 @@ def draw_screen():
     for i in range(len(addresses)):
         #print(addresses[i])
         address = '%s - %s - %s' % addresses[i]
-        show_text(address, font_regular, WHITE, [480/2,80+FONT_SIZE*(row+i)])
+        show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row+i)])
 
 
 class Alarm(Exception):
@@ -132,6 +150,7 @@ def alarm_handler(signum, frame):
     signal(SIGALRM, alarm_handler)
     alarm(3)
     try:
+        print("alarm")
         pygame.init()
         DISPLAYSURFACE = pygame.display.set_mode((DISPLAYWIDTH, DISPLAYHEIGHT)) 
         alarm(0)
@@ -148,7 +167,6 @@ def main():
     alarm(3)
 
     try:
-        pygame.init()
         lcd = pygame.display.set_mode(DIM)
         alarm(0)
     except Alarm:
