@@ -4,8 +4,8 @@
 HOST = "127.0.0.1"
 PORT = 4223
 
-debug = False
-verbose = False
+DEBUG = False
+VERBOSE = False
 # reading_interval = 1.0
 
 from tinkerforge.ip_connection import IPConnection
@@ -43,7 +43,7 @@ ipcon = IPConnection()
 
 deviceIDs = [i[0] for i in deviceIdentifiersList]
 
-if debug:
+if DEBUG:
     print(deviceIDs)
     for i in range(len(deviceIDs)):
         print(deviceIdentifiersList[i])
@@ -56,7 +56,7 @@ def getIdentifier(ID):
             deviceType = deviceIdentifiersList[t][1]
     return(deviceType)
 
-# Tinkerforge sensors enumeration
+# Tinkerforge bricklets enumeration
 def cb_enumerate(uid, connected_uid, position, hardware_version, firmware_version,
                  device_identifier, enumeration_type):
     tfIDs.append([uid, device_identifier])
@@ -85,7 +85,7 @@ def dmxread_callback(frame, frame_no):
 
 def signal_handler(sig, frame):
     global subs, tfConnect, ipcon, srtFile, SRT_FILENAME
-    if verbose:
+    if VERBOSE:
         print(subs, len(subs))
     encoding="utf_8"
 
@@ -96,7 +96,7 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def main():
-
+    global SRT_FILENAME, AUDIO_FILENAME, MAX_BRIGHTNESS, TICK_TIME, HUE_IP_ADDRESS, DEBUG, VERBOSE
     parser = argparse.ArgumentParser(description="LushRoom sound and light command-line player")
     group = parser.add_mutually_exclusive_group()
     # group.add_argument("-v", "--verbose", action="store_true")
@@ -123,7 +123,7 @@ def main():
 
     sleep(2)
 
-    if verbose:
+    if VERBOSE:
         print(tfIDs)
 
     dmxcount = 0
