@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GetTracksService {
 
-  // hostname: string = 'lushroom-dev-jason.local';
-  hostname: string = window.location.hostname;
+  hostname: string = environment.hostname;
   testnum: number = 0;
   playlist: any = null;
+  status: any = null;
 
   constructor(
     private httpClient: HttpClient
@@ -26,6 +27,18 @@ export class GetTracksService {
 
   getPlaylist() {
     return this.playlist;
+  }
+
+  setStatus(value) {
+    this.status = value;
+  }
+
+  getInternalStatus() {
+    return this.status;
+  }
+
+  getStatus() {
+    return this.httpClient.get('http://' + this.hostname + '/status');  
   }
 
   getTracks(id) {
