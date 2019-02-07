@@ -105,6 +105,30 @@ export class TrackControlComponent implements OnInit {
   }
   
   ngOnInit() {
+
+    this.playlist = this.getTracksService.getPlaylist();
+    this.numTracks = this.playlist.length;
+    this.currentTrack = this.playlist[0];
+    let status = this.getTracksService.getInternalStatus();
+    console.log('internal status: ', status);
+
+    if (status.playerState) {
+      let status = this.getTracksService.getInternalStatus();
+      this.totalTicks = status.trackDuration;
+      this.started = true;
+      this.duration = this.hhmmss(status.trackDuration)
+      this.ticks = status.position;
+      this.playing = true;
+      this.playing = status.playerState === "Playing"
+      console.log('pl from internal status: ', this.playlist);
+      for (let i = 0; i < this.playlist.length; i++) {
+        if (this.playlist[i].Name === status.source.split("/").pop()) {
+          this.currentTrack = this.playlist[i]; 
+          this.hrId = i;
+        }
+      }  
+    }
+
     setInterval(() => { 
       if (this.playing && (this.ticks < +this.totalTicks)) {
         this.now = this.hhmmss(this.ticks += 1); 
@@ -126,10 +150,6 @@ export class TrackControlComponent implements OnInit {
     this.sub = this.route.params.subscribe(params => {
       this.id = params['id'];
     });
-
-    this.playlist = this.getTracksService.getPlaylist();
-    this.numTracks = this.playlist.length;
-    this.currentTrack = this.playlist[0];
 
   }
 
@@ -220,18 +240,65 @@ export class TrackControlComponent implements OnInit {
 
   }
 
+  // Only seek if we have an mp4 on our hands, MLPs will break everything
+  trackIsMp4() {
+    let filename = this.currentTrack.Name;
+    return filename.substring(filename.lastIndexOf('.')+1, filename.length) === 'mp4';
+  }
+
+  getClickedProgressBarPercentage(a, b, barWidth) {
+    return Math.floor(( (a + b) / barWidth ) * 100.0);
+  }
+
+  tapToSeek(e, direction) {
+    if (this.started && this.trackIsMp4()) {
+
+      let progressBarWidth = document.getElementById('progress-bar').offsetWidth;
+      let clickedBarWidth = e.srcElement.offsetWidth;
+
+      let a = progressBarWidth - clickedBarWidth;
+      let b = clickedBarWidth * 
+      (e.offsetX/e.srcElement.offsetWidth);
+      let progressAlongFullBar = 50.0; // go to the middle of the track if something goes wrong
+
+      // The progress bar is made of two separate divs so they can be styled easily:
+      //
+      // ___________________________||____________________________________
+      // |     white (the past)     ||       black (time remaining)      |
+      // |__________________________||___________________________________|
+      //                            ||
+      // If we click on the 'remaining' (i.e. we are seeking forwards, 'f'), we calculate where we are along the 
+      // 'remaining' div, add that to the width of the 'progess/the past' div and work out the percentage along the entire
+      // width of the progress bar, helping to keep things responsive.
+      // If we click on the other half of the progress bar, (i.e. we are seeking backwards 'b'), we only need to
+      // calculate how far along that div we are and find out the percentage along the total width of
+      // the progress bar, again helping to keep things responsive
+
+      if (direction === 'f') {
+        progressAlongFullBar = this.getClickedProgressBarPercentage(a, b, progressBarWidth);  
+      } else if (direction === 'b') {
+        progressAlongFullBar = this.getClickedProgressBarPercentage(b, 0, progressBarWidth);
+      }
+
+      if (progressAlongFullBar === 100) {
+        // Don't seek right to the end, omxplayer will fall over
+        progressAlongFullBar = 98.0
+      }
+
+      this.getTracksService.tapToSeek(progressAlongFullBar).subscribe(data => {
+        this.now = this.hhmmss(data)
+        this.ticks = +data;
+      });
+    }
+  }
+
   stop() {
-    this.getTracksService.stopMusic().subscribe(data => {
-      console.log(data);
+    this.getTracksService.stopMusic().subscribe(stopRes => {
+      if (stopRes === 0) {
+        this.router.navigate([`/tracks`], { relativeTo: this.route, skipLocationChange: true });  
+      }
     });
     this.playing = false;
   }
 
-  scrubForward() {
-    this.getTracksService.scrubForward().subscribe(data => {
-      this.now = this.hhmmss(data)
-      this.ticks = +data;
-      console.log(data);
-    });
-  }
 }

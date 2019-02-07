@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class GetTracksService {
 
-  // hostname: string = 'black-pearl.local';
-  hostname: string = window.location.hostname;
+  hostname: string = environment.hostname;
   testnum: number = 0;
   playlist: any = null;
+  status: any = null;
 
   constructor(
     private httpClient: HttpClient
@@ -28,6 +29,18 @@ export class GetTracksService {
     return this.playlist;
   }
 
+  setStatus(value) {
+    this.status = value;
+  }
+
+  getInternalStatus() {
+    return this.status;
+  }
+
+  getStatus() {
+    return this.httpClient.get('http://' + this.hostname + '/status');  
+  }
+
   getTracks(id) {
     let idQuery: string = '';
 
@@ -38,8 +51,8 @@ export class GetTracksService {
     return this.httpClient.get('http://' + this.hostname + '/get-track-list' + idQuery);
   }
 
-  scrubForward() {
-    return this.httpClient.get('http://' + this.hostname + '/scrub-forward');
+  tapToSeek(postition: number) {
+    return this.httpClient.get('http://' + this.hostname + '/seek?position=' + postition);
   }
 
   getSingleTrack(id) {
