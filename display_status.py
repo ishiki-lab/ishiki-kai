@@ -25,8 +25,6 @@ IMAGES_PATH = '/media/usb/Images'
 # SCREEN_WIDTH = None
 # SCREEN_HEIGHT = None
 
-
-
 time.sleep(0.75)
 pygame.init()
 time.sleep(0.75)
