@@ -4,3 +4,4 @@ scipy
 evdev
 netifaces
 apscheduler
+sentry-sdk>=0.7.2

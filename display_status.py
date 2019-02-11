@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 
-import netifaces
-from apscheduler.schedulers.background import BackgroundScheduler
-import os, time
-import evdev
-from evdev import ecodes
-from scipy.interpolate import interp1d
-import pygame
-from pygame.locals import *
+# this will catch exceptions and send them to sentry
+import os
+import sentry_sdk
+from sentry_sdk import capture_message, capture_exception
+
+SENTRY_URL = os.environ.get("SENTRY_URL")
+
+if SENTRY_URL is not None:
+    sentry_sdk.init(SENTRY_URL)
+
+import time
+
 from time import sleep, tzname, daylight, gmtime, strftime
 from os.path import exists, join
 from os import listdir, putenv, getenv, environ
@@ -16,6 +20,16 @@ from random import random
 from socket import gethostname
 from datetime import datetime as dt
 from signal import alarm, signal, SIGALRM, SIGKILL
+import netifaces
+from apscheduler.schedulers.background import BackgroundScheduler
+import evdev
+from evdev import ecodes
+from scipy.interpolate import interp1d
+import pygame
+from pygame.locals import *
+
+
+from phue import Bridge
 
 DELAY = 60 # delay for updating the screen information in seconds
 FONT_SIZE = 45
@@ -78,7 +92,18 @@ def get_imagenames(path):
            images_list.append(names)
     return(images_list)
 
+
 def draw_time():
+    try:
+        draw_time_wrapped()
+    except Exception as e:
+        # Alternatively the argument can be omitted
+        if SENTRY_URL is not None:
+            capture_exception(e)
+        raise(e)
+
+
+def draw_time_wrapped():
    global FONT_SIZE
    global lcd
    font_regular = pygame.font.Font(None, FONT_SIZE)
@@ -87,6 +112,7 @@ def draw_time():
    #print(current_dt)
    pygame.draw.rect(lcd, BLACK, pygame.Rect(0, SCREEN_HEIGHT -int(FONT_SIZE*1.2), SCREEN_WIDTH, SCREEN_HEIGHT))
    show_text(current_dt, font_regular, WHITE, [SCREEN_WIDTH/2, SCREEN_HEIGHT - FONT_SIZE/2])
+
 
 def show_text(text, font, colour, coordinates):
     text_surface = font.render('%s' % text, True,BLACK)
@@ -97,7 +123,28 @@ def show_text(text, font, colour, coordinates):
     lcd.blit(text_surface, rect)
     pygame.display.update()
 
+# def show_hue_status():
+#     HUE_IP_ADDRESS = "192.168.1.129"
+#     bridge = Bridge(HUE_IP_ADDRESS)
+#     bridge.connect()
+#     bridge.get_api()
+#     lights = bridge.lights
+#     for l in lights:
+#         print(l.name)
+
+
 def draw_screen():
+    try:
+        draw_screen_wrapped()
+    except Exception as e:
+        # Alternatively the argument can be omitted
+        if SENTRY_URL is not None:
+            capture_exception(e)
+        raise(e)
+
+
+def draw_screen_wrapped():
+
     global FONT_SIZE
     global lcd
     lcd.fill((0,0,0))
