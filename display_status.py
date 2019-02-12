@@ -21,15 +21,16 @@ from socket import gethostname
 from datetime import datetime as dt
 from signal import alarm, signal, SIGALRM, SIGKILL
 import netifaces
-from apscheduler.schedulers.background import BackgroundScheduler
-import evdev
-from evdev import ecodes
+# from apscheduler.schedulers.background import BackgroundScheduler
+import schedule
+# import evdev
+# from evdev import ecodes
 from scipy.interpolate import interp1d
 import pygame
 from pygame.locals import *
 
 
-from phue import Bridge
+# from phue import Bridge
 
 DELAY = 60 # delay for updating the screen information in seconds
 FONT_SIZE = 45
@@ -204,6 +205,7 @@ def alarm_handler(signum, frame):
 
     pygame.display.set_caption('Drawing')
 
+
 def main():
     global DELAY
     global lcd
@@ -226,21 +228,30 @@ def main():
  
     draw_screen()
 
-    scheduler = BackgroundScheduler()
-    #scheduler.add_job(print_ipaddresses, 'interval', seconds=DELAY)
-    scheduler.add_job(draw_screen, 'interval', seconds=DELAY)
-    scheduler.add_job(draw_time, 'interval', seconds=1)
-    scheduler.start()
+    schedule.every(1).minutes.do(draw_screen)
+    schedule.every(1).seconds.do(draw_time)
+
+    ## swapped apscheduler for schedule as it was stuck in a lock - I think during db access
+    # scheduler = BackgroundScheduler()
+    # #scheduler.add_job(print_ipaddresses, 'interval', seconds=DELAY)
+    # scheduler.add_job(draw_screen, 'interval', seconds=DELAY)
+    # # scheduler.add_job(draw_time, 'interval', seconds=1)
+    # scheduler.add_job(draw_time, 'interval', seconds=2, id='my_job')
+    # scheduler.start()
+    #
+    # print("scheduler: %s" % scheduler.get_jobs())
 
     print('Press Ctrl+{0} to exit'.format('Break' if osname == 'nt' else 'C'))
 
     try:
         # This is here to simulate application activity (which keeps the main thread alive).
         while True:
-            time.sleep(2)
+            time.sleep(0.5)
+            schedule.run_pending()
     except (KeyboardInterrupt, SystemExit):
+        print("goodbye")
         # Not strictly necessary if daemonic mode is enabled but should be done if possible
-        scheduler.shutdown()
+        # scheduler.shutdown()
 
 if __name__ == '__main__': 
     main()
