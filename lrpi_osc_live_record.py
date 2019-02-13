@@ -41,8 +41,8 @@ print(response.content)
 #print(json.loads(response.json()))
 
 HUE_IP_ADDRESS = "192.168.1.129"
-# HUE_IP_ADDRESS = "10.0.0.2"
-SRT_FILENAME = "output.srt"
+# HUE_IP_ADDRESS = "10.0.0.4"
+SRT_FILENAME = ""
 TRANSITION_TIME = 10
 MAX_BRIGHTNESS = 255
 INTERVAL = 1 # seconds
@@ -51,23 +51,23 @@ DEBUG = True
 VERBOSE = True
 PLAY_HUE = True
 PLAY_DMX = True
-DMX_INTERVAL = .5
+DMX_INTERVAL = .05
 
 previous_time = 0
 previous_dmx_time = 0
 bridge = None
 hue_list = [[]]
 
-srtFile = SubRipFile()
+srtFile = None
 
 tfIDs = []
-
 tfConnect = True
 
 dmxArray = zeros(512)
 prevFrame = zeros(512)
 prevTime = 0
 subs = []
+sub_incr = 1
 
 ipcon = IPConnection()
 
@@ -113,7 +113,8 @@ def hue_build_lookup_table(lights):
     return(hue_l)
 
 def play_record_hue(address: str, *args: List[Any]) -> None:
-    global bridge, INTERVAL, TRANSITION_TIME, previous_time, hue_list, RECORD
+    global bridge, INTERVAL, TRANSITION_TIME, previous_time, hue_list, RECORD, VERBOSE
+    global prevTime, subs, srtFile, sub_incr
     # print(hue_list)
     #print(len(args))
     #if not len(args) == 4 or type(args[0]) is not float or type(args[1]) is not float:
@@ -139,13 +140,13 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
     s = int(s)
     v = int(v*MAX_BRIGHTNESS/254.0)
 
-    hue_n = args[0][0][-1]
+    # hue_n = args[0][0][-1]
+    hue_n = int(args[0][0])
     # print(hue_n,len(hue_list),hue_list)
 
     if int(hue_n) < len(hue_list):
 
         # print(hue_n,hue_list[int(hue_n)],h,s,v)
-        print(hue_n,hue_list[int(hue_n)],h,s,v)
 
         current_time = time.time()
         elapsed_time = current_time - previous_time
@@ -159,7 +160,18 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
         # print(cmd, hue_list,hue_list[int(hue_n)])
         if (elapsed_time > INTERVAL):
             for hl in hue_list[int(hue_n)]:
-                # print(hue_n,hl,h,s,v)
+                print("---",hue_n,hl,h,s,v)
+                l = (h, s, v, int(TRANSITION_TIME))
+                item = SubRipItem(sub_incr, text="HUE"+str(hue_n)+str(l).replace(" ", ""))
+                item.shift(seconds=prevTime)
+                item.end.shift(seconds=perf_counter()-prevTime)
+                if VERBOSE:
+                    print("---",item)
+                subs.append(item)
+                if srtFile!=None:
+                    srtFile.append(item)
+                    sub_incr += 1
+                prevTime = perf_counter()
                 if PLAY_HUE:
                     bridge.set_light(hl, cmd)
             # bridge.set_light(int(hue_n), cmd)
@@ -175,36 +187,42 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
 
 def play_record_dmx(unused_addr, args, value):
     global INTERVAL, TRANSITION_TIME, previous_time, dmxCounter, VERBOSE
-    global prevFrame, prevTime, subs, srtFile, previous_dmx_time
+    global prevFrame, prevTime, subs, srtFile, previous_dmx_time, DMX_INTERVAL, sub_incr
 
     dmxArray[int(args[0])] = int(value*255)
 
     current_dmx_time = time.time()
     elapsed_dmx_time = current_dmx_time - previous_dmx_time
 
+    print(current_dmx_time, previous_dmx_time, elapsed_dmx_time)
+
     if (elapsed_dmx_time > DMX_INTERVAL):
-        frameArray = trim_zeros(dmxArray,'b')
-        print(array_equal(prevFrame,frameArray), prevFrame, frameArray)
+        frameArray = trim_zeros(dmxArray,'b').astype('uint8')
+        # frameArray = array(frameArray)
+        print(array_equal(prevFrame,frameArray), tuple(prevFrame), tuple(frameArray))
         if not array_equal(prevFrame,frameArray):
-            print("DMX",frameArray)
             if frameArray.any() != None:
-                item = SubRipItem(1, text="DMX1"+str(frameArray))
+                print("DMX",frameArray)
+                item = SubRipItem(sub_incr, text="DMX1"+str(tuple(frameArray)).replace(" ", ""))
                 item.shift(seconds=prevTime)
                 item.end.shift(seconds=perf_counter()-prevTime)
                 if VERBOSE:
                     print(item)
                 subs.append(item)
-                srtFile.append(item)
+                if srtFile!=None:
+                    srtFile.append(item)
+                    sub_incr += 1
                 prevTime = perf_counter()
                 if PLAY_DMX:
                     pass
-        prevFrame = frameArray
+                if not array_equal(prevFrame,frameArray):
+                    prevFrame = frameArray
 
         previous_dmx_time = time.time()
+        print(previous_dmx_time)
 
     # if prevFrame. == 0:
     #     prevFrame = array(frame)
-
 
     # print("[{0}] ~ {1}".format(args[0], value))
     # print(args[0], value)
@@ -212,14 +230,18 @@ def play_record_dmx(unused_addr, args, value):
 
 def signal_handler(sig, frame):
     global subs, tfConnect, ipcon, srtFile, SRT_FILENAME
+
     if VERBOSE:
-        print(subs, len(subs))
+        #print(subs, len(subs))
+        print("Number of subtitles", len(subs))
     encoding="utf_8"
 
-    srtFile.save(SRT_FILENAME, encoding=encoding)
+    if srtFile!=None:
+        print("Saving the %s subtitle file" % SRT_FILENAME)
+        srtFile.save(SRT_FILENAME, encoding=encoding)
 
-    if tfConnect:
-        ipcon.disconnect()
+    # if tfConnect:
+    #     ipcon.disconnect()
     sys.exit(0)
 
 def main():
@@ -238,6 +260,20 @@ def main():
     parser.add_argument("--hue", default=HUE_IP_ADDRESS, help="Philips Hue bridge IP address")
 
     args = parser.parse_args()
+
+    print(args)
+
+    MAX_BRIGHTNESS = int(args.brightness)
+    SRT_FILENAME = args.srt
+    INTERVAL = float(args.interval)
+    TRANSITION_TIME = float(args.transition)
+    HUE_IP_ADDRESS = args.hue
+    # VERBOSE = args.verbose
+    # DEBUG = args.debug
+
+    if SRT_FILENAME!="":
+        print("Start recording the %s subtitles track for light events." % SRT_FILENAME)
+        srtFile = SubRipFile()
 
     if PLAY_HUE:
         bridge = Bridge(HUE_IP_ADDRESS)
@@ -259,7 +295,7 @@ def main():
     # print(dir(dispatcher))
 
     for h in range(512):
-        disp.map("/hue%s" % h, play_record_hue, "HUE%s" % h)
+        disp.map("/hue%s" % h, play_record_hue, "%s" % h)
 
     for h in range(512):
         disp.map("/dmx%s" % h, play_record_dmx, "%s" % h)

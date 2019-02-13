@@ -35,6 +35,7 @@ tfConnect = True
 prevFrame = zeros(512)
 prevTime = 0
 subs = []
+sub_incr = 1
 
 ipcon = IPConnection()
 
