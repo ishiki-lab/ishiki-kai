@@ -173,7 +173,7 @@ def draw_hue_wrapped():
         HUE_BRIDGE = None
         msg = "Network failure to Hue - Check the wires!"
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
-    except socket.timeout as e:
+    except Exception as e:
         HUE_BRIDGE = None
         msg = "Network failure to Hue - Check the wires!"
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
