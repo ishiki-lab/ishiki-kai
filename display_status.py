@@ -2,7 +2,9 @@
 
 # this will catch exceptions and send them to sentry
 import os
+import json
 import sentry_sdk
+import socket
 from sentry_sdk import capture_message, capture_exception
 
 SENTRY_URL = os.environ.get("SENTRY_URL")
@@ -30,8 +32,10 @@ import pygame
 from pygame.locals import *
 
 
-# from phue import Bridge
+from phue import Bridge, PhueRegistrationException, PhueRequestTimeout
 
+
+HUE_BRIDGE = None
 DELAY = 60 # delay for updating the screen information in seconds
 FONT_SIZE = 45
 IMAGES_PATH = '/media/usb/Images'
@@ -80,10 +84,12 @@ def get_ipaddresses(adapters):
             addresses.append((adapter,mac_addr,ip_addr))
     return(addresses)
 
+
 def print_ipaddresses():
     adapters = netifaces.interfaces()
     addresses = get_ipaddresses(adapters)
     print(addresses)
+
 
 def get_imagenames(path):
     items = listdir(path)
@@ -115,6 +121,7 @@ def draw_time_wrapped():
    show_text(current_dt, font_regular, WHITE, [SCREEN_WIDTH/2, SCREEN_HEIGHT - FONT_SIZE/2])
 
 
+
 def show_text(text, font, colour, coordinates):
     text_surface = font.render('%s' % text, True,BLACK)
     rect = text_surface.get_rect(center=(coordinates[0]+2,coordinates[1]+2))
@@ -124,15 +131,52 @@ def show_text(text, font, colour, coordinates):
     lcd.blit(text_surface, rect)
     pygame.display.update()
 
-# def show_hue_status():
-#     HUE_IP_ADDRESS = "192.168.1.129"
-#     bridge = Bridge(HUE_IP_ADDRESS)
-#     bridge.connect()
-#     bridge.get_api()
-#     lights = bridge.lights
-#     for l in lights:
-#         print(l.name)
 
+def draw_hue():
+    try:
+        draw_hue_wrapped()
+    except Exception as e:
+        # Alternatively the argument can be omitted
+        if SENTRY_URL is not None:
+            capture_exception(e)
+        raise(e)
+
+def get_hue_address():
+
+    with open("/media/usb/settings.json", "r") as f:
+        settings = json.loads(f.read())
+    return settings["hue_ip"]
+
+
+def draw_hue_wrapped():
+    global HUE_BRIDGE
+    text_x_offset = int(SCREEN_HEIGHT / 4)
+    row = 5
+    font_regular = pygame.font.Font(None, FONT_SIZE)
+    hue_address = get_hue_address()
+    try:
+        if HUE_BRIDGE is None:
+            HUE_BRIDGE = Bridge(hue_address, config_file_path="/media/usb/python_hue")
+        lights = HUE_BRIDGE.lights
+        for l in lights:
+            show_text("%s OK" % l.name, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+            row += 1
+    except PhueRegistrationException as e:
+        HUE_BRIDGE = None
+        msg = "Press Hue button to connect on %s" % hue_address
+        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+    except PhueRequestTimeout as e:
+        HUE_BRIDGE = None
+        msg = "Press Hue button to connect on %s" % hue_address
+        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+    except OSError as e:
+        HUE_BRIDGE = None
+        msg = "Network failure to Hue - Check the wires!"
+        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+    except socket.timeout as e:
+        HUE_BRIDGE = None
+        msg = "Network failure to Hue - Check the wires!"
+        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
 
 def draw_screen():
     try:
@@ -168,7 +212,7 @@ def draw_screen_wrapped():
         resized_image = pygame.transform.scale(image, (SCREEN_WIDTH, int(SCREEN_HEIGHT/5)))
         lcd.blit(resized_image, (0,0))
     row = 1
-    text_x_offset = int(SCREEN_HEIGHT/3)
+    text_x_offset = int(SCREEN_HEIGHT/4)
     # get and print hostname
     hostname = gethostname()
     show_text(hostname, font_big, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
@@ -184,8 +228,8 @@ def draw_screen_wrapped():
     for i in range(len(addresses)):
         #print(addresses[i])
         address = '%s - %s - %s' % addresses[i]
-        show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row+i)])
-
+        show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
+        row += 1
 
 class Alarm(Exception):
     pass
@@ -230,15 +274,15 @@ def main():
 
     schedule.every(1).minutes.do(draw_screen)
     schedule.every(1).seconds.do(draw_time)
+    schedule.every(10).seconds.do(draw_hue)
 
-    ## swapped apscheduler for schedule as it was stuck in a lock - I think during db access
+    # swapped apscheduler for schedule as it was stuck in a lock - I think during db access
     # scheduler = BackgroundScheduler()
-    # #scheduler.add_job(print_ipaddresses, 'interval', seconds=DELAY)
     # scheduler.add_job(draw_screen, 'interval', seconds=DELAY)
-    # # scheduler.add_job(draw_time, 'interval', seconds=1)
-    # scheduler.add_job(draw_time, 'interval', seconds=2, id='my_job')
+    # scheduler.add_job(draw_time, 'interval', seconds=1)
+    # scheduler.add_job(draw_hue, 'interval', seconds=10)
     # scheduler.start()
-    #
+    # #
     # print("scheduler: %s" % scheduler.get_jobs())
 
     print('Press Ctrl+{0} to exit'.format('Break' if osname == 'nt' else 'C'))
