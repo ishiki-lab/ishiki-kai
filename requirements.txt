@@ -3,6 +3,6 @@ numpy
 scipy
 evdev
 netifaces
-schedule
+apscheduler
 sentry-sdk>=0.7.2
 phue
