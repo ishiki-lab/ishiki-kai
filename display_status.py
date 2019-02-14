@@ -4,6 +4,7 @@
 import os
 import json
 import sentry_sdk
+import socket
 from sentry_sdk import capture_message, capture_exception
 
 SENTRY_URL = os.environ.get("SENTRY_URL")
@@ -172,7 +173,10 @@ def draw_hue_wrapped():
         HUE_BRIDGE = None
         msg = "Network failure to Hue - Check the wires!"
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
-
+    except socket.timeout as e:
+        HUE_BRIDGE = None
+        msg = "Network failure to Hue - Check the wires!"
+        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
 
 def draw_screen():
     try:
