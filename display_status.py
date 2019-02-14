@@ -23,8 +23,8 @@ from socket import gethostname
 from datetime import datetime as dt
 from signal import alarm, signal, SIGALRM, SIGKILL
 import netifaces
-from apscheduler.schedulers.background import BackgroundScheduler
-# import schedule
+# from apscheduler.schedulers.background import BackgroundScheduler
+import schedule
 # import evdev
 # from evdev import ecodes
 from scipy.interpolate import interp1d
@@ -272,16 +272,17 @@ def main():
  
     draw_screen()
 
-    # schedule.every(1).minutes.do(draw_screen)
-    # schedule.every(1).seconds.do(draw_time)
+    schedule.every(1).minutes.do(draw_screen)
+    schedule.every(1).seconds.do(draw_time)
+    schedule.every(10).seconds.do(draw_hue)
 
     # swapped apscheduler for schedule as it was stuck in a lock - I think during db access
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(draw_screen, 'interval', seconds=DELAY)
-    scheduler.add_job(draw_time, 'interval', seconds=1)
-    scheduler.add_job(draw_hue, 'interval', seconds=10)
-    scheduler.start()
-    #
+    # scheduler = BackgroundScheduler()
+    # scheduler.add_job(draw_screen, 'interval', seconds=DELAY)
+    # scheduler.add_job(draw_time, 'interval', seconds=1)
+    # scheduler.add_job(draw_hue, 'interval', seconds=10)
+    # scheduler.start()
+    # #
     # print("scheduler: %s" % scheduler.get_jobs())
 
     print('Press Ctrl+{0} to exit'.format('Break' if osname == 'nt' else 'C'))
@@ -290,11 +291,11 @@ def main():
         # This is here to simulate application activity (which keeps the main thread alive).
         while True:
             time.sleep(0.5)
-            # schedule.run_pending()
+            schedule.run_pending()
     except (KeyboardInterrupt, SystemExit):
         print("goodbye")
         # Not strictly necessary if daemonic mode is enabled but should be done if possible
-        scheduler.shutdown()
+        # scheduler.shutdown()
 
 if __name__ == '__main__': 
     main()
