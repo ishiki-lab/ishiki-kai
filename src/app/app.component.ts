@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { SettingsService } from './pages/services/settings.service';
 import { GetTracksService } from './pages/services/get-tracks.service';
 import { forkJoin } from 'rxjs';
+import { PairingService } from './pages/services/pairing.service';
 
 @Component({
   selector: 'app-root',
@@ -16,12 +17,12 @@ export class AppComponent implements OnInit {
 
   constructor(
     private settingsService: SettingsService,
-    private tracksService: GetTracksService
+    private tracksService: GetTracksService,
+    private pairingService: PairingService
   ) {
   }
 
   ngOnInit () {
-
 
     forkJoin(
       this.tracksService.getStatus(),
@@ -37,5 +38,13 @@ export class AppComponent implements OnInit {
         this.roomName = settings.roomName
       }
     );
+  }
+
+  pair() {
+    this.pairingService.pair('lushroom-party-slave.local').subscribe(
+      (res: any) => {
+        console.log('Pair res: ', res);
+      }
+    )
   }
 }

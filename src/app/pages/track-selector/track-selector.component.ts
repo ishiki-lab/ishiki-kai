@@ -118,6 +118,7 @@ export class TrackSelectorComponent implements OnInit {
       (err: any) => {
         console.log('error', err);
         this.errorResponse = err;
+        this.errorResponse['message'] = 'Something is wrong...'
         this.router.navigate([`/tracks`]);
       }
     )
