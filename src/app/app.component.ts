@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
   }
 
   pair() {
-    this.pairingService.pair('lushroom-party-slave.local').subscribe(
+    this.pairingService.pair('liverpool-06-slave.local').subscribe(
       (res: any) => {
         console.log('Pair res: ', res);
       }

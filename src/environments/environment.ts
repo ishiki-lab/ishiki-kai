@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  hostname: 'lushroom-dev-jason.local'
+  hostname: '10.18.32.84'
 };
 
 /*
