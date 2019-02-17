@@ -1,4 +1,4 @@
 *.pyc
 __pycache__/
 output.mp3
-
+srt_files/

@@ -26,11 +26,11 @@ PORT = 4223
 DEBUG = False
 VERBOSE = True
 
-MAX_BRIGHTNESS = 200
+MAX_BRIGHTNESS = 254
 SRT_FILENAME = "Surround_Test_Audio.srt"
 AUDIO_FILENAME = "Surround_Test_Audio.m4a"
 HUE_IP_ADDRESS = "10.0.0.2"
-TICK_TIME = 1 # seconds
+TICK_TIME = 0.5 # seconds
 PLAY_HUE = True
 PLAY_AUDIO = True
 PLAY_DMX = True
@@ -62,12 +62,16 @@ def cb_enumerate(uid, connected_uid, position, hardware_version, firmware_versio
 
 def find_subtitle(subtitle, from_t, to_t, lo=0):
     i = lo
+    # print(subtitle)
     while (i < len(subtitle)):
-        # print(subtitle[i])
+        if DEBUG:
+            print("\n---\n",i, subtitle[i].start, from_t, subtitle[i].end, to_t)
+        #     print(subtitle[i], from_t, to_t)
         if (subtitle[i].start >= to_t):
             break
-        if (subtitle[i].start <= from_t) & (to_t  <= subtitle[i].end):
-            # print(subtitle[i].start, from_t, to_t)
+        # if (subtitle[i].start <= from_t) & (to_t  <= subtitle[i].end):
+        if (subtitle[i].start >= from_t) & (subtitle[i].end <= to_t):
+            # print(subtitle[i], subtitle[i].start, from_t, to_t)
             return subtitle[i].text, i
         i += 1
     return "", i
@@ -92,18 +96,19 @@ def trigger_light(subs):
                 bri = int((float(bri)/255.0)*int(MAX_BRIGHTNESS))
                 # print(bri)
                 cmd =  {'transitiontime' : int(TRANSITION_TIME), 'on' : True, 'bri' : int(bri), 'sat' : int(sat), 'hue' : int(hue)}
-                if DEBUG:
-                    print("Trigger HUE",l,cmd)
                 if PLAY_HUE:
+                    if DEBUG:
+                        print("Trigger HUE",l,cmd)
                     bridge.set_light(l, cmd)
+                    # sleep(.1)
             if scope[0:3] == "DMX":
                 l = int(scope[3:])
                 # channels = int(int(MAX_BRIGHTNESS)/255.0*(array(items.split(",")).astype(int)))
                 channels = array(items.split(",")).astype(int)
                 # channels = array(map(lambda i: int(MAX_BRIGHTNESS)*i, channels))
-                if DEBUG:
-                    print("Trigger DMX:", l, channels)
                 if PLAY_DMX:
+                    if DEBUG:
+                        print("Trigger DMX:", l, channels)
                     dmx.write_frame(channels)
         except:
             pass
@@ -120,21 +125,25 @@ def tick():
     # tsd = str(timedelta(seconds=t+10*TICK_TIME)).replace('.',',')
     ts = SubRipTime(seconds = t)
     tsd = SubRipTime(seconds = t+1*TICK_TIME)
-    # print(dir(player))
-    pp = player.getPosition()
+    #print(dir(player))
+    pp = player.get_position()
     ptms = player.get_time()/1000.0
     pt = SubRipTime(seconds=(player.get_time()/1000.0))
     ptd = SubRipTime(seconds=(player.get_time()/1000.0+1*TICK_TIME))
     if DEBUG:
         print('Time: %s | %s | %s - %s | %s - %s | %s | %s' % (datetime.now(),t,ts,tsd,pt,ptd,pp,ptms))
+        print('Finding subtitle starting at %s and ending at %s' % (pt, ptd))
     # sub, i = find_subtitle(subs, ts, tsd)
-    sub, i = find_subtitle(subs, pt, ptd)
+    sub, i = find_subtitle(subs, pt, ptd, lo=last_played)
+    if DEBUG:
+        print('Result of find_subtitle: ', i)
     # hours, minutes, seconds, milliseconds = time_convert(sub.start)
     # t = seconds + minutes*60 + hours*60*60 + milliseconds/1000.0
     if sub!="" and i > last_played:
         print(i, "Light event:", sub)
         # print("Trigger light event %s" % i)
         trigger_light(sub)
+        # sleep(.1)
         last_played=i
 
 def time_convert(t):
