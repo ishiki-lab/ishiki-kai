@@ -1,4 +1,6 @@
 <div class="settings-room-name">
-    {{roomName}} _____ <span class="pair-button" (click)="pair()">pair</span>
+    {{roomName}} _____ 
+    <span *ngIf="slaveIp && !partyModeActive" class="pair-button" (click)="pair()">pair</span>
+    <span *ngIf="partyModeActive" class="pair-button" (click)="unpair()">unpair</span>
 </div>
 <router-outlet></router-outlet>
