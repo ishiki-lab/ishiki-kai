@@ -59,7 +59,8 @@ export class TrackSelectorComponent implements OnInit {
     this.getTracksService.getStatus().pipe(
       switchMap((status: any) => {
         console.log('status in switchMap: ', status);
-        if ( !(status.canControl || status.playerState || status.source) ) {
+        this.getTracksService.setStatus(status);
+        if ( !status.canControl || !status.playerState || !status.source ) {
           console.log('player is idle, getting tracks...');
           return this.getTracksService.getTracks(this.folderId)
         } else {

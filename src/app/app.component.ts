@@ -31,7 +31,7 @@ export class AppComponent implements OnInit {
       ([statusRes, settingsRes]) => {
         let settings: any = settingsRes;
         let status: any = statusRes
-        this.tracksService.setStatus(status);
+        // this.tracksService.setStatus(status);
         // console.log('ac: ', this.tracksService.getInternalStatus())
         this.settings = settings;
         // console.log(this.settings);
@@ -41,7 +41,7 @@ export class AppComponent implements OnInit {
   }
 
   pair() {
-    this.pairingService.pair('liverpool-06-slave.local').subscribe(
+    this.pairingService.pair('liverpool-06.local').subscribe(
       (res: any) => {
         console.log('Pair res: ', res);
       }
