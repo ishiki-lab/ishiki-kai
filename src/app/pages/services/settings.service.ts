@@ -21,7 +21,13 @@ export class SettingsService {
 
   setRoomName(newName: string) {
     console.log('New name: ', newName);
-    // Send new name to the 'Pi...
+    // Send new name to the 'Pi and write it to settings.json
     
+  }
+
+  setBrightness(val: number) {
+    console.log('New brightness: ', val);
+    // Send new brightness to the 'Pi and write it to settings.json
+
   }
 }

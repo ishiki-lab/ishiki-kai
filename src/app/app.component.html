@@ -1,4 +1,9 @@
 <div class="settings-room-name">
-    {{roomName}}
-  </div>
+    <a href="/tracks">
+        {{roomName}} 
+    </a>
+    >> 
+    <span *ngIf="slaveIp && !partyModeActive" class="pair-button" (click)="pair()">pair</span>
+    <span *ngIf="partyModeActive" class="pair-button" (click)="unpair()">unpair</span>
+</div>
 <router-outlet></router-outlet>
