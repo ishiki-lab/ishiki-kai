@@ -245,9 +245,7 @@ def play_record_dmx(unused_addr, args, value):
         print(array_equal(prev_frame,frameArray), tuple(prev_frame), tuple(frameArray))
         if not array_equal(prev_frame,frameArray):
             if frameArray.any() != None:
-                if DEBUG:
-                    print("DMX",frameArray)
-                item = SubRipItem(sub_incr, text="DMX1"+str(tuple(frameArray)).replace(" ", ""))
+                item = SubRipItem(sub_incr, text="DMX1"+str(tuple(frameArray)[1:]).replace(" ", ""))
                 item.shift(seconds=prev_time)
                 item.end.shift(seconds=perf_counter()-prev_time)
                 if VERBOSE:
@@ -260,10 +258,9 @@ def play_record_dmx(unused_addr, args, value):
                 sub_incr += 1
                 prev_time = perf_counter()
                 if PLAY_DMX:
-                    # TODO
                     if DEBUG:
-                        print(tuple(frameArray))
-                    dmx.write_frame(tuple(frameArray))
+                        print("DMX tuple",tuple(frameArray)[1:])
+                    dmx.write_frame(tuple(frameArray)[1:])
                 if not array_equal(prev_frame,frameArray):
                     prev_frame = frameArray
 
