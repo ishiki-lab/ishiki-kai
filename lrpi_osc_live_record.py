@@ -44,7 +44,7 @@ print(response.content)
 # HUE_IP_ADDRESS = "10.0.0.4"
 HUE_IP_ADDRESS = "10.251.140.208"
 SRT_FILENAME = ""
-TRANSITION_TIME = 1 # Unit is tenths of second (10 = 1 second)
+TRANSITION_TIME = 10 # Unit is tenths of second (10 = 1 second)
 MAX_BRIGHTNESS = 254
 INTERVAL = 1    # Seconds
 RECORD = True
@@ -178,8 +178,8 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
 
         # print(cmd, hue_list,hue_list[int(hue_n)])
 
-        # if (elapsed_time > INTERVAL):
-        if True:
+        if (elapsed_time > INTERVAL):
+        # if True:
             for hl in hue_list[int(hue_n)]:
                 if DEBUG:
                     print("---",hue_n,hl,h,s,v)
