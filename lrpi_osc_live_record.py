@@ -40,18 +40,19 @@ response = get(HUE_URL)
 print(response.content)
 #print(json.loads(response.json()))
 
-HUE_IP_ADDRESS = "192.168.1.129"
+# HUE_IP_ADDRESS = "192.168.1.129"
 # HUE_IP_ADDRESS = "10.0.0.4"
+HUE_IP_ADDRESS = "10.251.140.208"
 SRT_FILENAME = ""
-TRANSITION_TIME = 10 # Unit is tenths of second (10 = 1 second)
+TRANSITION_TIME = 1 # Unit is tenths of second (10 = 1 second)
 MAX_BRIGHTNESS = 254
-INTERVAL = 1 # Seconds
+INTERVAL = 1    # Seconds
 RECORD = True
 DEBUG = True
 VERBOSE = True
 PLAY_HUE = True
 PLAY_DMX = True
-DMX_INTERVAL = .1
+DMX_INTERVAL = 0.05 # 0.05 means 20 times per second
 
 previous_time = 0
 previous_dmx_time = 0
@@ -72,9 +73,16 @@ prev_time = 0
 subs = []
 sub_incr = 1
 
+HOST = "127.0.0.1"
+PORT = 4223
+dmx = None
+scheduler = None
+last_played = 0
+tfIDs = []
+tfConnect = True
 ipcon = IPConnection() # Tinkerforge IP connection
-
 deviceIDs = [i[0] for i in deviceIdentifiersList]
+
 
 if DEBUG:
     print(deviceIDs)
@@ -149,7 +157,7 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
     # print(hue_n,len(hue_list),hue_list)
 
     on = True
-    if v<=5:
+    if v<=1:
         on = False
 
     cmd =  {'transitiontime' : int(TRANSITION_TIME), 'on' : on, 'bri' : int(v), 'sat' : int(s), 'hue' : int(h)}
@@ -170,8 +178,8 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
 
         # print(cmd, hue_list,hue_list[int(hue_n)])
 
-        if (elapsed_time > INTERVAL):
-        # if True:
+        # if (elapsed_time > INTERVAL):
+        if True:
             for hl in hue_list[int(hue_n)]:
                 if DEBUG:
                     print("---",hue_n,hl,h,s,v)
@@ -221,6 +229,7 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
 def play_record_dmx(unused_addr, args, value):
     global INTERVAL, TRANSITION_TIME, previous_time, dmxCounter, VERBOSE
     global prev_frame, prev_time, subs, srtFile, previous_dmx_time, DMX_INTERVAL, sub_incr
+    global dmx
 
     dmx_array[int(args[0])] = int(value*255)
 
@@ -252,7 +261,9 @@ def play_record_dmx(unused_addr, args, value):
                 prev_time = perf_counter()
                 if PLAY_DMX:
                     # TODO
-                    pass
+                    if DEBUG:
+                        print(tuple(frameArray))
+                    dmx.write_frame(tuple(frameArray))
                 if not array_equal(prev_frame,frameArray):
                     prev_frame = frameArray
 
@@ -286,6 +297,8 @@ def main():
     global hue_list, bridge, SRT_FILENAME, HUE_IP_ADDRESS, MAX_BRIGHTNESS
     global DMX_INTERVAL, INTERVAL, TRANSITION_TIME, HUE_IP_ADDRESS, DEBUG, VERBOSE
     global subs, srtFile
+    global ipcon, tfIDs, dmx
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip",
         default="127.0.0.1", help="OSC ip address to listen to")
@@ -323,13 +336,51 @@ def main():
         for l in lights:
             print(l.name)
         for l in lights:
-            l.brightness = 1
+            l.on = True
+            l.brightness = MAX_BRIGHTNESS
 
         light_names = bridge.get_light_objects('name')
         print("Light names:", light_names)
 
         hue_list = hue_build_lookup_table(lights)
         print(hue_list)
+
+    if PLAY_DMX:
+
+        ipcon.connect(HOST, PORT)
+
+        # Register Enumerate Callback
+        ipcon.register_callback(IPConnection.CALLBACK_ENUMERATE, cb_enumerate)
+
+        # Trigger Enumerate
+        ipcon.enumerate()
+
+        sleep(2)
+
+        if DEBUG:
+            print(tfIDs)
+
+        dmxcount = 0
+        for tf in tfIDs:
+            # try:
+            if True:
+                # print(len(tf[0]))
+
+                if len(tf[0])<=3: # if the device UID is 3 characters it is a bricklet
+                    if tf[1] in deviceIDs:
+                        if VERBOSE:
+                            print(tf[0],tf[1], getIdentifier(tf))
+                    if tf[1] == 285: # DMX Bricklet
+                        if dmxcount == 0:
+                            print("Registering %s as slave DMX device for capturing DMX frames" % tf[0])
+                            dmx = BrickletDMX(tf[0], ipcon)
+                            dmx.set_dmx_mode(dmx.DMX_MODE_MASTER)
+                            # channels = int((int(MAX_BRIGHTNESS)/255.0)*ones(512,)*255)
+                            # dmx.write_frame([255,255])
+                            sleep(1)
+                            # channels = int((int(MAX_BRIGHTNESS)/255.0)*zeros(512,)*255)
+                            # dmx.write_frame(channels)
+                        dmxcount += 1
 
     disp = dispatcher.Dispatcher()
     # print(dir(dispatcher))

@@ -20,17 +20,15 @@ from tinkerforge.bricklet_dmx import BrickletDMX
 from tf_device_ids import deviceIdentifiersList
 from numpy import array, ones
 
-HOST = "127.0.0.1"
-PORT = 4223
-
 DEBUG = False
 VERBOSE = True
 
 MAX_BRIGHTNESS = 254
 SRT_FILENAME = "Surround_Test_Audio.srt"
 AUDIO_FILENAME = "Surround_Test_Audio.m4a"
-HUE_IP_ADDRESS = "10.0.0.2"
-TICK_TIME = 0.5 # seconds
+# HUE_IP_ADDRESS = "10.0.0.2"
+HUE_IP_ADDRESS = "10.251.140.208"
+TICK_TIME = 1 # seconds
 PLAY_HUE = True
 PLAY_AUDIO = True
 PLAY_DMX = True
@@ -40,6 +38,9 @@ PLAY_DMX = True
 subs = []
 player = None
 bridge = None
+
+HOST = "127.0.0.1"
+PORT = 4223
 dmx = None
 scheduler = None
 last_played = 0
@@ -64,8 +65,8 @@ def find_subtitle(subtitle, from_t, to_t, lo=0):
     i = lo
     # print(subtitle)
     while (i < len(subtitle)):
-        if DEBUG:
-            print("\n---\n",i, subtitle[i].start, from_t, subtitle[i].end, to_t)
+        # if DEBUG:
+        #     print("\n---\n",i, subtitle[i].start, from_t, subtitle[i].end, to_t)
         #     print(subtitle[i], from_t, to_t)
         if (subtitle[i].start >= to_t):
             break
@@ -75,6 +76,23 @@ def find_subtitle(subtitle, from_t, to_t, lo=0):
             return subtitle[i].text, i
         i += 1
     return "", i
+
+def find_subtitles(subtitle, from_t, to_t, lo=0):
+    i = lo
+    # print(subtitle)
+    subtitles_output = []
+    while (i < len(subtitle)):
+        # if DEBUG:
+        #     print("\n---\n",i, subtitle[i].start, from_t, subtitle[i].end, to_t)
+        #     print(subtitle[i], from_t, to_t)
+        # if (subtitle[i].start >= to_t):
+        #     break
+        # if (subtitle[i].start <= from_t) & (to_t  <= subtitle[i].end):
+        if (subtitle[i].start >= from_t) & (subtitle[i].end <= to_t):
+            # print(subtitle[i], subtitle[i].start, from_t, to_t)
+            subtitles_output.append((subtitle[i].text, i))
+        i += 1
+    return subtitles_output
 
 def end_callback(event):
     print('End of media stream (event %s)' % event.type)
@@ -96,9 +114,9 @@ def trigger_light(subs):
                 bri = int((float(bri)/255.0)*int(MAX_BRIGHTNESS))
                 # print(bri)
                 cmd =  {'transitiontime' : int(TRANSITION_TIME), 'on' : True, 'bri' : int(bri), 'sat' : int(sat), 'hue' : int(hue)}
+                if DEBUG:
+                    print("Trigger HUE",l,cmd)
                 if PLAY_HUE:
-                    if DEBUG:
-                        print("Trigger HUE",l,cmd)
                     bridge.set_light(l, cmd)
                     # sleep(.1)
             if scope[0:3] == "DMX":
@@ -106,9 +124,9 @@ def trigger_light(subs):
                 # channels = int(int(MAX_BRIGHTNESS)/255.0*(array(items.split(",")).astype(int)))
                 channels = array(items.split(",")).astype(int)
                 # channels = array(map(lambda i: int(MAX_BRIGHTNESS)*i, channels))
+                if DEBUG:
+                    print("Trigger DMX:", l, channels)
                 if PLAY_DMX:
-                    if DEBUG:
-                        print("Trigger DMX:", l, channels)
                     dmx.write_frame(channels)
         except:
             pass
@@ -135,16 +153,23 @@ def tick():
         print('Finding subtitle starting at %s and ending at %s' % (pt, ptd))
     # sub, i = find_subtitle(subs, ts, tsd)
     sub, i = find_subtitle(subs, pt, ptd, lo=last_played)
+    sub_list = find_subtitles(subs, pt, ptd, lo=last_played)
     if DEBUG:
         print('Result of find_subtitle: ', i)
+        print('Result of find_subtitles: ', len(sub_list))
     # hours, minutes, seconds, milliseconds = time_convert(sub.start)
     # t = seconds + minutes*60 + hours*60*60 + milliseconds/1000.0
     if sub!="" and i > last_played:
-        print(i, "Light event:", sub)
+        print("Light event:", i, sub)
         # print("Trigger light event %s" % i)
         trigger_light(sub)
         # sleep(.1)
         last_played=i
+    for sub in sub_list:
+        # print(sub)
+        print("Light event:", sub[1], sub[0])
+        trigger_light(sub[0])
+        last_played=sub[1]
 
 def time_convert(t):
     block, milliseconds = str(t).split(",")
@@ -204,6 +229,7 @@ def main():
     if DEBUG:
         print(args)
 
+
     ipcon.connect(HOST, PORT)
 
     # Register Enumerate Callback
@@ -258,7 +284,8 @@ def main():
             #print(dir(l))
         # Set brightness of each light to 10
         for l in lights:
-            l.brightness = 1
+            l.on = True
+            l.brightness = MAX_BRIGHTNESS
 
         # Get a dictionary with the light name as the key
         light_names = bridge.get_light_objects('name')
