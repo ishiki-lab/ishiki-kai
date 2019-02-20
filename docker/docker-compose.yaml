@@ -1,27 +1,6 @@
 version: '3'
 
 services:
-  #brickd:
-  #  build: ../lrpi_brickd
-  #  container_name: lushroom-brickd
-  #  privileged: true
-  #  image: "lushdigital/lushroom-brickd:latest"
-  #  volumes:
-  #    - "/opt/lushroom:/opt/lushroom"
-  #  restart: always
-  #commands:
-  #  build: ../lrpi_commands
-  #  container_name: lushroom-commands
-  #  privileged: true
-  #  links:
-  #    - brickd
-  #  depends_on:
-  #    - brickd
-  #  image: "lushdigital/lushroom-commands:latest"
-  #  volumes:
-  #    - "/opt/lushroom:/opt/lushroom"
-  #  env_file: .env
-  #  restart: always
   rclone:
     container_name: lushroom-rclone
     privileged: true
@@ -29,6 +8,11 @@ services:
     volumes:
        - /media/usb:/media/usb
     restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
+        tag: "rclone"
   display:
     container_name: lushroom-display
     privileged: true
@@ -41,28 +25,25 @@ services:
     environment:
        - HOSTNAME
     restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
+        tag: "display"
   player:
     container_name: lushroom-player
     image: "lushdigital/lushroom-player:latest"
     privileged: true
     ports:
        - 80:80
-  #  links:
-  #    - brickd
-  #  depends_on:
-  #    - brickd
     volumes:
        - /media/usb:/media/usb
        - /dev/vchiq:/dev/vchiq
        - /opt/vc:/opt/vc
-  #  command: python3 flask/Server.py
-  #  restart: always
-  # docker run -it --rm -d -p 80:80 -v /opt/vc:/opt/vc -v /media/usb:/media/usb --device /dev/vchiq:/dev/vchiq --device /dev/fb0:/dev/fb0 lushdigital/lushroom-player:dev
-#  watchtower:
-#    image: "v2tec/watchtower:armhf-latest"
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#      - /root/.docker/config.json:/config.json
-#    command: --interval 30
-#    restart: always
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
+        tag: "player"
 

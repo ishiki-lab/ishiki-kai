@@ -10,6 +10,7 @@ ExecStart=/opt/lushroom/start.sh
 TimeoutSec=0
 RestartSec=2
 Restart=always
+StandardOutput=journal+console
 
 [Install]
 WantedBy=multi-user.target

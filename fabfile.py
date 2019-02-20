@@ -153,7 +153,6 @@ def prepare_card_1(config="default"):
     install_extra_libs()
     install_docker()
 
-    set_boot_config(config)
     remove_bloat()
     configure_rsyslog()
 
@@ -163,8 +162,9 @@ def prepare_card_1(config="default"):
     waveshare_install_SPI_touchscreen_drivers()
     sudo("shutdown now")
 
-def prepare_card_2():
+def prepare_card_2(config="default"):
     fix_install()
+    set_boot_config(config)
     sudo("apt-get clean -y")
     # add our bootstrap software
     add_bootstrap()
@@ -181,10 +181,11 @@ def dev_setup():
     prepares a base image
     """
 
-    # set_ssh_config_dev() # allows password login
-    # install_samba()
-    # install_dev_apt_prerequisites()
+    # fix_install()
+    install_samba()
+    install_dev_apt_prerequisites()
     install_dev_pip_prerequisites()
+    set_ssh_config_dev()  # allows password login
     create_lushroom_dev()
     # re-adds the resize
     # name = "resize_once.txt"
@@ -266,6 +267,7 @@ def install_extra_libs():
     sudo("apt-get update")
     sudo("apt-get -y install ntp autossh git")
     sudo('pip install pyudev')
+    sudo('pip install pyroute2')
 
 
 def install_docker():
@@ -310,7 +312,7 @@ def set_boot_config(config):
     if config == "kedei":
         _add_config_file("kedei_config.txt", "/boot/config.txt", "root")
     else:
-        _add_config_file("config.txt", "/boot/config.txt", "root")
+        _add_config_file("waveshare_config.txt", "/boot/config.txt", "root")
 
 
 def add_resize():
@@ -475,17 +477,17 @@ def install_dev_apt_prerequisites():
 
 def install_dev_pip_prerequisites():
     print('Installing software PIP prerequisites')
-    # sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
-    # # sudo('pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pygameui') # not working
-    # sudo('pip install evdev')
-    # sudo('pip install tinkerforge')
-    # #sudo('pip install numpy') # numpy is already installed by pygame
-    # sudo('pip install pysrt')
-    # sudo('pip install phue')
-    # sudo('pip install pytz')
-    # sudo('pip install apscheduler')
+    sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
+    # sudo('pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pygameui') # not working
+    sudo('pip install evdev')
+    sudo('pip install tinkerforge')
+    #sudo('pip install numpy') # numpy is already installed by pygame
+    sudo('pip install pysrt')
+    sudo('pip install phue')
+    sudo('pip install pytz')
+    sudo('pip install apscheduler')
     # sudo('pip install pygameui')
-    # # sudo('pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org  pygameui') # not working
+    # sudo('pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org  pygameui') # not working
     install_pygameui()
     sudo('pip3 install evdev')
     sudo('pip3 install tinkerforge')
@@ -622,6 +624,18 @@ def test():
 
 def get_bashrc():
     get("/home/lush/.bashrc")
+
+def update_bootstrap():
+
+    env.password = None
+    env.key_filename = get_cert_path(private=True)
+
+    sudo("mkdir -p /opt/lushroom")
+
+    file_names = ["bootstrap.py"]
+
+    for name in file_names:
+        _add_software_file(name, "/opt/lushroom/%s" % name, "root")
 
 
 def add_bootstrap():

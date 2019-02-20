@@ -17,7 +17,7 @@ def start():
 
     # mount the usb
     if mount_usb():
-        print("Found the Lushroom USB")
+        print("Bootstrap: Found the Lushroom USB")
         settings_file = os.path.join(MOUNT_DIR, "settings.json")
 
         with open(settings_file, "r") as f:
@@ -38,11 +38,32 @@ def start():
 
         # set wifi credentials
         ssid, psk = get_wifi_creds(settings)
-        if ssid and not already_has_creds(ssid, psk):
-            print("Bootstrap: Adding SSID=%s and PASSWORD=%s to wpa_supplicant.conf" % (ssid, psk))
-            add_wifi_creds(ssid, psk)
+        if ssid:
+            if not already_has_creds(ssid, psk):
+                print("Bootstrap: Adding SSID=%s and PASSWORD=%s to wpa_supplicant.conf" % (ssid, psk))
+                add_wifi_creds(ssid, psk)
+            else:
+                print("Bootstrap: Wifi already configured for %s" % ssid)
         else:
-            print("Bootstrap: Wifi already configured")
+            print("Bootstrap: No ssid given")
+
+
+        # configure eth0 ip address
+        interface = "eth0"
+        address = settings.get("eth0_address")
+        netmask = settings.get("eth0_netmask")
+        router = settings.get("eth0_router")
+        set_ip_address(interface, address=address, netmask=netmask, router=router)
+
+        # configure wlan0 ip address
+        interface = "wlan0"
+        address = settings.get("wlan0_address")
+        netmask = settings.get("wlan0_netmask")
+        router = settings.get("wlan0_router")
+        set_ip_address(interface, address=address, netmask=netmask, router=router)
+
+        subprocess.call(['sudo', 'systemctl', 'daemon-reload'])
+        subprocess.call(['sudo', 'systemctl', 'restart', 'dhcpcd.service'])
 
         # set hostname
         host_name = settings.get("host_name")
@@ -69,18 +90,18 @@ def start():
                 existing_tunnel_host = existing_settings.get("tunnel_host")
                 existing_tunnel_port = existing_settings.get("tunnel_port")
                 if existing_tunnel_host != tunnel_host or existing_tunnel_port != tunnel_port:
-                    print("Bootstrap: Docker tunnel")
+                    print("Bootstrap: Docker tunnel configured to %s on port %s" % (tunnel_host, tunnel_port))
                     configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user)
                 else:
-                    print("Bootstrap: Docker tunnel already configured")
+                    print("Bootstrap: Docker tunnel already configured to %s on port %s" % (tunnel_host, tunnel_port))
             else:
-                print("Bootstrap: Docker Tunnel")
+                print("Bootstrap: Docker tunnel configured to %s on port %s" % (tunnel_host, tunnel_port))
                 configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user)
 
         shutil.copy(settings_file, existing_settings_file)
 
     else:
-        print("Failed to find the Lushroom USB")
+        print("Bootstrap: Failed to find the Lushroom USB")
 
 
 def _replace_template_text(text, name, value):
@@ -125,13 +146,13 @@ def set_time_zone(time_zone):
         if os.path.islink(dst):
             target = os.readlink(dst)
             if target == src:
-                print("Bootstrap: Time zone already set")
+                print("Bootstrap: Time zone already set to %s" % time_zone)
                 return
             else:
                 os.remove(dst)
         else:
             os.remove(dst)
-    print("Bootstrap: Setting time zone")
+    print("Bootstrap: Setting time zone to %s" % time_zone)
     os.symlink(src, dst)
 
 
@@ -196,7 +217,7 @@ def already_has_creds(ssid, psk):
 def set_hostname(new_hostname):
     current_hostname = socket.gethostname()
     if new_hostname != current_hostname:
-        print("Bootstrap: Setting host name")
+        print("Bootstrap: Setting host name to %s" % new_hostname)
         cmd = "sed -i 's/%s/%s/g' /etc/hostname" % (current_hostname, new_hostname)
         subprocess.call(cmd, shell=True)
         cmd = "sed -i 's/%s/%s/g' /etc/hosts" % (current_hostname, new_hostname)
@@ -204,7 +225,7 @@ def set_hostname(new_hostname):
         cmd = "hostname %s" % new_hostname
         subprocess.call(cmd, shell=True)
     else:
-        print("Bootstrap: Host name already set")
+        print("Bootstrap: Host name already set to %s" % new_hostname)
 
 
 def _list_files(root, result):
@@ -232,8 +253,58 @@ def mount_usb():
                 return True
             else:
                 unmount(device)
-
     return False
+
+
+def rewrite_dhcpdc_conf(interface, address=None, netmask=None, router=None):
+
+    start_tag = "# ***** begin lushroom templated static ip for %s *****" % interface
+    end_tag = "# ***** end lushroom templated static ip for %s *****" % interface
+
+    template = """
+
+%s
+interface %s
+static ip_address=%s/%s
+static routers=%s
+static domain_name_servers=8.8.8.8 8.8.4.4
+%s
+
+"""
+
+    attr = (start_tag, interface, address, netmask, router, end_tag)
+
+    with open("/etc/dhcpcd.conf", "r") as f:
+        current_config = f.read()
+
+    if start_tag in current_config:
+        config = current_config[:current_config.find(start_tag)] + current_config[
+                                                                   current_config.find(end_tag) + len(end_tag):]
+    else:
+        config = current_config
+
+    if address:
+        config = config + template % attr
+
+    ## remove too much white space
+    while "\n\n\n" in config:
+        config = config.replace("\n\n\n", "\n\n")
+
+    with open("/etc/dhcpcd.conf", "w") as f:
+        f.write(config)
+
+
+def set_ip_address(interface, address=None, netmask=None, router=None):
+
+    if address:
+        print("Bootstrap: Setting a static ip address of %s for %s" % (address, interface))
+    else:
+        print("Bootstrap: Setting %s to use DHCP" % interface)
+    rewrite_dhcpdc_conf(interface, address=address, netmask=netmask, router=router)
+    cmd = "sudo ip addr flush dev %s" % interface
+    subprocess.call(cmd, shell=True)
+
+
 
 
 if __name__ == '__main__':

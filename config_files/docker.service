@@ -10,6 +10,7 @@ Type=notify
 # the default is not to use systemd for cgroups because the delegate issues still
 # exists and systemd currently does not support the cgroup feature set required
 # for containers run by docker
+# Environment=GOOGLE_APPLICATION_CREDENTIALS=/media/usb/lushroom-logging.json
 ExecStart=
 ExecStart=/usr/bin/dockerd
 ExecReload=/bin/kill -s HUP $MAINPID

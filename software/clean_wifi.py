@@ -5,6 +5,7 @@ def remove():
         t = f.read()
 
     t = t[:t.find("network")]
+
     print(t)
 
     with open("/etc/wpa_supplicant/wpa_supplicant.conf", "w") as f:

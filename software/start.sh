@@ -1,8 +1,9 @@
 #!/bin/sh
 
 sleep 2
+export GOOGLE_APPLICATION_CREDENTIALS=/media/usb/lushroom-rclone.json
 echo "bootstrap starting"
-python3 /opt/lushroom/bootstrap.py
+python3 -u /opt/lushroom/bootstrap.py
 
 if [ -f /opt/lushroom/resize_once.txt ]; then
     echo "resizing and rebooting"
