@@ -230,6 +230,7 @@ def draw_screen_wrapped():
         address = '%s - %s - %s' % addresses[i]
         show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
         row += 1
+    draw_hue_wrapped()
 
 class Alarm(Exception):
     pass
@@ -272,9 +273,9 @@ def main():
  
     draw_screen()
 
-    schedule.every(1).minutes.do(draw_screen)
+    schedule.every(20).seconds.do(draw_screen)
     schedule.every(1).seconds.do(draw_time)
-    schedule.every(10).seconds.do(draw_hue)
+    # schedule.every(10).seconds.do(draw_hue)
 
     # swapped apscheduler for schedule as it was stuck in a lock - I think during db access
     # scheduler = BackgroundScheduler()
