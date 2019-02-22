@@ -10,4 +10,6 @@ docker run --privileged -it --rm --name lushroom-display --network host \
     -v /media/usb:/media/usb \
     -v /dev/fb0:/dev/fb0 \
     -v /dev/input/event0:/dev/input/event0 \
-    -e HOSTNAME=$HOSTNAME lushdigital/lushroom-display:latest
+    -e HOSTNAME=$HOSTNAME \
+    -e SENTRY_URL=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137 \
+    lushdigital/lushroom-display:latest

@@ -10,6 +10,7 @@ from sentry_sdk import capture_message, capture_exception
 SENTRY_URL = os.environ.get("SENTRY_URL")
 
 if SENTRY_URL is not None:
+    print("Exceptions in Sentry")
     sentry_sdk.init(SENTRY_URL)
 
 import time
@@ -19,6 +20,7 @@ from os.path import exists, join
 from os import listdir, putenv, getenv, environ
 from os import name as osname
 from random import random
+import socket
 from socket import gethostname
 from datetime import datetime as dt
 from signal import alarm, signal, SIGALRM, SIGKILL
@@ -162,21 +164,17 @@ def draw_hue_wrapped():
             show_text("%s OK" % l.name, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
             row += 1
     except PhueRegistrationException as e:
+        print("PhueRegistrationException")
         HUE_BRIDGE = None
         msg = "Press Hue button to connect on %s" % hue_address
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
     except PhueRequestTimeout as e:
+        print("PhueRequestTimeout Ignore the extra connection trace")
         HUE_BRIDGE = None
         msg = "Press Hue button to connect on %s" % hue_address
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
-    except OSError as e:
-        HUE_BRIDGE = None
-        msg = "Network failure to Hue - Check the wires!"
-        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
-    except Exception as e:
-        HUE_BRIDGE = None
-        msg = "Network failure to Hue - Check the wires!"
-        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+
+
 
 def draw_screen():
     try:
