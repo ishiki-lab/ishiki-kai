@@ -10,6 +10,7 @@ from sentry_sdk import capture_message, capture_exception
 SENTRY_URL = os.environ.get("SENTRY_URL")
 
 if SENTRY_URL is not None:
+    print("Exceptions in Sentry")
     sentry_sdk.init(SENTRY_URL)
 
 import time
@@ -19,6 +20,7 @@ from os.path import exists, join
 from os import listdir, putenv, getenv, environ
 from os import name as osname
 from random import random
+import socket
 from socket import gethostname
 from datetime import datetime as dt
 from signal import alarm, signal, SIGALRM, SIGKILL
@@ -162,21 +164,22 @@ def draw_hue_wrapped():
             show_text("%s OK" % l.name, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
             row += 1
     except PhueRegistrationException as e:
+        print("PhueRegistrationException")
         HUE_BRIDGE = None
         msg = "Press Hue button to connect on %s" % hue_address
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
     except PhueRequestTimeout as e:
+        print("PhueRequestTimeout Ignore the extra connection trace")
         HUE_BRIDGE = None
         msg = "Press Hue button to connect on %s" % hue_address
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
     except OSError as e:
         HUE_BRIDGE = None
-        msg = "Network failure to Hue - Check the wires!"
+        msg = "Failed to connect to Hue"
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
-    except Exception as e:
-        HUE_BRIDGE = None
-        msg = "Network failure to Hue - Check the wires!"
-        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+        
+
+
 
 def draw_screen():
     try:
@@ -230,6 +233,7 @@ def draw_screen_wrapped():
         address = '%s - %s - %s' % addresses[i]
         show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
         row += 1
+    draw_hue_wrapped()
 
 class Alarm(Exception):
     pass
@@ -272,9 +276,9 @@ def main():
  
     draw_screen()
 
-    schedule.every(1).minutes.do(draw_screen)
+    schedule.every(20).seconds.do(draw_screen)
     schedule.every(1).seconds.do(draw_time)
-    schedule.every(10).seconds.do(draw_hue)
+    # schedule.every(10).seconds.do(draw_hue)
 
     # swapped apscheduler for schedule as it was stuck in a lock - I think during db access
     # scheduler = BackgroundScheduler()
