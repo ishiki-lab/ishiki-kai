@@ -173,6 +173,11 @@ def draw_hue_wrapped():
         HUE_BRIDGE = None
         msg = "Press Hue button to connect on %s" % hue_address
         show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+    except OSError as e:
+        HUE_BRIDGE = None
+        msg = "Failed to connect to Hue"
+        show_text(msg, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
+        
 
 
 
