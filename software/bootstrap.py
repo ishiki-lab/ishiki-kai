@@ -83,20 +83,30 @@ def start():
 
         # configure ssh tunnel
         tunnel_host = settings.get("tunnel_host")
-        tunnel_port = settings.get("tunnel_port")
+        docker_tunnel_port = settings.get("docker_tunnel_port")
+        admin_tunnel_port = settings.get("admin_tunnel_port")
         tunnel_user = settings.get("tunnel_user")
-        if tunnel_host and tunnel_port and tunnel_user:
+        if tunnel_host and docker_tunnel_port and admin_tunnel_port and tunnel_user:
             if existing_settings:
                 existing_tunnel_host = existing_settings.get("tunnel_host")
-                existing_tunnel_port = existing_settings.get("tunnel_port")
-                if existing_tunnel_host != tunnel_host or existing_tunnel_port != tunnel_port:
-                    print("Bootstrap: Docker tunnel configured to %s on port %s" % (tunnel_host, tunnel_port))
-                    configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user)
+                existing_docker_tunnel_port = existing_settings.get("docker_tunnel_port")
+                existing_admin_tunnel_port = existing_settings.get("admin_tunnel_port")
+                if existing_tunnel_host != tunnel_host or \
+                        existing_docker_tunnel_port != existing_docker_tunnel_port or \
+                        existing_admin_tunnel_port != existing_admin_tunnel_port:
+                    print("Bootstrap: Docker tunnel configured to %s on port %s" % (tunnel_host, docker_tunnel_port))
+                    configure_ssh_tunnel(tunnel_host, docker_tunnel_port, tunnel_user, "2375", "docker_tunnel")
+                    print("Bootstrap: SSH tunnel configured to %s on port %s" % (tunnel_host, admin_tunnel_port))
+                    configure_ssh_tunnel(tunnel_host, admin_tunnel_port, tunnel_user, "22", "admin_tunnel")
                 else:
-                    print("Bootstrap: Docker tunnel already configured to %s on port %s" % (tunnel_host, tunnel_port))
+                    print("Bootstrap: Docker tunnel already configured to %s on port %s" % (tunnel_host, docker_tunnel_port))
+                    print("Bootstrap: SSH tunnel already configured to %s on port %s" % (
+                    tunnel_host, admin_tunnel_port))
             else:
-                print("Bootstrap: Docker tunnel configured to %s on port %s" % (tunnel_host, tunnel_port))
-                configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user)
+                print("Bootstrap: Docker tunnel configured to %s on port %s" % (tunnel_host, docker_tunnel_port))
+                configure_ssh_tunnel(tunnel_host, docker_tunnel_port, tunnel_user, "2375", "docker_tunnel")
+                print("Bootstrap: SSH tunnel configured to %s on port %s" % (tunnel_host, admin_tunnel_port))
+                configure_ssh_tunnel(tunnel_host, admin_tunnel_port, tunnel_user, "22", "admin_tunnel")
 
         shutil.copy(settings_file, existing_settings_file)
 
@@ -108,19 +118,20 @@ def _replace_template_text(text, name, value):
     return text.replace("{{ %s }}" % name, value)
 
 
-def configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user):
+def configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user, dst_port, service_name):
 
-    cmd = "systemctl stop docker-tunnel.service"
+    cmd = "systemctl stop %s.service" % service_name
     subprocess.call(cmd, shell=True)
 
-    with open("/opt/lushroom/docker-tunnel.service.template", "r") as f:
+    with open("/opt/lushroom/tunnel.service.template", "r") as f:
         template_text = f.read()
 
     template_text = _replace_template_text(template_text, "tunnel_host", tunnel_host)
     template_text = _replace_template_text(template_text, "tunnel_port", tunnel_port)
+    template_text = _replace_template_text(template_text, "dst_port", dst_port)
     conf_text = _replace_template_text(template_text, "tunnel_user", tunnel_user)
 
-    conf_file_path = "/etc/systemd/system/docker-tunnel.service"
+    conf_file_path = "/etc/systemd/system/%s.service" % service_name
 
     if os.path.exists(conf_file_path):
         os.remove(conf_file_path)
@@ -132,9 +143,9 @@ def configure_ssh_tunnel(tunnel_host, tunnel_port, tunnel_user):
 
     cmd = "systemctl daemon-reload"
     subprocess.call(cmd, shell=True)
-    cmd = "systemctl start docker-tunnel.service"
+    cmd = "systemctl start %s.service" % service_name
     subprocess.call(cmd, shell=True)
-    cmd = "systemctl enable docker-tunnel.service"
+    cmd = "systemctl enable %s.service" % service_name
     subprocess.call(cmd, shell=True)
 
 

@@ -651,7 +651,7 @@ def add_bootstrap():
                   "monitor.py",
                   "clean_wifi.py",
                   "resize_once.txt",
-                  "docker-tunnel.service.template"
+                  "tunnel.service.template"
                   ]
 
     for name in file_names:
