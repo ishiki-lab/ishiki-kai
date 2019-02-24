@@ -27,8 +27,8 @@ MAX_BRIGHTNESS = 254
 SRT_FILENAME = "Surround_Test_Audio.srt"
 AUDIO_FILENAME = "Surround_Test_Audio.m4a"
 # HUE_IP_ADDRESS = "10.0.0.2"
-HUE_IP_ADDRESS = "10.251.140.208"
-TICK_TIME = 1 # seconds
+HUE_IP_ADDRESS = "192.168.0.51"
+TICK_TIME = 0.05 # seconds
 PLAY_HUE = True
 PLAY_AUDIO = True
 PLAY_DMX = True
@@ -165,11 +165,11 @@ def tick():
         trigger_light(sub)
         # sleep(.1)
         last_played=i
-    for sub in sub_list:
-        # print(sub)
-        print("Light event:", sub[1], sub[0])
-        trigger_light(sub[0])
-        last_played=sub[1]
+    # for sub in sub_list:
+    #     # print(sub)
+    #     print("Light event:", sub[1], sub[0])
+    #     trigger_light(sub[0])
+    #     last_played=sub[1]
 
 def time_convert(t):
     block, milliseconds = str(t).split(",")

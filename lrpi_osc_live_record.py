@@ -42,11 +42,11 @@ print(response.content)
 
 # HUE_IP_ADDRESS = "192.168.1.129"
 # HUE_IP_ADDRESS = "10.0.0.4"
-HUE_IP_ADDRESS = "10.251.140.208"
+HUE_IP_ADDRESS = "192.168.0.51"
 SRT_FILENAME = ""
 TRANSITION_TIME = 10 # Unit is tenths of second (10 = 1 second)
 MAX_BRIGHTNESS = 254
-INTERVAL = 1    # Seconds
+INTERVAL = 0.5    # Seconds
 RECORD = True
 DEBUG = True
 VERBOSE = True
@@ -84,10 +84,10 @@ ipcon = IPConnection() # Tinkerforge IP connection
 deviceIDs = [i[0] for i in deviceIdentifiersList]
 
 
-if DEBUG:
-    print(deviceIDs)
-    for i in range(len(deviceIDs)):
-        print(deviceIdentifiersList[i])
+# if DEBUG:
+#     print(deviceIDs)
+#     for i in range(len(deviceIDs)):
+#         print(deviceIdentifiersList[i])
 
 def getIdentifier(ID):
     deviceType = ""
@@ -154,7 +154,7 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
 
     # hue_n = args[0][0][-1]
     hue_n = int(args[0][0])
-    # print(hue_n,len(hue_list),hue_list)
+    print(hue_n,len(hue_list),hue_list)
 
     on = True
     if v<=1:
@@ -167,12 +167,13 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
     else:
         hue_cmds[hue_n-1] = cmd
 
-    if int(hue_n) < len(hue_list):
+    if int(hue_n) < len(hue_list) or not PLAY_HUE:
 
         # print(hue_n,hue_list[int(hue_n)],h,s,v)
 
         current_time = time.time()
         elapsed_time = current_time - previous_time
+
         if DEBUG:
             print("HUE time", current_time, previous_time, elapsed_time)
 
@@ -180,11 +181,11 @@ def play_record_hue(address: str, *args: List[Any]) -> None:
 
         if (elapsed_time > INTERVAL):
         # if True:
-            for hl in hue_list[int(hue_n)]:
-                if DEBUG:
-                    print("---",hue_n,hl,h,s,v)
-                l = (h, s, v, int(TRANSITION_TIME))
-                if PLAY_HUE:
+            if PLAY_HUE:
+                for hl in hue_list[int(hue_n)]:
+                    if DEBUG:
+                        print("---",hue_n,hl,h,s,v)
+                    l = (h, s, v, int(TRANSITION_TIME))
                     bridge.set_light(hl, cmd)
             cmds_str = ""
             if DEBUG:
@@ -339,7 +340,10 @@ def main():
         light_names = bridge.get_light_objects('name')
         print("Light names:", light_names)
 
-        hue_list = hue_build_lookup_table(lights)
+        if PLAY_HUE:
+            hue_list = hue_build_lookup_table(lights)
+        # else:
+        #     hue_list = [[0],['1'],[2],[3],[4],[5],[6],[7],[8],[9]]
         print(hue_list)
 
     if PLAY_DMX:
