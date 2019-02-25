@@ -4,4 +4,4 @@
 # so that the rclone config and service account files are visible to this
 # docker container - see example below
 
-docker run -it --name lushroom-rclone -v /media/usb:/media/usb lushdigital/lushroom-rclone:latest
+docker run -it --rm --name lushroom-rclone -v /media/usb:/media/usb lushdigital/lushroom-rclone:latest
