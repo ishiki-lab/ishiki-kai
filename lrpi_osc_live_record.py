@@ -32,17 +32,19 @@ from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_dmx import BrickletDMX
 from tf_device_ids import deviceIdentifiersList
 
+from pyfiglet import Figlet
+
 # TODO: add hue discovery using uPNP - https://www.meethue.com/api/nupnp
 
 HUE_URL = "https://www.meethue.com/api/nupnp"
 response = get(HUE_URL)
 # print(dir(response))
-print(response.content)
+# print(response.content)
 #print(json.loads(response.json()))
 
 # HUE_IP_ADDRESS = "192.168.1.129"
 # HUE_IP_ADDRESS = "10.0.0.4"
-HUE_IP_ADDRESS = "192.168.0.51"
+HUE_IP_ADDRESS = "192.168.0.50"
 SRT_FILENAME = ""
 TRANSITION_TIME = 10 # Unit is tenths of second (10 = 1 second)
 MAX_BRIGHTNESS = 254
@@ -51,7 +53,7 @@ RECORD = True
 DEBUG = True
 VERBOSE = True
 PLAY_HUE = True
-PLAY_DMX = True
+PLAY_DMX = False
 DMX_INTERVAL = 0.05 # 0.05 means 20 times per second
 
 previous_time = 0
@@ -296,6 +298,11 @@ def main():
     global DMX_INTERVAL, INTERVAL, TRANSITION_TIME, HUE_IP_ADDRESS, DEBUG, VERBOSE
     global subs, srtFile
     global ipcon, tfIDs, dmx
+
+    f1 = Figlet(font='standard')
+    print(f1.renderText('LushRoom'))
+    f2 = Figlet(font='standard')
+    print(f2.renderText('OSC live record'))
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--ip",
