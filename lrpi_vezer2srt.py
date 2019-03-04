@@ -347,7 +347,7 @@ def main():
     XML_FILENAME = args.xml
     HUE_SAMPLING = float(args.hue_sampling)
     DMX_SAMPLING = float(args.dmx_sampling)
-    TRANSITION_TIME = float(args.transition_time)
+    TRANSITION_TIME = int(float(args.transition_time))
     if args.start!=None:
         START = int(args.start)
     if args.end!=None:

@@ -61,18 +61,32 @@ def cb_enumerate(uid, connected_uid, position, hardware_version, firmware_versio
                  device_identifier, enumeration_type):
     tfIDs.append([uid, device_identifier])
 
+# def find_subtitle(subtitle, from_t, to_t, lo=0):
+#     i = lo
+#     # print(subtitle)
+#     while (i < len(subtitle)):
+#         # if DEBUG:
+#         #     print("\n---\n",i, subtitle[i].start, from_t, subtitle[i].end, to_t)
+#         #     print(subtitle[i], from_t, to_t)
+#         if (subtitle[i].start >= to_t):
+#             break
+#         # if (subtitle[i].start <= from_t) & (to_t  <= subtitle[i].end):
+#         if (subtitle[i].start >= from_t) & (subtitle[i].end <= to_t):
+#             # print(subtitle[i], subtitle[i].start, from_t, to_t)
+#             return subtitle[i].text, i
+#         i += 1
+#     return "", i
+
+
 def find_subtitle(subtitle, from_t, to_t, lo=0):
     i = lo
-    # print(subtitle)
     while (i < len(subtitle)):
-        # if DEBUG:
-        #     print("\n---\n",i, subtitle[i].start, from_t, subtitle[i].end, to_t)
-        #     print(subtitle[i], from_t, to_t)
+        # print(subtitle[i])
         if (subtitle[i].start >= to_t):
             break
-        # if (subtitle[i].start <= from_t) & (to_t  <= subtitle[i].end):
-        if (subtitle[i].start >= from_t) & (subtitle[i].end <= to_t):
-            # print(subtitle[i], subtitle[i].start, from_t, to_t)
+        # if (subtitle[i].start >= from_t) & (to_t  >= subtitle[i].start):
+        if (from_t >= subtitle[i].start) & (from_t  <= subtitle[i].end):
+            # print(subtitle[i].start, from_t, to_t)
             return subtitle[i].text, i
         i += 1
     return "", i
@@ -103,14 +117,16 @@ def trigger_light(subs):
     commands = str(subs).split(";")
     global bridge, dmx, MAX_BRIGHTNESS, DEBUG
     for command in commands:
-        try:
+        # try:
+        if True:
             # print(command)
             scope,items = command[0:len(command)-1].split("(")
             # print(scope,items)
             if scope[0:3] == "HUE":
                 l = int(scope[3:])
                 hue, sat, bri, TRANSITION_TIME = items.split(',')
-                # print(perf_counter(), l, items, hue, sat, bri, TRANSITION_TIME)
+                TRANSITION_TIME = int(float(TRANSITION_TIME))
+                print(perf_counter(), l, items, hue, sat, bri, TRANSITION_TIME)
                 bri = int((float(bri)/255.0)*int(MAX_BRIGHTNESS))
                 # print(bri)
                 cmd =  {'transitiontime' : int(TRANSITION_TIME), 'on' : True, 'bri' : int(bri), 'sat' : int(sat), 'hue' : int(hue)}
@@ -128,8 +144,8 @@ def trigger_light(subs):
                     print("Trigger DMX:", l, channels)
                 if PLAY_DMX:
                     dmx.write_frame(channels)
-        except:
-            pass
+        # except:
+        #     pass
     print(30*'-')
 
 def tick():
@@ -153,13 +169,15 @@ def tick():
         print('Finding subtitle starting at %s and ending at %s' % (pt, ptd))
     # sub, i = find_subtitle(subs, ts, tsd)
     sub, i = find_subtitle(subs, pt, ptd, lo=last_played)
-    sub_list = find_subtitles(subs, pt, ptd, lo=last_played)
+    # sub, i = find_subtitle(subs, pt, ptd)
+
+    # sub_list = find_subtitles(subs, pt, ptd, lo=last_played)
     if DEBUG:
         print('Result of find_subtitle: ', i)
-        print('Result of find_subtitles: ', len(sub_list))
+        # print('Result of find_subtitles: ', len(sub_list))
     # hours, minutes, seconds, milliseconds = time_convert(sub.start)
     # t = seconds + minutes*60 + hours*60*60 + milliseconds/1000.0
-    if sub!="" and i > last_played:
+    if sub!="": # and i > last_played:
         print("Light event:", i, sub)
         # print("Trigger light event %s" % i)
         trigger_light(sub)
@@ -282,7 +300,10 @@ def main():
         for l in lights:
             print(l.name)
             #print(dir(l))
-        # Set brightness of each light to 10
+        for l in lights:
+            # print(dir(l))
+            l.on = False
+        sleep(1)
         for l in lights:
             l.on = True
             l.brightness = MAX_BRIGHTNESS
@@ -294,10 +315,11 @@ def main():
     subs = srtopen(SRT_FILENAME)
 
     print("Number of lighting events",len(subs))
+    # print("PLAY_HUE", PLAY_HUE)
 
 
     scheduler = BackgroundScheduler()
-    scheduler.add_job(tick, 'interval', seconds=TICK_TIME)
+    scheduler.add_job(tick, 'interval', seconds=TICK_TIME, misfire_grace_time=10, max_instances=4096, coalesce=True)
     if PLAY_AUDIO:
         player.play()
     scheduler.start(paused=False)
