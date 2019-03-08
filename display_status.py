@@ -47,7 +47,8 @@ IMAGES_PATH = '/media/usb/Images'
 # SCREEN_HEIGHT = None
 
 time.sleep(0.75)
-pygame.init()
+pygame.display.init()
+pygame.font.init()
 time.sleep(0.75)
 display_info = pygame.display.Info()
 SCREEN_WIDTH = display_info.current_w
