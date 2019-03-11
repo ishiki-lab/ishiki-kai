@@ -95,12 +95,16 @@ def print_ipaddresses():
 
 
 def get_imagenames(path):
-    items = listdir(path)
+
     images_list = []
-    for names in items:
-       if names.endswith(".jpg"):
-           images_list.append(names)
-    return(images_list)
+    if os.path.exists(path):
+        items = listdir(path)
+        for names in items:
+           if names.endswith(".jpg"):
+               images_list.append(names)
+    return images_list
+
+
 
 
 def draw_time():
