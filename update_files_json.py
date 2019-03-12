@@ -9,8 +9,8 @@ from os import system, chdir, walk
 from shutil import copyfile
 
 MEDIA_DIR = "/media/usb/tracks"
-RCLONE_CMD = "rclone --config /media/usb/rclone_lushrooms.conf lsjson lushrooms:Tracks/%s"
-RCLONE_COPY_CMD = "rclone --config /media/usb/rclone_lushrooms.conf copy %s lushrooms:Tracks/%s"
+RCLONE_CMD = "rclone -v --config /media/usb/rclone_lushrooms.conf lsjson lushrooms:Tracks/%s"
+RCLONE_COPY_CMD = "rclone -v --config /media/usb/rclone_lushrooms.conf copy %s lushrooms:Tracks/%s"
 FILENAME = "content.json"
 
 debug = True
@@ -40,7 +40,8 @@ def main():
     chdir(MEDIA_DIR)
     for root, dirs, files in walk(".", topdown = False):
         for name in dirs:
-            json_folder(name)
+            print(join(root[2:],name))
+            json_folder(join(root[2:],name))
     json_folder(".")
 
 if __name__ == "__main__":
