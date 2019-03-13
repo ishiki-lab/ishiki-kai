@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  hostname: '10.18.32.84'
+  hostname: '10.18.32.164'
 };
 
 /*

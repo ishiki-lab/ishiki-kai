@@ -60,6 +60,15 @@ export class TrackSelectorComponent implements OnInit {
       switchMap((status: any) => {
         console.log('status in switchMap: ', status);
         this.getTracksService.setStatus(status);
+
+        // if we're trying to control a slaved 'Pi lock the UI
+
+        if (status.paired && status.master_ip) {
+          this.serverData = null;
+          this.errorResponse["message"] = "Currently paired to: " + status.master_ip + " -> controls are locked!"
+          return of(status);
+        }
+
         if ( !status.canControl || !status.playerState || !status.source ) {
           console.log('player is idle, getting tracks...');
           return this.getTracksService.getTracks(this.folderId)
