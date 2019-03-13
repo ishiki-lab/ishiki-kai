@@ -1,14 +1,13 @@
 <div class="settings-room-name">
     <a href="/tracks">
         {{roomName}} 
-    </a>
-    >> 
-    <span *ngIf="slaveIp && !partyModeActive" class="pair-button" (click)="pair()">pair</span>
-    <span *ngIf="partyModeActive" class="pair-button" (click)="unpair()">unpair</span>
+    </a> 
+    <span *ngIf="slaveIp && !partyModeActive" class="pair-button" (click)="pair()"> >> pair</span>
+    <span *ngIf="partyModeActive" class="pair-button" (click)="unpair()"> >> unpair</span>
 </div>
 <router-outlet *ngIf="!slaved; else slavedPrompt"></router-outlet>
 <ng-template #slavedPrompt>
     <p>
-        Sorry, I'm being controller by another LushRoom &pi;
+        Sorry, I'm being controller by another LushRoom &pi; ({{masterIp}})
     </p>
 </ng-template>

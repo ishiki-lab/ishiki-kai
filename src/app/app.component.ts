@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   canPair: boolean = false;
   partyModeActive: boolean = false;
   slaveIp: string
+  masterIp: string
   slaved: boolean = false;
 
 
@@ -42,9 +43,15 @@ export class AppComponent implements OnInit {
         this.settings = settings;
         // console.log(this.settings);
         this.roomName = settings.roomName
-        // this.slaveIp = settings.
-        if (settings.paired && settings.slaveIp == "") {
+        // this.slaveIp = settings
+
+        if (status.paired && settings.slaveIp == "" && status.master_ip != "") {
           this.slaved = true;
+          this.masterIp = status.master_ip
+        }
+
+        if (status.paired && settings.slaveIp != "") {
+          this.partyModeActive = true;
         }
       }
     );
@@ -62,6 +69,13 @@ export class AppComponent implements OnInit {
   }
 
   unpair() {
-    console.log('Unpair has not yet been written...');
+    this.pairingService.unpair().subscribe(
+      (res: any) => {
+        console.log('unpair res: ', res);
+        if(res === 0) {
+          this.partyModeActive = false;
+        }
+      }
+    )
   }
 }

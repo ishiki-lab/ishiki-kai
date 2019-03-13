@@ -22,4 +22,9 @@ export class PairingService {
 
     return this.httpClient.get('http://' + this.hostname + '/pair' + pairQuery);
   }
+
+  unpair() {
+    return this.httpClient.get('http://' + this.hostname + '/unpair');
+  }
+
 }
