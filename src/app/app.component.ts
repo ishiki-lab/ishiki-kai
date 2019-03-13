@@ -34,6 +34,12 @@ export class AppComponent implements OnInit {
       this.settingsService.getSettings()
     ).subscribe(
       ([statusRes, settingsRes]) => {
+
+        // init the slave indicators
+        this.slaved = false;
+        this.masterIp = null;
+        this.partyModeActive = false;
+
         let settings: any = settingsRes;
         let status: any = statusRes
         // this.tracksService.setStatus(status);
@@ -45,14 +51,13 @@ export class AppComponent implements OnInit {
         this.roomName = settings.roomName
         // this.slaveIp = settings
 
-        if (status.paired && settings.slaveIp == "" && status.master_ip != "") {
+        if (status.master_ip) {
           this.slaved = true;
           this.masterIp = status.master_ip
-        }
-
-        if (status.paired && settings.slaveIp != "") {
+        } else if (status.paired && settings.slaveIp != "") {
           this.partyModeActive = true;
         }
+
       }
     );
   }
