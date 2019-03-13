@@ -51,7 +51,7 @@ XML_FILENAME = "ChID-BLITS-EBU.xml"
 OUT_EXT = ".srt"
 HUE_SAMPLING = 1.0 # Sampling rate of HUE frames in seconds
 DMX_SAMPLING = 0.05 # Sampling rate of DMX frames in seconds
-SAMPLING = 0.2 # Sampling rate in seconds. For instance 0.05 means 20 frames per second
+SAMPLING = 0.1 # Sampling rate in seconds. For instance 0.05 means 20 frames per second
 TRANSITION_TIME = 10
 START = None
 END = None
@@ -175,10 +175,11 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
         # If there isn't only an audio track
         if (len(track_list[1]) != 1 and track_list[1][0]!="audio"):
             print("Number of lighting events: ",len(track_list[3][0]))
+            frame_no = 0
             for i in range(len(track_list[3][0])):
                 # frame_no = track_list[4][i]
-                frame_no = i
-                t = frame_no*(1.0/float(fps))
+                # frame_no = i
+                t = i*(1.0/float(fps))
                 if VERBOSE:
                     print(40*"-")
                     # print(frame_no,fps)
@@ -257,6 +258,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                         print("h", end = "")
                         stdout.flush()
                     subrip_file.append(item)
+                    frame_no += 1
                 # Output DMX command
                 dmx_frame_trimmed = trim_zeros(dmx_frame,'b').astype('uint8')
                 dmx_cmd = "DMX1"+str(tuple(dmx_frame_trimmed)[1:]).replace(" ", "")
@@ -271,6 +273,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                         print("d", end = "")
                         stdout.flush()
                     subrip_file.append(item)
+                    frame_no += 1
                 prev_dmx_frame = dmx_frame_trimmed
                 # print(cmd)
                 if VERBOSE:
