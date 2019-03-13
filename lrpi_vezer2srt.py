@@ -178,7 +178,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
             frame_no = 0
             for i in range(len(track_list[3][0])):
                 # frame_no = track_list[4][i]
-                # frame_no = i
+                frame_no = i
                 t = i*(1.0/float(fps))
                 if VERBOSE:
                     print(40*"-")
@@ -263,7 +263,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                 dmx_frame_trimmed = trim_zeros(dmx_frame,'b').astype('uint8')
                 dmx_cmd = "DMX1"+str(tuple(dmx_frame_trimmed)[1:]).replace(" ", "")
                 # cmd = hue_cmd + ";" + dmx_cmd
-                if not array_equal(dmx_frame_trimmed,prev_dmx_frame):
+                if not array_equal(dmx_frame_trimmed,prev_dmx_frame) or frame_no % fps == 0:
                     item = SubRipItem(frame_no, text=dmx_cmd)
                     item.shift(seconds=t)
                     item.end.shift(seconds=1.0/fps)
