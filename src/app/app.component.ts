@@ -16,6 +16,7 @@ export class AppComponent implements OnInit {
   canPair: boolean = false;
   partyModeActive: boolean = false;
   slaveIp: string
+  slaved: boolean = false;
 
 
   constructor(
@@ -42,6 +43,9 @@ export class AppComponent implements OnInit {
         // console.log(this.settings);
         this.roomName = settings.roomName
         // this.slaveIp = settings.
+        if (settings.paired && settings.slaveIp == "") {
+          this.slaved = true;
+        }
       }
     );
   }
