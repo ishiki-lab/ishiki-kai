@@ -66,7 +66,7 @@ def getText(nodelist):
     return ''.join(rc)
 
 def handle_track_list(track, start, end, fps):
-    global SAMPLING
+    global SAMPLING, DEBUG, VERBOSE
     track_doms = track.getElementsByTagName('track')
     track_dict = {}
     track_name_list = []
@@ -142,14 +142,29 @@ def handle_track_list(track, start, end, fps):
             else:
                 track_frames_list[i] = track_frames
             print()
+        else:
+            track_events = ["" for i in range(end+1)]
+            track_events_list.append(track_events)
+            track_frames = [i for i in range(end+1)]
+            track_frames_list.append(track_frames)
 
         i += 1
         print()
 
+    # print(track_name_list)
+    # print(track_type_list)
+    # print(track_address_list)
+    # print(len(track_events_list))
+    # print(len(track_events_list[0]))
+    # print(track_events_list[1][0:10])
+    # print(track_frames_list[1][0:10])
+    # print(len(track_events_list[0][0]))
+    # print(track_events_list[0:1][0:1][0:1])
+    #print(track_frames_list[0:10][0:10])
     return([track_name_list, track_type_list, track_address_list, track_events_list, track_frames_list])
 
 def handle_tracks(tracks, start, end, fps, srt_filename):
-    global XML_FILENAME, HUE_SAMPLING, DMX_SAMPLING, TRANSITION_TIME
+    global XML_FILENAME, HUE_SAMPLING, DMX_SAMPLING, TRANSITION_TIME, DEBUG, VERBOSE
     track_list = []
     for track in tracks:
         track_list = handle_track_list(track, start, end, fps)
@@ -163,6 +178,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
 
     dmx_frame = zeros(512)
     prev_dmx_frame = zeros(512)
+    prev_dmx_valid_frame = zeros(512)
 
     subrip_file = SubRipFile(path=srt_filename)
 
@@ -170,10 +186,14 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
     print("Processing frames")
     print(40*"-")
     # print(track_list[3][1])
+    # print(len(track_list[1]))
 
     if len(track_list[1])>0:
         # If there isn't only an audio track
-        if (len(track_list[1]) != 1 and track_list[1][0]!="audio"):
+        # print(track_list[1][0])
+        # print(track_list[1][0]!="audio")
+        # print(len(track_list[1]) != 1 and track_list[1][0]!="audio")
+        if (len(track_list[1]) != 1 or track_list[1][0]!="audio"):
             print("Number of lighting events: ",len(track_list[3][0]))
             frame_no = 0
             for i in range(len(track_list[3][0])):
@@ -187,14 +207,22 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                     print(40*"-")
                 hue_cmd = ""
                 dmx_cmd = ""
+                # for the bug, len(of track_list[0]) is greater than
+                # len(track_list[3])
                 for j in range(len(track_list[0])):
-                    # print(track_list[3][j])
+                    # print(track_list[1][j])
                     if track_list[1][j] != "audio":
-                        # print(track_list[3][j])
                         name = track_list[0][j]
                         type = track_list[1][j]
                         addr = track_list[2][j]
-                        payload = track_list[3][j][i]
+                        # print(name,type,addr)
+                        # TODO: if frame_no = i as on line 181, the following line fails!
+                        # [3][j] is out of range therefore j is the problem
+                        try:
+                            payload = track_list[3][j][i]
+                        except Exception as e:
+                            print('ERROR: could not get payload, len(of track_list[0]) is likely greater than \
+                            len (track_list[3])')
                         # print(name, type, addr, payload)
                         # Convert Hue payload to hue command
                         if payload!="":
@@ -209,8 +237,8 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                                         r,g,b = payload_list
                                     elif len(payload_list) == 4:
                                         r,g,b,a = payload_list
-                                except:
-                                    pass
+                                except Exception as e:
+                                    print(e)
 
                                 h,s,v = rgb_to_hsv(float(r),float(g),float(b))
 
@@ -234,6 +262,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                                     print("dmx value", addr, payload)
                                 n = int(addr[4:])
                                 if payload!="":
+                                    # print(dmx_frame[int(n)])
                                     dmx_frame[int(n)] = int(float(payload)*254)
                             # Convert multiple DMX channels to command
                             elif addr[1:4].lower() == "dmx" and (type =="OSCColor/floatarray" or type =="OSCValue/standard"):
@@ -259,11 +288,20 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                         stdout.flush()
                     subrip_file.append(item)
                     frame_no += 1
+
                 # Output DMX command
                 dmx_frame_trimmed = trim_zeros(dmx_frame,'b').astype('uint8')
+                # print("dmx_frame_trimmed before",dmx_frame_trimmed)
+                # if len(dmx_frame_trimmed)==0:
+                #     dmx_frame_trimmed = zeros(512)
+                # print("dmx_frame_trimmed after",dmx_frame_trimmed)
                 dmx_cmd = "DMX1"+str(tuple(dmx_frame_trimmed)[1:]).replace(" ", "")
+                # print(dmx_cmd, prev_dmx_frame)
                 # cmd = hue_cmd + ";" + dmx_cmd
-                if not array_equal(dmx_frame_trimmed,prev_dmx_frame) or frame_no % fps == 0:
+                if (not array_equal(dmx_frame_trimmed,prev_dmx_frame)) or (frame_no % fps == 0):
+                    # if frame_no % fps == 0 and dmx_cmd=="":
+                    # if frame_no % fps == 0:
+                    #     print(dmx_cmd, prev_dmx_frame)
                     item = SubRipItem(frame_no, text=dmx_cmd)
                     item.shift(seconds=t)
                     item.end.shift(seconds=1.0/fps)
@@ -278,7 +316,7 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                 # print(cmd)
                 if VERBOSE:
                     print(40*"-")
-                        # print(track_list[0][j], track_list[1][j], track_list[2][j], track_list[3][j][i])
+                    # print(track_list[0][j], track_list[1][j], track_list[2][j], track_list[3][j][i])
                     # print(frame)
                     # j = 1
                     # for frame in track:
