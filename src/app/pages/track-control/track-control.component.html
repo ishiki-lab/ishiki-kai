@@ -44,7 +44,7 @@
 <ng-template #noTracks>
   <div class="container" [ngStyle]="styleObjectBorder()">
     <div class="back-button-wrapper">
-        <a [routerLink]="['/tracks']">
+        <a (click)="stop()">
           <mat-icon class="back">arrow_back</mat-icon>
         </a>
     </div>

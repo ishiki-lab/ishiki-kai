@@ -297,8 +297,11 @@ export class TrackControlComponent implements OnInit {
     
     this.getTracksService.stopMusic().subscribe(stopRes => {
       if (stopRes === 0) {
-        this.router.navigate([`/tracks`], { relativeTo: this.route, skipLocationChange: true });  
+        console.log('Stop success!');
+      } else {
+        console.log('Stop failed... check the logs!');
       }
+      this.router.navigate([`/tracks`], { relativeTo: this.route, skipLocationChange: true });  
     });
     this.playing = false;
   }
