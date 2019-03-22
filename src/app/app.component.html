@@ -1,10 +1,10 @@
 <div class="settings-room-name">
    {{roomName}} 
     <span *ngIf="slaveIp && !partyModeActive" class="pair-button" (click)="pair()"> 
-        <button class="btn">pair</button>
+        <button mat-stroked-button class="btn">pair</button>
     </span>
     <span class="pair-button" (click)="unpair()"> 
-        <button class="btn" *ngIf="partyModeActive">unpair</button>
+        <button mat-stroked-button class="btn" *ngIf="partyModeActive">unpair</button>
     </span>
 </div>
 <router-outlet *ngIf="!slaved; else slavedPrompt"></router-outlet>
