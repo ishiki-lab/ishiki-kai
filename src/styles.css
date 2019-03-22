@@ -44,3 +44,7 @@ a {
     width: 1em !important;
     height: 1em !important;
 }
+
+mat-icon.back {
+    transform: scale(2.4, 1.6) 
+}

@@ -33,10 +33,6 @@
     width: 80%;
 }
 
-mat-icon.back {
-    transform: scale(1.5, 1);
-}
-
 .container .treatment {
     margin-top: 3em;
     display: flex;
@@ -66,7 +62,7 @@ mat-icon.back {
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    margin-top: 1.5em;
+    /* margin-top: 1.5em; */
 }
 
 .player-controls {
