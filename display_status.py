@@ -95,16 +95,12 @@ def print_ipaddresses():
 
 
 def get_imagenames(path):
-
+    items = listdir(path)
     images_list = []
-    if os.path.exists(path):
-        items = listdir(path)
-        for names in items:
-           if names.endswith(".jpg"):
-               images_list.append(names)
-    return images_list
-
-
+    for names in items:
+       if names.endswith(".jpg") and not names.startswith("._"):
+           images_list.append(names)
+    return(images_list)
 
 
 def draw_time():
@@ -168,10 +164,6 @@ def draw_hue_wrapped():
         for l in lights:
             show_text("%s OK" % l.name, font_regular, WHITE, [SCREEN_WIDTH / 2, text_x_offset + FONT_SIZE * (row)])
             row += 1
-    except TypeError as e:
-        # dont really understand why but this sometimes causes a problem
-        if os.path.exists("/media/usb/python_hue"):
-            os.remove("/media/usb/python_hue")
     except PhueRegistrationException as e:
         print("PhueRegistrationException")
         HUE_BRIDGE = None
