@@ -98,7 +98,7 @@ def get_imagenames(path):
     items = listdir(path)
     images_list = []
     for names in items:
-       if names.endswith(".jpg"):
+       if names.endswith(".jpg") and not names.startswith("._"):
            images_list.append(names)
     return(images_list)
 
