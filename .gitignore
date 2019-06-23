@@ -1,5 +1,10 @@
+gui/lrpi/build
+gui/lrpi/dist
+.DS_Store
 *.pyc
 __pycache__/
 output.mp3
 srt_files/
 test/
+gui/lrpi/src_example
+gui/lrpi_ionic3

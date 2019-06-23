@@ -1,0 +1,44 @@
+<ion-view title="Play" id="page3">
+  <ion-nav-buttons side="right" class="has-header">
+    <button class="button button-icon icon ion-play"></button>
+  </ion-nav-buttons>
+  <ion-content padding="true" class="has-header">
+    <div>
+      <img src="img/CKywsQCfRlO4E7ZSqqQ1_lushroom_pi.svg" style="display: block; width: 150px; height: auto; margin-left: auto; margin-right: auto;">
+    </div>
+    <div id="play-container1">
+      <form id="play-form4" class="list">
+        <button id="play-button9" style="border-radius:0px 0px 0px 0px;" class="button button-dark button-block icon-left ion-music-note">Select Audio File</button>
+        <label class="item item-input" id="play-input7" name="play_audio_filename">
+          <span class="input-label">File name</span>
+          <input type="text" placeholder="Choose an audio file ">
+        </label>
+      </form>
+    </div>
+    <div id="play-container4">
+      <form id="play-form6" class="list">
+        <button id="play-button11" class="button button-dark button-block icon-left ion-lightbulb">Select Light Script File</button>
+        <label class="item item-input" id="play-input9" name="play_srt_filename">
+          <span class="input-label">File name</span>
+          <input type="text" placeholder="Choose an audio file ">
+        </label>
+      </form>
+    </div>
+    <div class="spacer" style="width: 300px; height: 25px;"></div>
+    <div id="play-container10">
+      <div id="play-button-bar6" class="button-bar">
+        <button id="play-button30" style="border-radius:15px 15px 15px 15px;" class="button button-dark button-block icon ion-play"></button>
+        <button id="play-button31" style="border-radius:15px 15px 15px 15px;" class="button button-dark button-block icon ion-pause"></button>
+        <button id="play-button32" style="border-radius:15px 15px 15px 15px;" class="button button-dark button-block icon ion-stop"></button>
+      </div>
+      <form id="play-form14" class="list">
+        <ion-item class="range range-dark" id="play-range5">
+          <input type="range" value="50" min="0" max="100" step="1" name="play_slider">
+        </ion-item>
+        <div class="spacer" style="width: 300px; height: 10px;"></div>
+        <label class="item item-input" id="play-textarea2" name="play_log">
+          <span class="input-label">Log</span><textarea placeholder="Ready to play."></textarea></label>
+      </form>
+    </div>
+  </ion-content>
+</ion-view>

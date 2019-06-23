@@ -9,3 +9,9 @@ apscheduler
 requests
 python-osc
 pyfiglet
+PyQt5
+PyQtWebEngine
+pywebview
+sip
+py2app
+
