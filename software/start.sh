@@ -13,11 +13,16 @@ if [ -f /opt/lushroom/resize_once.txt ]; then
     exit 0
 fi
 
+systemctl stop dhcpcd
+
 if [ -f /media/usb/docker-compose.yaml ]; then
     echo "docker compose up"
     docker-compose -f /media/usb/docker-compose.yaml pull
     docker-compose -f /media/usb/docker-compose.yaml up --force-recreate -d
 fi
+
+sleep 5
+systemctl start dhcpcd
 
 echo "monitoring usb"
 python3 /opt/lushroom/monitor.py

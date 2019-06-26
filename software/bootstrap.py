@@ -36,6 +36,8 @@ def start():
 
         # these functions must be idempotent and check first before updating anything
 
+        clear_old_wifi()
+
         # set wifi credentials
         ssid, psk = get_wifi_creds(settings)
         if ssid:
@@ -165,6 +167,11 @@ def set_time_zone(time_zone):
             os.remove(dst)
     print("Bootstrap: Setting time zone to %s" % time_zone)
     os.symlink(src, dst)
+
+
+def clear_old_wifi():
+
+    shutil.copyfile("/etc/wpa_supplicant/wpa_supplicant.backup", "/etc/wpa_supplicant/wpa_supplicant.conf")
 
 
 def ensure_content_matches(file_path, content, mode, uid, gid):

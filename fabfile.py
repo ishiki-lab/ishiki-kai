@@ -145,7 +145,6 @@ def prepare_card_1(config="default"):
     set_ssh_config()
     env.password = None
     env.key_filename = get_cert_path(private=True)
-    change_root_password()
 
     # add libs, drivers and tidy up
 
@@ -157,6 +156,8 @@ def prepare_card_1(config="default"):
     configure_rsyslog()
 
     set_hostname()
+    _add_config_file("wpa_supplicant.backup", "/etc/wpa_supplicant/wpa_supplicant.backup", "root",
+                     chmod="644")
 
     # this is crashing at end of install/opt
     waveshare_install_SPI_touchscreen_drivers()
@@ -168,6 +169,7 @@ def prepare_card_2(config="default"):
     sudo("apt-get clean -y")
     # add our bootstrap software
     add_bootstrap()
+    daily_reboot()
     sudo("python3 /opt/lushroom/clean_wifi.py")
     sudo("rm /opt/lushroom/clean_wifi.py")
 
@@ -265,9 +267,12 @@ def install_samba():
 
 def install_extra_libs():
     sudo("apt-get update")
-    sudo("apt-get -y install ntp autossh git")
+    sudo("apt-get -y install ntp autossh git libxi6")
     sudo('pip install pyudev')
     sudo('pip install pyroute2')
+
+def daily_reboot():
+    sudo('echo "0 4    * * *   root    /sbin/shutdown -r +5" >> /etc/crontab')
 
 
 def install_docker():
