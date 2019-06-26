@@ -33,6 +33,8 @@ from scipy.interpolate import interp1d
 import pygame
 from pygame.locals import *
 
+import find_hue
+
 
 from phue import Bridge, PhueRegistrationException, PhueRequestTimeout
 
@@ -145,10 +147,7 @@ def draw_hue():
         raise(e)
 
 def get_hue_address():
-
-    with open("/media/usb/settings.json", "r") as f:
-        settings = json.loads(f.read())
-    return settings["hue_ip"]
+    return find_hue.hue_ip()
 
 
 def draw_hue_wrapped():

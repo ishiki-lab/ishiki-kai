@@ -1,3 +1,4 @@
+zeroconf
 pygame
 numpy
 scipy
