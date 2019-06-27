@@ -57,6 +57,8 @@ SCREEN_WIDTH = display_info.current_w
 SCREEN_HEIGHT = display_info.current_h
 DIM = (SCREEN_WIDTH, SCREEN_HEIGHT)
 
+print(DIM)
+
 putenv('SDL_VIDEODRIVER', 'fbcon')
 putenv('SDL_FBDEV', '/dev/fb0')
 putenv('SDL_MOUSEDRV', 'TSLIB')
@@ -151,6 +153,7 @@ def get_hue_address():
 
 
 def draw_hue_wrapped():
+
     global HUE_BRIDGE
     text_x_offset = int(SCREEN_HEIGHT / 4)
     row = 5
@@ -234,6 +237,7 @@ def draw_screen_wrapped():
         show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
         row += 1
     draw_hue_wrapped()
+
 
 class Alarm(Exception):
     pass
