@@ -26,6 +26,10 @@ from tf_device_ids import deviceIdentifiersList
 import argparse
 
 SRT_FILENAME = "output_dmx.srt"
+AUDIO_FILENAME = "input.mp4"
+MAX_BRIGHTNESS = 254
+TICK_TIME = 0.05 # seconds
+
 srtFile = SubRipFile()
 
 tfIDs = []
@@ -97,16 +101,15 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def main():
-    global SRT_FILENAME, AUDIO_FILENAME, MAX_BRIGHTNESS, TICK_TIME, HUE_IP_ADDRESS, DEBUG, VERBOSE
+    global SRT_FILENAME, AUDIO_FILENAME, MAX_BRIGHTNESS, TICK_TIME, DEBUG, VERBOSE
     parser = argparse.ArgumentParser(description="LushRoom sound and light command-line player")
-    group = parser.add_mutually_exclusive_group()
+    # group = parser.add_mutually_exclusive_group()
     # group.add_argument("-v", "--verbose", action="store_true")
     # group.add_argument("-q", "--quiet", action="store_true")
     parser.add_argument("-s","--srt", default=SRT_FILENAME, help=".srt file name for lighting events")
     parser.add_argument("-a","--audio", default=AUDIO_FILENAME, help="audio file for sound stream")
     parser.add_argument("-b","--brightness", default=MAX_BRIGHTNESS, help="maximum brightness")
     parser.add_argument("-t","--time", default=TICK_TIME, help="time between events")
-    parser.add_argument("--hue", default=HUE_IP_ADDRESS, help="Philips Hue bridge IP address")
 
     args = parser.parse_args()
 
