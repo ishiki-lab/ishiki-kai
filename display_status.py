@@ -15,7 +15,7 @@ if SENTRY_URL is not None:
 
 import time
 
-from time import sleep, tzname, daylight, gmtime, strftime
+from time import sleep, tzname, daylight, gmtime, strftime, localtime
 from os.path import exists, join
 from os import listdir, putenv, getenv, environ
 from os import name as osname
@@ -32,6 +32,8 @@ import schedule
 from scipy.interpolate import interp1d
 import pygame
 from pygame.locals import *
+
+import find_hue
 
 
 from phue import Bridge, PhueRegistrationException, PhueRequestTimeout
@@ -54,6 +56,8 @@ display_info = pygame.display.Info()
 SCREEN_WIDTH = display_info.current_w
 SCREEN_HEIGHT = display_info.current_h
 DIM = (SCREEN_WIDTH, SCREEN_HEIGHT)
+
+print(DIM)
 
 putenv('SDL_VIDEODRIVER', 'fbcon')
 putenv('SDL_FBDEV', '/dev/fb0')
@@ -118,7 +122,7 @@ def draw_time_wrapped():
    global lcd
    font_regular = pygame.font.Font(None, FONT_SIZE)
    #current_dt = dt.now()
-   current_dt = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+   current_dt = strftime("%Y-%m-%d %H:%M:%S %Z", localtime())
    #print(current_dt)
    pygame.draw.rect(lcd, BLACK, pygame.Rect(0, SCREEN_HEIGHT -int(FONT_SIZE*1.2), SCREEN_WIDTH, SCREEN_HEIGHT))
    show_text(current_dt, font_regular, WHITE, [SCREEN_WIDTH/2, SCREEN_HEIGHT - FONT_SIZE/2])
@@ -145,13 +149,11 @@ def draw_hue():
         raise(e)
 
 def get_hue_address():
-
-    with open("/media/usb/settings.json", "r") as f:
-        settings = json.loads(f.read())
-    return settings["hue_ip"]
+    return find_hue.hue_ip()
 
 
 def draw_hue_wrapped():
+
     global HUE_BRIDGE
     text_x_offset = int(SCREEN_HEIGHT / 4)
     row = 5
@@ -222,9 +224,9 @@ def draw_screen_wrapped():
     show_text(hostname, font_big, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
     row += 1
     # get timezone / location information
-    timezone = 'time zone: %s' % tzname[0]
-    show_text(timezone, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
-    row += 1
+    #timezone = 'time zone: %s' % tzname[0]
+    #show_text(timezone, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
+    #row += 1
     # get mac and ip addresses of network interfaces
     adapters = netifaces.interfaces()
     addresses = get_ipaddresses(adapters)
@@ -235,6 +237,7 @@ def draw_screen_wrapped():
         show_text(address, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
         row += 1
     draw_hue_wrapped()
+
 
 class Alarm(Exception):
     pass
