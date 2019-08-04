@@ -1,111 +1,392 @@
 from crypt import crypt
+from Crypto.PublicKey import RSA
+from Crypto import Random
+import uuid
+import json
 from fabric.api import local, settings, abort, run, env, sudo, put, get, prefix
 from fabric.contrib.files import exists
-
-# from fabric import Connection, Config, task
-# import getpass
 
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-from config import PI_PASSWORD
+from config import (NEW_PASSWORD,
+                    NEW_USERNAME,
+                    NEW_HOSTNAME,
+                    CHANGED_PASSWORD,
+                    ROOT_PASSWORD,
+                    ORIGINAL_HOSTNAME,
+                    ORIGINAL_PASSWORD,
+                    ORIGINAL_USERNAME,
+                    ACCESS_IP,
+                    CERTS_NAME
+                    )
 
-# env.hosts = ["%s:%s" % ("raspberrypi.local", 22)]
-env.hosts = ["%s:%s" % ("lushroom1-pi.local", 22)]
-env.user = "lush"
-env.password = PI_PASSWORD
+default_host = ACCESS_IP if ACCESS_IP is not None else "%s.local" % ORIGINAL_HOSTNAME
+default_hosts = ["%s:%s" % (default_host, 22)]
+renamed_hosts = ["%s.local:%s" % (NEW_HOSTNAME, 22)]
 
-# HOST = "192.168.1.101"
-# PORT = 22
-# USER = "pi"
+CERTS_DIR = os.path.abspath(os.path .join(os.path.dirname(__file__), "..", "lrpi_access_keys"))
+USB_DIR = os.path.abspath(os.path .join(os.path.dirname(__file__), "..", "usb"))
 
-# sudo_pass = getpass.getpass("What's your sudo password?")
-# configuration = Config(overrides={'sudo': {'password': sudo_pass}})
-# c = Connection(host=HOST, user=USER, port=PORT, config=configuration)
-# c = Connection(host=HOST, user=USER, port=PORT)
+if not os.path.exists(CERTS_DIR):
+    raise Exception("couldn't find certs")
 
-# BOOTSTRAP_VERSION = "0.0.1"
-# PYTHON_VERSION = "0.0.2"
-# TEST_VERSION = "0.0.1"
-# DESKCONTROL_VERSION = "0.0.6"
-# BRICKD_VERSION = "0.0.1"
-# COMMAND_VERSION = "0.0.4"
+
+def get_cert_path(private=False, certs_name=CERTS_NAME):
+    if private:
+        return os.path.join(CERTS_DIR, certs_name)
+    else:
+        return os.path.join(CERTS_DIR, "%s.pub" % certs_name)
+
+env.hosts = default_host
+env.user = NEW_USERNAME
+# env.password = NEW_PASSWORD
+env.key_filename = get_cert_path(private=True)
 
 # Raspbian supporting KeDei touch screen
 # http://www.kedei.net/raspberry/v6_1/rpi_35_v6_3_stretch_kernel_4_15_18.rar
-RASPBIAN_VERSION = "KeDei Raspbian rpi_v6_3_stretch_kernel_4_15_18"
+# RASPBIAN_VERSION = "KeDei Raspbian rpi_v6_3_stretch_kernel_4_15_18"
+# RASPBIAN_VERSION = "Raspbian rpi_v6_3_stretch_kernel_4_15_18"
+
+RASPBIAN_VERSION = "2018-11-13-raspbian-stretch-lite"
 
 ############################################################################
 ##              Preparing the base disc image from JESSIE_VERSION
 ############################################################################
 
 """
-    On local machine install fabric3
-    pip3 install fabric3
-    Steps to set up the Raspberry Pi:
-    Login to Raspberry Pi
-    "sudo su"
-    'wpa_passphrase "WiFiSSID" "WiFiPassword" >> /etc/wpa_supplicant/wpa_supplicant.conf'
-    "wpa_cli reconfigure"
-    "raspi-config"
+    On local machine install requirements.txt with pip
+
+    Set up the Raspberry Pi before creading a card can be done with raspi-config
+    Login to Raspberry Pi as "pi" with password "raspberry"
+    "sudo raspi-config"
+    Network Options > Wi-fi <enter country, SSID & passphrase>
     Interfacing Options > SSH > Yes
-    reboot
+    Finish
+    Then check ip address with "ifconfig"
 """
+
+
+
+###############################################################################################
+
+def create_settings(number):
+
+    public, private = newkeys(1024)
+
+    public_key_file = get_cert_path(private=False, certs_name="lushroom_id_rsa")
+    private_key_file = get_cert_path(private=True, certs_name="lushroom_id_rsa")
+
+    with open(public_key_file, "r") as f:
+        public_key = f.read()
+
+    with open(private_key_file, "r") as f:
+        private_key = f.read()
+
+    # private_key = private.exportKey('PEM').decode("utf-8")
+    # public_key = public.exportKey('OpenSSH').decode("utf-8")
+
+    device_uuid = str(uuid.uuid4())
+
+    settings = {
+        "url": "https://lushroom.com/api/config/%s" % device_uuid,
+        "public_key": public_key,
+        "private_key": private_key,
+        "uuid": device_uuid,
+        "name": "lushroom-%s" % number,
+        "description": "A Lushroom",
+        "hue1_ip": "192.168.1.5",
+        "hue2_ip": "192.168.1.6",
+        "hue1_name": "room 1",
+        "hue2_name": "room 2",
+        "influx_host": "",
+        "influx_port": "",
+        "influx_dbname": "",
+        "influx_ssl": "True",
+        "influx_username": "",
+        "influx_password": "",
+        "time_zone": "Europe/London",
+        "ssid": "",
+        "psk": "",
+        "host_name": "lushroom-%s" % number,
+        "tunnel_host": "35.205.94.204",
+        "tunnel_port": "%s" % (5000 + int(number)),
+        "tunnel_user": "lushroom-%s" % number
+    }
+
+    usb_dir = os.path.join(USB_DIR, "lushroom-%s" % number)
+
+    if not os.path.exists(usb_dir):
+        os.makedirs(usb_dir)
+
+    path = os.path.join(usb_dir, "settings.json")
+
+    with open(path, "w") as f:
+        f.write(json.dumps(settings, sort_keys=True, indent=4))
+
+
+def prepare_card_1(config="default"):
+    """
+    Prepares the base image
+    """
+
+    # use the devices given login
+    env.key_filename = None
+    env.user = ORIGINAL_USERNAME
+    env.password = ORIGINAL_PASSWORD
+
+    # create a new user and change the passwords for the root and default users
+    create_new_user()
+    env.user = NEW_USERNAME
+    env.password = NEW_PASSWORD
+    change_default_password()
+    copy_certs()
+    set_ssh_config()
+    env.password = None
+    env.key_filename = get_cert_path(private=True)
+
+    # add libs, drivers and tidy up
+
+    install_pip()
+    install_extra_libs()
+    install_docker()
+
+    remove_bloat()
+    configure_rsyslog()
+
+    set_hostname()
+    _add_config_file("wpa_supplicant.backup", "/etc/wpa_supplicant/wpa_supplicant.backup", "root",
+                     chmod="644")
+
+    # this is crashing at end of install/opt
+    waveshare_install_SPI_touchscreen_drivers()
+    sudo("shutdown now")
+
+def prepare_card_2(config="default"):
+    fix_install()
+    set_boot_config(config)
+    sudo("apt-get clean -y")
+    # add our bootstrap software
+    add_bootstrap()
+    daily_reboot()
+    sudo("python3 /opt/lushroom/clean_wifi.py")
+    sudo("rm /opt/lushroom/clean_wifi.py")
+
+
+def prepare_card_3():
+    reduce_writes()
+
+
+def dev_setup():
+    """
+    prepares a base image
+    """
+
+    # fix_install()
+    install_samba()
+    install_dev_apt_prerequisites()
+    install_dev_pip_prerequisites()
+    set_ssh_config_dev()  # allows password login
+    create_lushroom_dev()
+    # re-adds the resize
+    # name = "resize_once.txt"
+    # _add_software_file(name, "/opt/lushroom/%s" % name, "root")
+
+###############################################################################################
+
+
 
 def list_usb():
     sudo('ls /media/usb/')
 
-def prepare_card():
-    uninstall_packages()
-    apt_autoremove()
-    apt_update()
-    apt_upgrade()
-    apt_autoremove()
-    apt_clean()
-    # install_openhab()
-    # change_password()
-    # _change_graphics_memory()
-    # install_docker()
-    # docker_login(password)
-    # add_bootstrap()
-    # _reduce_logging()
-    reduce_writes()
-    # add_resize()
-    # sudo("reboot")
+def newkeys(keysize):
+    random_generator = Random.new().read
+    key = RSA.generate(keysize, random_generator)
+    private, public = key, key.publickey()
+    return public, private
 
-def apt_update():
+def create_new_user():
+    # create user
+    sudo("adduser %s" % NEW_USERNAME)
+    # make sudo
+    sudo("usermod -aG sudo %s" % NEW_USERNAME)
+    crypted_password = crypt(NEW_PASSWORD, 'salt')
+    sudo('usermod --password %s %s' % (crypted_password, NEW_USERNAME), pty=False)
+    # sudo without password
+    sudo('echo "%s%s ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers' % ("%", NEW_USERNAME))
+
+
+def change_default_password():
+    crypted_password = crypt(CHANGED_PASSWORD, 'salt')
+    sudo('usermod --password %s %s' % (crypted_password, ORIGINAL_USERNAME), pty=False)
+
+
+def configure_rsyslog():
+    _add_config_file("rsyslog.conf", "/etc/rsyslog.conf", "root", chmod="644")
+
+
+def copy_certs():
+    run("mkdir /home/%s/.ssh" % NEW_USERNAME)
+    run("chmod 700 /home/%s/.ssh" % NEW_USERNAME)
+    cert_path = get_cert_path()
+    put(cert_path, "/home/%s/.ssh/authorized_keys" % NEW_USERNAME)
+    run("chmod 600 /home/%s/.ssh/authorized_keys" % NEW_USERNAME)
+
+
+def set_ssh_config():
+    env.key_filename = get_cert_path(private=True)
+    _add_config_file("sshd_config", "/etc/ssh/sshd_config", "root", chmod="600")
+    sudo("sudo systemctl restart ssh")
+
+
+def set_ssh_config_dev():
+    env.key_filename = get_cert_path(private=True)
+    _add_config_file("sshd_config_dev", "/etc/ssh/sshd_config", "root", chmod="600")
+    sudo("sudo systemctl restart ssh")
+
+
+def change_root_password():
+    crypted_password = crypt(ROOT_PASSWORD, 'salt')
+    sudo('usermod --password %s %s' % (crypted_password, "root"), pty=False)
+
+
+def install_pip():
+    # sudo("dpkg --configure -a")
+    sudo("apt-get update")
+    sudo("apt-get install -y curl")
+    sudo("curl --silent --show-error --retry 5 https://bootstrap.pypa.io/" "get-pip.py | sudo python3")
+
+
+def install_samba():
+    sudo("apt-get -y install samba")
+    _add_config_file("smb.conf", "/etc/samba/smb.conf", "root")
+    sudo("/etc/init.d/samba restart")
+    sudo("smbpasswd -a %s" % NEW_USERNAME)
+
+
+def install_extra_libs():
+    sudo("apt-get update")
+    sudo("apt-get -y install ntp autossh git libxi6")
+    sudo('pip install pyudev')
+    sudo('pip install pyroute2')
+
+def daily_reboot():
+    sudo('echo "0 4    * * *   root    /sbin/shutdown -r +5" >> /etc/crontab')
+
+
+def install_docker():
+
+    # install docker
+    sudo("curl -sSL get.docker.com | sh")
+
+    # fix the docker host in json problem
+    _add_config_file("docker.service", "/lib/systemd/system/docker.service", "root", chmod=755)
+
+    # config deamon
+    _add_config_file("daemon.json", "/etc/docker/daemon.json", "root")
+
+    # sets up service
+    sudo("systemctl enable docker")
+    # sudo("groupadd docker")
+    # allows users to use to use docker
+    sudo("usermod -aG docker %s" % NEW_USERNAME)
+    # installs docker compose
+    sudo("pip install docker-compose")
+
+
+def remove_bloat():
     sudo('apt update')
+    sudo("apt-get -y remove --purge libreoffice*")
+    sudo("apt-get -y remove --purge wolfram*")
+    sudo("apt-get -y remove modemmanager")
+    sudo("apt-get -y remove --purge minecraft*")
+    sudo("apt-get -y purge --auto-remove scratch")
+    sudo("dpkg --remove flashplugin-installer")
+    sudo("apt-get clean")
+    sudo("apt-get autoremove")
 
-def apt_upgrade():
-    sudo('apt upgrade')
 
-def apt_autoremove():
-    sudo('apt autoremove')
+def set_hostname():
+    sudo("sed -i 's/%s/%s/g' /etc/hostname" % (ORIGINAL_HOSTNAME, NEW_HOSTNAME))
+    sudo("sed -i 's/%s/%s/g' /etc/hosts" % (ORIGINAL_HOSTNAME, NEW_HOSTNAME))
+    sudo("hostname %s" % NEW_HOSTNAME)
 
-def apt_clean():
-    sudo('df -h')
-    sudo('apt clean')
-    sudo('df -h')
 
-def uninstall_packages():
-    sudo('df -h')
-    sudo('apt remove wolfram*')
-    sudo('apt remove scratch*')
-    sudo('apt remove libreoffice*')
-    sudo('apt remove minecraft*')
-    sudo('df -h')
+def set_boot_config(config):
+    if config == "kedei":
+        _add_config_file("kedei_config.txt", "/boot/config.txt", "root")
+    else:
+        _add_config_file("waveshare_config.txt", "/boot/config.txt", "root")
+
+
+def add_resize():
+    sudo('printf " quiet init=/usr/lib/raspi-config/init_resize.sh" >> /boot/cmdline.txt')
+    _add_config_file("resize2fs_once", "/etc/init.d/resize2fs_once", "root", chmod="+x")
+    sudo("systemctl enable resize2fs_once")
+
+def _add_config_file(name, dst, owner, chmod=None):
+    put("config_files/%s" % name, dst, use_sudo=True)
+    if chmod is not None:
+        sudo("chmod %s %s" % (chmod, dst))
+    sudo("chown %s %s" % (owner, dst))
+    sudo("chgrp %s %s" % (owner, dst))
+
+
+def _add_software_file(name, dst, owner, chmod=755):
+    put("software/%s" % name, dst, use_sudo=True)
+    sudo("chmod %s %s" % (chmod, dst))
+    sudo("chown %s %s" % (owner, dst))
+    sudo("chgrp %s %s" % (owner, dst))
 
 def reboot():
     print('System reboot')
     sudo('reboot')
 
+def shutdown():
+    print('shutdown')
+    sudo('shutdown now')
+
 def halt():
     print('System halt')
     sudo('halt')
 
+def waveshare_install_SPI_touchscreen_drivers():
+    waveshare_download_touchscreen_driver()
+    waveshare_install_touchscreen_driver()
+
+def fix_install():
+    sudo("apt --fix-broken install")
+
+def waveshare_download_touchscreen_driver():
+
+    # git clone https://github.com/waveshare/LCD-show.git
+    print('Downloading Waveshare touchscreen drivers. This operation may take a very long time')
+    if not exists('/opt/waveshare', use_sudo=True):
+        sudo('mkdir /opt/waveshare')
+    sudo('cd /opt/waveshare ; git clone https://github.com/waveshare/LCD-show.git')
+    sudo('pwd')
+
+def waveshare_install_touchscreen_driver():
+    if exists('/opt/waveshare/LCD-show', use_sudo=True):
+        print('Installing Waveshare touchscreen driver')
+
+        # Enable I2C
+        # See https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c#installing-kernel-support-manually
+        sudo('echo "dtparam=i2c1=on" | sudo tee -a /boot/config.txt')
+        sudo('echo "dtparam=i2c_arm=on" | sudo tee -a /boot/config.txt')
+        sudo('echo "i2c-bcm2708" | sudo tee -a /etc/modules')
+        sudo('echo "i2c-dev" | sudo tee -a /etc/modules')
+
+        # Disable Serial Console
+        sudo('sudo sed -i \'s/console=serial0,115200//\' /boot/cmdline.txt')
+        sudo('sudo sed -i \'s/console=ttyAMA0,115200//\' /boot/cmdline.txt')
+        sudo('sudo sed -i \'s/kgdboc=ttyAMA0,115200//\' /boot/cmdline.txt')
+
+        sudo('cd /opt/waveshare/LCD-show ; ./LCD35B-show-V2')
+        print('Installing new kernel for Waveshare touchscreen driver completed')
+
 def kedei_install_SPI_touchscreen_drivers():
-    pass
     kedei_copy_touchscreen_drivers()
     # kedei_download_touchscreen_drivers()
     kedei_untar_touchscreen_drivers()
@@ -190,8 +471,8 @@ def install_dev_apt_prerequisites():
     sudo('apt-get -y remove python-pip python3-pip ; apt-get -y --allow-unauthenticated install python-pip python3-pip')
     sudo('apt-get -y install python-requests python-pygame libts-bin libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev')
     sudo('apt-get -y install python-requests python-numpy python-scipy python3-numpy python3-scipy')
-    sudo('apt-get -y install screen ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
-    sudo('apt-get -y install libsmbclient libssh-4 libpcre3 fonts-freefont-ttf espeak alsa-tools alsa-utils')
+    sudo('apt-get -y install ntpdate screen ntp ifmetric p7zip-full man apt-utils expect wget git libfreetype6 dbus dbus-*dev ')
+    sudo('apt-get -y install uuid libsmbclient libssh-4 libpcre3 fonts-freefont-ttf espeak alsa-tools alsa-utils')
     sudo('apt-get -y install python3-gpiozero python-rpi.gpio python-pigpio python-gpiozero')
     sudo('apt-get -y install pigpio python3-pigpio python3-rpi.gpio raspi-gpio wiringpi')
     sudo('apt-get -y install fbset fbi i2c-tools avahi-utils')
@@ -201,7 +482,7 @@ def install_dev_apt_prerequisites():
 
 def install_dev_pip_prerequisites():
     print('Installing software PIP prerequisites')
-    # sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
+    sudo('apt-get -y remove python-pip python3-pip ; apt-get -y install python-pip python3-pip')
     # sudo('pip install --trusted-host pypi.org --trusted-host files.pythonhosted.org pygameui') # not working
     sudo('pip install evdev')
     sudo('pip install tinkerforge')
@@ -210,8 +491,9 @@ def install_dev_pip_prerequisites():
     sudo('pip install phue')
     sudo('pip install pytz')
     sudo('pip install apscheduler')
-    sudo('pip install pygameui')
+    # sudo('pip install pygameui')
     # sudo('pip3 install --trusted-host pypi.org --trusted-host files.pythonhosted.org  pygameui') # not working
+    install_pygameui()
     sudo('pip3 install evdev')
     sudo('pip3 install tinkerforge')
     sudo('pip3 install pysrt')
@@ -227,13 +509,15 @@ def install_dev_pip_prerequisites():
     sudo('pip3 install omxplayer-wrapper')
     print('Installing software PIP prerequisites completed')
 
-# def install_pygameui():
-#     print('Installing pygameui')
-#     if not exists('/opt/pygameui', use_sudo=True):
-#         sudo('mkdir /opt/pygameui')
-#     sudo('cd /opt/pygameui ; git clone https://github.com/fictorial/pygameui.git /opt/pygameui')
-#     sudo('cd /opt/pygameui ; python setup.py install')
-#     print('Installing pygameui completed')
+def install_pygameui():
+    print('Installing pygameui')
+
+    if exists('/opt/pygameui', use_sudo=True):
+        sudo('rm -rf /opt/pygameui')
+    sudo('mkdir /opt/pygameui')
+    sudo('cd /opt/pygameui ; git clone https://github.com/fictorial/pygameui.git /opt/pygameui')
+    sudo('cd /opt/pygameui ; python setup.py install')
+    print('Installing pygameui completed')
 
 def install_rclone():
     print('Installing rclone')
@@ -243,6 +527,16 @@ def install_rclone():
     sudo('cd /opt/rclone ; chmod +x ./rclone-install.sh ; ./rclone-install.sh')
     sudo('rclone --version')
     print('Installing rclone clompleted')
+
+def install_tinkerforge_brickd():
+    print('Installing Tinkerforge brickd')
+    if not exists('/opt/brickd', use_sudo=True):
+        sudo('mkdir /opt/brickd')
+    sudo('cd /opt/brickd ; wget http://download.tinkerforge.com/tools/brickd/linux/brickd-2.3.2_armhf.deb')
+    sudo('cd /opt/brickd ; dpkg -i brickd-2.3.2_armhf.deb')
+    print('Installing Tinkerforge brickd clompleted')
+
+
 
 def erase_usb_stick():
     print('Erasing all files from /media/usb')
@@ -280,18 +574,7 @@ def create_lushroom_dev():
 
     print('Creating LushRoom development environment completed')
 
-def install_openhab():
-    sudo('apt install screen mc vim git htop')
-    sudo('wget -qO - "https://bintray.com/user/downloadSubjectPublicKey?username=openhab" | apt-key add')
-    sudo('apt-get install apt-transport-https')
-    sudo('echo "deb https://dl.bintray.com/openhab/apt-repo2 stable main" | tee /etc/apt/sources.list.d/openhab2.list')
-    sudo('apt-get update')
-    sudo('apt-get install openhab2')
-    sudo('apt-get install openhab2-addons')
-    sudo('systemctl start openhab2.service')
-    sudo('systemctl status openhab2.service')
-    sudo('systemctl daemon-reload')
-    sudo('systemctl enable openhab2.service')
+
 
 def reduce_writes():
 
@@ -303,10 +586,10 @@ def reduce_writes():
     # minimise writes
     use_ram_partitions()
     _stop_fsck_running()
-    _redirect_logrotate_state()
-    _dont_update_fake_hwclock()
-    _dont_do_man_indexing()
-    # _remove_swap()
+    # _redirect_logrotate_state()
+    # _dont_update_fake_hwclock()
+    # _dont_do_man_indexing()
+    _remove_swap()
 
 def use_ram_partitions():
     sudo('echo "tmpfs    /tmp    tmpfs    defaults,noatime,nosuid,size=100m    0 0" >> /etc/fstab')
@@ -315,10 +598,7 @@ def use_ram_partitions():
 
 def _redirect_logrotate_state():
     sudo("rm /etc/cron.daily/logrotate")
-    put("logrotate", "/etc/cron.daily/logrotate", use_sudo=True)
-    sudo("chmod 755 /etc/cron.daily/logrotate")
-    sudo("chown root /etc/cron.daily/logrotate")
-    sudo("chgrp root /etc/cron.daily/logrotate")
+    _add_config_file("logrotate", "/etc/cron.daily/logrotate", "root", chmod="755")
 
 def _stop_fsck_running():
     sudo("tune2fs -c -1 -i 0 /dev/mmcblk0p2")
@@ -350,109 +630,42 @@ def test():
 def get_bashrc():
     get("/home/lush/.bashrc")
 
-def change_password():
-    env.password = "raspberry"
-    crypted_password = crypt(PI_PASSWORD, 'salt')
-    sudo('usermod --password %s %s' % (crypted_password, env.user), pty=False)
+def update_bootstrap():
 
-def _change_graphics_memory():
-    sudo('echo "gpu_mem=256" >> /boot/config.txt')
+    env.password = None
+    env.key_filename = get_cert_path(private=True)
+
+    sudo("mkdir -p /opt/lushroom")
+
+    file_names = ["bootstrap.py"]
+
+    for name in file_names:
+        _add_software_file(name, "/opt/lushroom/%s" % name, "root")
+
 
 def add_bootstrap():
-    # # build_bootstrap()
-    # sudo("mkdir -p /opt/lushroom")
-    # put("start.sh", "/opt/lushroom/start.sh", use_sudo=True)
-    # sudo("chmod 755 /opt/lushroom/start.sh")
 
-    put("bootstrap.py", "/opt/lushroom/bootstrap.py", use_sudo=True)
-    sudo("chmod 755 /opt/lushroom/bootstrap.py")
+    env.password = None
+    env.key_filename = get_cert_path(private=True)
 
-    # ## add our own rc.local
-    # sudo("rm /etc/rc.local")
-    # put("rc.local", "/etc/rc.local", use_sudo=True)
-    # sudo("chmod 755 /etc/rc.local")
-    # sudo("chown root /etc/rc.local")
-    # sudo("chgrp root /etc/rc.local")
+    sudo("mkdir -p /opt/lushroom")
 
-"""
+    file_names = ["start.sh",
+                  "bootstrap.py",
+                  "mount.py",
+                  "monitor.py",
+                  "clean_wifi.py",
+                  "resize_once.txt",
+                  "tunnel.service.template"
+                  ]
 
-def add_resize():
-    sudo('printf " quiet init=/usr/lib/raspi-config/init_resize.sh" >> /boot/cmdline.txt')
-    put("resize2fs_once", "/etc/init.d/resize2fs_once", use_sudo=True)
-    sudo("chmod +x /etc/init.d/resize2fs_once")
-    sudo("chown root /etc/init.d/resize2fs_once")
-    sudo("chgrp root /etc/init.d/resize2fs_once")
-    sudo("systemctl enable resize2fs_once")
+    for name in file_names:
+        _add_software_file(name, "/opt/lushroom/%s" % name, "root")
 
-def build_bootstrap():
-    tag = BOOTSTRAP_VERSION
-    put("docker", "~")
-    sudo('docker build --no-cache=true -t="lushroom/lushroom-bootstrap:%s" '
-         'docker/lushroom-bootstrap' % tag)
-    sudo('docker tag lushroom/lushroom-bootstrap:%s lushroom/'
-         'lushroom-bootstrap:latest' % tag)
-    sudo('docker push lushroom/lushroom-bootstrap:latest')
+    _add_config_file("lushroom-bootstrap.service", "/etc/systemd/system/lushroom-bootstrap.service", "root", chmod=755)
 
-def install_docker():
-    # install docker
-    run("curl -sSL get.docker.com | sh")
     # sets up service
-    run("sudo systemctl enable docker")
-    # allows pi use to use docker
-    run("sudo usermod -aG docker pi")
-    # installs docker compose
-    sudo("curl --silent --show-error --retry 5 https://bootstrap.pypa.io/"
-         "get-pip.py | sudo python2.7")
-    sudo("pip install docker-compose")
+    sudo("systemctl enable lushroom-bootstrap")
 
 
-############################################################################
-##              Docker commands for building other images                 ##
-############################################################################
 
-
-def docker_login(password):
-    sudo('docker login -u arupiot -p "%s"' % password)
-
-
-def push_bootstrap():
-    sudo('docker push lushroom/lushroom-bootstrap:latest')
-
-
-def build_python():
-    tag = PYTHON_VERSION
-    put("docker", "~")
-    sudo('docker build --no-cache=true -t="lushroom/lushroom-python:%s" docker/lushroom-python' % tag)
-    sudo('docker push lushroom/lushroom-python:%s' % tag)
-    sudo('docker tag lushroom/lushroom-python:%s lushroom/lushroom-python:latest' % tag)
-    sudo('docker push lushroom/lushroom-python:latest')
-
-
-def build_deskcontrol():
-    tag = DESKCONTROL_VERSION
-    put("docker", "~")
-    sudo('docker build --no-cache=true -t="lushroom/lushroom-deskcontrol:%s" docker/lushroom-deskcontrol' % tag)
-    sudo('docker push lushroom/lushroom-deskcontrol:%s' % tag)
-    sudo('docker tag lushroom/lushroom-deskcontrol:%s lushroom/lushroom-deskcontrol:latest' % tag)
-    sudo('docker push lushroom/lushroom-deskcontrol:latest')
-
-
-def build_command():
-    tag = COMMAND_VERSION
-    put("docker", "~")
-    sudo('docker build --no-cache=true -t="lushroom/lushroom-commands:%s" docker/lushroom-commands' % tag)
-    sudo('docker push lushroom/lushroom-commands:%s' % tag)
-    sudo('docker tag lushroom/lushroom-commands:%s lushroom/lushroom-commands:latest' % tag)
-    sudo('docker push lushroom/lushroom-commands:latest')
-
-
-def build_brickd():
-    tag = BRICKD_VERSION
-    put("docker", "~")
-    sudo('docker build --no-cache=true -t="lushroom/lushroom-brickd:%s" docker/lushroom-brickd' % tag)
-    sudo('docker push lushroom/lushroom-brickd:%s' % tag)
-    sudo('docker tag lushroom/lushroom-brickd:%s lushroom/lushroom-brickd:latest' % tag)
-    sudo('docker push lushroom/lushroom-brickd:latest')
-
-
-"""

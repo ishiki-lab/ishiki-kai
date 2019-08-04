@@ -1,0 +1,16 @@
+# /etc/systemd/system/lushroom-bootstrap.service
+
+[Unit]
+Description=Lushroom Bootstrap Service
+After=docker.service
+
+[Service]
+Type=simple
+ExecStart=/opt/lushroom/start.sh
+TimeoutSec=0
+RestartSec=2
+Restart=always
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

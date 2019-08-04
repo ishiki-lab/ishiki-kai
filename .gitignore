@@ -6,7 +6,7 @@ drivers
 lushroom1-pi.local-22
 
 # osx
-.DS_Store
+*.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

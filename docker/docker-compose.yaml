@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  rclone:
+    container_name: lushroom-rclone
+    privileged: true
+    image: "lushdigital/lushroom-rclone:latest"
+    volumes:
+       - /media/usb:/media/usb
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
+        tag: "rclone"
+  display:
+    container_name: lushroom-display
+    privileged: true
+    network_mode: host
+    image: "lushdigital/lushroom-display:latest"
+    volumes:
+       - /media/usb:/media/usb
+       - /dev/fb0:/dev/fb0
+       - /dev/input/event0:/dev/input/event0
+    environment:
+       - HOSTNAME
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
+        tag: "display"
+  player:
+    container_name: lushroom-player
+    image: "lushdigital/lushroom-player:latest"
+    privileged: true
+    ports:
+       - 80:80
+    volumes:
+       - /media/usb:/media/usb
+       - /dev/vchiq:/dev/vchiq
+       - /opt/vc:/opt/vc
+    restart: always
+    logging:
+      driver: "syslog"
+      options:
+        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
+        tag: "player"
+
