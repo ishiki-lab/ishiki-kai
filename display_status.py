@@ -224,9 +224,9 @@ def draw_screen_wrapped():
     show_text(hostname, font_big, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
     row += 1
     # get timezone / location information
-    timezone = 'time zone: %s' % tzname[0]
-    show_text(timezone, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
-    row += 1
+    #timezone = 'time zone: %s' % tzname[0]
+    #show_text(timezone, font_regular, WHITE, [SCREEN_WIDTH/2,text_x_offset + FONT_SIZE*(row)])
+    #row += 1
     # get mac and ip addresses of network interfaces
     adapters = netifaces.interfaces()
     addresses = get_ipaddresses(adapters)
