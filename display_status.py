@@ -15,7 +15,7 @@ if SENTRY_URL is not None:
 
 import time
 
-from time import sleep, tzname, daylight, gmtime, strftime
+from time import sleep, tzname, daylight, gmtime, strftime, localtime
 from os.path import exists, join
 from os import listdir, putenv, getenv, environ
 from os import name as osname
@@ -122,7 +122,7 @@ def draw_time_wrapped():
    global lcd
    font_regular = pygame.font.Font(None, FONT_SIZE)
    #current_dt = dt.now()
-   current_dt = strftime("%Y-%m-%d %H:%M:%S", gmtime())
+   current_dt = strftime("%Y-%m-%d %H:%M:%S", localtime())
    #print(current_dt)
    pygame.draw.rect(lcd, BLACK, pygame.Rect(0, SCREEN_HEIGHT -int(FONT_SIZE*1.2), SCREEN_WIDTH, SCREEN_HEIGHT))
    show_text(current_dt, font_regular, WHITE, [SCREEN_WIDTH/2, SCREEN_HEIGHT - FONT_SIZE/2])
