@@ -7,6 +7,8 @@ services:
     image: "lushdigital/lushroom-rclone:staging"
     volumes:
        - /media/usb:/media/usb
+       - /etc/localtime:/etc/localtime
+       - /etc/timezone:/etc/timezone
     restart: always
     environment:
       - sentry_url=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
@@ -19,6 +21,8 @@ services:
        - /media/usb:/media/usb
        - /dev/fb0:/dev/fb0
        - /dev/input/event0:/dev/input/event0
+       - /etc/localtime:/etc/localtime
+       - /etc/timezone:/etc/timezone
     environment:
        - HOSTNAME
        - sentry_url=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
