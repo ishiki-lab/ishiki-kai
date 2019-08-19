@@ -1,0 +1,57 @@
+<ion-view title="Settings" id="page2">
+  <ion-nav-buttons side="right" class="has-header">
+    <button class="button button-icon icon ion-android-settings"></button>
+  </ion-nav-buttons>
+  <ion-content padding="true" class="has-header">
+    <div>
+      <img src="img/CKywsQCfRlO4E7ZSqqQ1_lushroom_pi.svg" style="display: block; width: 150px; height: auto; margin-left: auto; margin-right: auto;">
+    </div>
+    <button id="settings-button39" class="button button-dark button-block icon-left ion-wand">Detect devices</button>
+    <div class="list card" id="settings-card21">
+      <ion-item class="item-thumbnail-left" id="settings-list-item3">
+        <img src="img/vqqc4Pj1Rn6CrZaCGorQ_dmx512-icon.png">
+        <h2>DMX control</h2>
+        <p>Tinkerforge DMX Bricklet</p>
+      </ion-item>
+      <div class="item item-body" id="settings-list-item-container2">
+        <div id="settings-markdown2" class="show-list-numbers-and-dots">
+          <p style="margin-top:0px;color:#000000;">Use the DMX control settings to enable or disable control using the
+            <a href="https://www.tinkerforge.com/en/shop/dmx-bricklet.html">Tinkerforge DMX Bricklet</a>. Both a
+            <a href="https://www.tinkerforge.com/en/shop/master-brick.html">Tinkerforge Master Brick</a> and a
+            <a href="https://www.tinkerforge.com/en/shop/dmx-bricklet.html">Tinkerforge DMX Bricklet</a> are needed.</p>
+        </div>
+      </div>
+      <form id="settings-form1" class="list">
+        <ion-toggle toggle-class="toggle-dark" id="settings-toggle1" name="dmx_enable">Enable DMX</ion-toggle>
+        <label class="item item-input" id="settings-input1" name="tf_ip_address">
+          <span class="input-label">IP address</span>
+          <input type="text" placeholder="127.0.0.1">
+        </label>
+        <label class="item item-input" id="settings-input2" name="tf_port">
+          <span class="input-label">IP port</span>
+          <input type="text" placeholder="4223">
+        </label>
+      </form>
+    </div>
+    <div class="list card" id="settings-card22">
+      <ion-item class="item-thumbnail-left" id="settings-list-item5">
+        <img src="img/H9qveAmgTu6fi2mVEOTx_philips_hue-icon.png">
+        <h2>Philips Hue control</h2>
+        <p>Philips Hue Bridge</p>
+      </ion-item>
+      <div class="item item-body" id="settings-list-item-container3">
+        <div id="settings-markdown3" class="show-list-numbers-and-dots">
+          <p style="margin-top:0px;color:#000000;">Use the Philips Hue control setting to enable outputting to a
+            <a href="https://www2.meethue.com/en-gb/p/hue-white-and-colour-ambience-starter-kit-e27/8718696728796">Philips Hue Bridge</a> device.</p>
+        </div>
+      </div>
+      <form id="settings-form2" class="list">
+        <ion-toggle toggle-class="toggle-dark" id="settings-toggle2" name="hue_enable">Enable Philips Hue</ion-toggle>
+        <label class="item item-input" id="settings-input3" name="hue_ip_address">
+          <span class="input-label">IP address</span>
+          <input type="text" placeholder="192.168.1.2">
+        </label>
+      </form>
+    </div>
+  </ion-content>
+</ion-view>
