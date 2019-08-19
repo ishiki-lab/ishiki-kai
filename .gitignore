@@ -1,5 +1,3 @@
-gui/lrpi/build
-gui/lrpi/dist
 .DS_Store
 *.pyc
 __pycache__/
@@ -8,3 +6,5 @@ srt_files/
 test/
 gui/lrpi/src_example
 gui/lrpi_ionic3
+gui/lrpi/build
+gui/lrpi/dist

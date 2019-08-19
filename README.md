@@ -1,5 +1,30 @@
 # lrpi_record
 
+## lrpi_vezer2srt.py Usage
+
+### On a Mac
+
+To use this script from the command line, you _must_ run the command from the directory. Otherwise the `.srt`s generate will appear in unexpected places...
+
+- open a Finder window
+- navigate to your lrpi_record installation directory (where lrpi_vezer2srt.py is)
+- (if they don't already exist!)
+    - make an xml directory
+    - put your xml files into the directory
+- open a terminal window
+- `cd` into the installation directory ('cd' stands for 'change directory')
+    - type `cd ` (plus a space!)
+    - click and drag the folder icon of the installation directory from finder into the terminal
+    - hit enter 
+- In the terminal, run `./lrpi_vezer2srt.py -x <name of file>.xml` -> the full stop and forward slash are important!
+    - type `./lrpi_vezer2srt.py -x ` (plus a space!)
+    - From Finder, click and drag the file from the xml/ directory into the terminal
+    - hit enter
+- The script will start running, there will be lots of 'd's
+- the output `.srt`s should appear in the same directory as the script
+- file your srts accordingly
+- upload them to google drive! 
+
 ## Installation
 
 ### Python 3
