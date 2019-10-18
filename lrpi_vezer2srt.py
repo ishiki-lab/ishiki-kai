@@ -55,8 +55,11 @@ SAMPLING = 0.1 # Sampling rate in seconds. For instance 0.05 means 20 frames per
 TRANSITION_TIME = 10
 START = None
 END = None
-DEBUG = False
-VERBOSE = False
+DEBUG = True
+VERBOSE = True
+
+def emptyDMXFrame(self):
+    return zeros((512,), dtype=int)
 
 def getText(nodelist):
     rc = []
@@ -262,7 +265,6 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
                                     print("dmx value", addr, payload)
                                 n = int(addr[4:])
                                 if payload!="":
-                                    # print(dmx_frame[int(n)])
                                     dmx_frame[int(n)] = int(float(payload)*254)
                             # Convert multiple DMX channels to command
                             elif addr[1:4].lower() == "dmx" and (type =="OSCColor/floatarray" or type =="OSCValue/standard"):
@@ -291,25 +293,41 @@ def handle_tracks(tracks, start, end, fps, srt_filename):
 
                 # Output DMX command
                 dmx_frame_trimmed = trim_zeros(dmx_frame,'b').astype('uint8')
+
+
                 # print("dmx_frame_trimmed before",dmx_frame_trimmed)
+
                 # if len(dmx_frame_trimmed)==0:
                 #     dmx_frame_trimmed = zeros(512)
+
                 # print("dmx_frame_trimmed after",dmx_frame_trimmed)
+
                 dmx_cmd = "DMX1"+str(tuple(dmx_frame_trimmed)[1:]).replace(" ", "")
-                # print(dmx_cmd, prev_dmx_frame)
+
+                if VERBOSE:
+                    print('dmx_cmd to be written: ', dmx_cmd)
+
                 # cmd = hue_cmd + ";" + dmx_cmd
                 if (not array_equal(dmx_frame_trimmed,prev_dmx_frame)) or (frame_no % fps == 0):
                     # if frame_no % fps == 0 and dmx_cmd=="":
                     # if frame_no % fps == 0:
                     #     print(dmx_cmd, prev_dmx_frame)
+
+                    # Fix for and empty DMX command
+                    # Usually found at the start of a treatment track
+                    if dmx_cmd == "DMX1()":
+                       item = dmx_cmd = "DMX1"+str(tuple(zeros(512, dtype=int))[1:]).replace(" ", "") 
+
                     item = SubRipItem(frame_no, text=dmx_cmd)
                     item.shift(seconds=t)
                     item.end.shift(seconds=1.0/fps)
+
                     if VERBOSE:
                         print(item)
                     else:
                         print("d", end = "")
                         stdout.flush()
+                    
                     subrip_file.append(item)
                     frame_no += 1
                 prev_dmx_frame = dmx_frame_trimmed
