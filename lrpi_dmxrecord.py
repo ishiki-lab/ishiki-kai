@@ -4,8 +4,8 @@
 HOST = "127.0.0.1"
 PORT = 4223
 
-DEBUG = False
-VERBOSE = False
+DEBUG = True
+VERBOSE = True
 # reading_interval = 1.0
 
 from tinkerforge.ip_connection import IPConnection
@@ -77,7 +77,7 @@ def dmxread_callback(frame, frame_no):
             item = SubRipItem(1, text="DMX1"+str(frame))
             item.shift(seconds=prevTime)
             item.end.shift(seconds=perf_counter()-prevTime)
-            if verbose:
+            if VERBOSE:
                 print(item)
             subs.append(item)
             srtFile.append(item)
@@ -113,7 +113,9 @@ def main():
 
     args = parser.parse_args()
 
-    print(args)
+    print('args: ', args)
+    print('args.srt: ', args.srt)
+    SRT_FILENAME = args.srt
 
     # global ipcon
 
@@ -128,7 +130,7 @@ def main():
     sleep(2)
 
     if VERBOSE:
-        print(tfIDs)
+        print("tfIds: ", tfIDs)
 
     dmxcount = 0
     for tf in tfIDs:
@@ -138,7 +140,7 @@ def main():
 
             if len(tf[0])<=3: # if the device UID is 3 characters it is a bricklet
                 if tf[1] in deviceIDs:
-                    print(tf[0],tf[1], getIdentifier(tf))
+                    print('printed tfIds: ', tf[0],tf[1], getIdentifier(tf))
                 if tf[1] == 285: # DMX Bricklet
                     if dmxcount == 0:
                         print("Registering %s as slave DMX device for capturing DMX frames" % tf[0])
