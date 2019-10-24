@@ -53,11 +53,8 @@ class FileUploader extends React.Component {
 
         const url = window.location.origin + '/uploadfile'
         fetch(url, {
-        method: 'POST',
-        body: data,
-        })
-        .then(success => {
-            console.log("Upload File Success: " + success)
+            method: 'POST',
+            body: data,
         })
         .catch(error => console.log(error)
         );
@@ -70,9 +67,6 @@ class FileUploader extends React.Component {
         fetch(url, {
             method: 'POST',
             body: selectedCol,
-        })
-        .then(success => {
-                console.log("Upload Hex Success: " + success)
         })
         .catch(error => console.log(error)
         );
