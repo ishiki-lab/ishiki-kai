@@ -26,7 +26,7 @@ def allowed_file(filename):
 #serve react app
 @app.route('/')
 def serve():
-        return send_from_directory('build/', 'index.html')
+    return send_from_directory('build/', 'index.html')
 
 
 # Handles POST of file
@@ -50,10 +50,12 @@ def upload_file():
             #Save file to dir
             file.save(os.path.join(uploads_dir, filename))
             #File successfully uploaded
-            return redirect('/uploadfile')
+            return "AUDIO_SAVED"
         else:
             #File type not allowed - accepted types are mp3, mp4, JSON
             return redirect(request.url)
+    
+    return "AUDIO_SAVE_ERROR"
 
 
 # Handles POST of colour value
@@ -70,9 +72,9 @@ def upload_col():
         jsonstring = '{"colour" : ' + colour + '}'
         file1.write(jsonstring)
         file1.close()
+        return "COL_SAVED"
 
-    return
-    
+    return "COL_SAVE_ERROR"
 
 if __name__ == '__main__':
     app.run(port=80, host='0.0.0.0')
