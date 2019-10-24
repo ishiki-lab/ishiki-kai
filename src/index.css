@@ -30,7 +30,9 @@ button  {
 }
 
 input[type=file] {
-  width: 250px;
+  width: 80%;
+  max-width: 280px;
+  min-width: 120px;
   height: 30px;
   font-size: 15px;
   border: solid 1px rgb(234, 232, 232);
@@ -39,14 +41,16 @@ input[type=file] {
 }
 
 input[type=color] {
-  width: 150px;
+  width: 85%;
+  max-width: 300px;
+  min-width: 120px;
   height: 45px;
   border: solid 1px rgb(234, 232, 232);
   border-radius: 5px;
 }
 
 .form_body{
-  margin: 25px;
+  margin: 5px;
 }
 
 #inputbtn{
@@ -55,9 +59,17 @@ input[type=color] {
   height: 45px;
   font-size: 15px;
   font-weight: 700;
-  width: 210px;
+  width: 85%;
+  max-width: 300px;
+  min-width: 120px;
   background-color: #0096ff;
   color: white;
   border: none;
   border-radius: 5px;
+}
+
+#root{
+  width:98%;
+  margin: 2%;
+
 }
