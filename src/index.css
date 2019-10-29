@@ -1,25 +1,10 @@
 body {
+  background: black;
+  color:white;
   margin: 15px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "Trebuchet MS",Helvetica,sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
-}
-
-button  {
-  margin-top: 25px;
-  margin-bottom: 25px;
-  height: 30px;
-  background-color: darkcyan;
-  color: white;
-  border: none;
-  border-radius: 5px;
+  -moz-osx-font-smoothing: grayscale;  
 }
 
 #fileinput{
@@ -30,46 +15,63 @@ button  {
 }
 
 input[type=file] {
-  width: 80%;
-  max-width: 280px;
-  min-width: 120px;
+  text-align: center;
+  max-width: 300px;
+  min-width: 190px;
+  width: 65%;
+  display: block;
   height: 30px;
   font-size: 15px;
-  border: solid 1px rgb(234, 232, 232);
+  border: solid 1px white;
   padding: 10px;
   border-radius: 5px;
+  margin: auto;
+  font: inherit;
+  font-weight: 500;
 }
 
 input[type=color] {
-  width: 85%;
-  max-width: 300px;
-  min-width: 120px;
+  width: 70%;
+  display: block;
+  margin: auto;
+  max-width: 320px;
+  min-width: 205px;
   height: 45px;
-  border: solid 1px rgb(234, 232, 232);
+  border: solid 1px white;
   border-radius: 5px;
+}
+
+.layout_header{
+  text-align: center;
 }
 
 .form_body{
   margin: 5px;
+  text-align: center;
 }
+
+label {
+  font-weight: 900;
+}
+
 
 #inputbtn{
   margin-top: 45px;
   margin-bottom: 25px;
-  height: 45px;
+  height: 50px;
   font-size: 15px;
-  font-weight: 700;
-  width: 85%;
-  max-width: 300px;
-  min-width: 120px;
-  background-color: #0096ff;
-  color: white;
+  font-weight: 800;
+  width: 70%;
+  max-width: 320px;
+  min-width: 210px;
+  background-color: white;
+  color: black;
   border: none;
-  border-radius: 5px;
+  font-size: 17px;
+  border-radius: 10px;
 }
 
 #root{
   width:98%;
   margin: 2%;
-
 }
