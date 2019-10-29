@@ -62,7 +62,6 @@ class FileUploader extends React.Component {
 
     //POST col value form data
     uploadCol(selectedCol) {
-    
         const url = window.location.origin + '/uploadcol';
         fetch(url, {
             method: 'POST',
@@ -71,6 +70,7 @@ class FileUploader extends React.Component {
         .catch(error => console.log(error)
         );
     }
+
 }
 
 export default FileUploader;
