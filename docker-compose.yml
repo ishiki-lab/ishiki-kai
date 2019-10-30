@@ -9,7 +9,7 @@ services:
         volumes:
            - ./nginx.conf:/etc/nginx/conf.d/default.conf
         networks:
-            - my-network
+            - scentroom_net
         ports:
             - 80:80
     flask:
@@ -24,12 +24,12 @@ services:
             - FLASK_APP=/code/FlaskFileUploader.py
         command: flask run --host=0.0.0.0
         networks:
-            my-network:
+            scentroom_net:
                 aliases:
-                    - flask-app
+                    - lushroompi-ip
         ports:
             - 8080:5000
 
 networks:
-    my-network:
+    scentroom_net:
         

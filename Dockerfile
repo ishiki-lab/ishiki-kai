@@ -1,5 +1,5 @@
-FROM python:3
-RUN mkdir /code 
-COPY requirements.txt /code
+FROM lushdigital/lushroom-base:latest
+RUN mkdir /opt/code 
+COPY requirements.txt /opt/code
 RUN pip install flask
-RUN pip install -r /code/requirements.txt
+RUN pip install -r /opt/code/requirements.txt
