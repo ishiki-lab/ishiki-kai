@@ -2,10 +2,13 @@ from flask import Flask,abort,render_template,request,redirect,url_for, jsonify,
 from flask_cors import CORS
 from werkzeug import secure_filename
 import os
+import sys
+import logging
 from colorsys import rgb_to_hsv
 
 
 app = Flask(__name__, static_folder='build/static', template_folder="build")
+logging.basicConfig(level=logging.DEBUG)
 
 # Need cors to resolve cors conflict
 cors = CORS(app)
@@ -18,6 +21,9 @@ uploads_dir = os.path.join('/media/usb/', 'uploads')
 if not os.path.exists(uploads_dir):
     os.makedirs(uploads_dir)
 
+def logger(message):
+    app.logger.info("INFO: " + message)
+    sys.stdout.flush()
 
 # Checks filename extension type
 def allowed_file(filename):
@@ -143,9 +149,9 @@ class LightingEvent:
         
 
 if __name__ == '__main__':
-    print("Hi!")
-    print("Uploads directory is: ", uploads_dir)
-    app.run(port=80, host='0.0.0.0')
+    logger("Hi!")
+    logger("Uploads directory is: " + uploads_dir)
+    app.run(port=os.environ['PORT'], host='0.0.0.0')
 
 
 

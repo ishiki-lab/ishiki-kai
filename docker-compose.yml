@@ -23,7 +23,8 @@ services:
             - /media/usb:/media/usb
         environment:
             - FLASK_APP=/opt/code/FlaskFileUploader.py
-        command: flask run --host=0.0.0.0
+            - PORT=5000
+        command: python3 -u /opt/code/FlaskFileUploader.py
         networks:
             scentroom_net:
                 aliases:
