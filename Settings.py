@@ -2,7 +2,7 @@ import os
 import json
 
 _SETTINGS = None
-SETTINGS_PATH = "./settings.json"
+SETTINGS_PATH = "/media/usb/settings.json"
 
 
 def get_settings():

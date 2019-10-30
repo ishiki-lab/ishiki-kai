@@ -14,7 +14,7 @@ cors = CORS(app)
 ALLOWED_EXTENSIONS = set(['mp3', 'mp4', 'json'])
 
 # Create upload directory to save files to
-uploads_dir = os.path.join('media/usb/', 'uploads')
+uploads_dir = os.path.join('/media/usb/', 'uploads')
 if not os.path.exists(uploads_dir):
     os.makedirs(uploads_dir)
 
@@ -24,7 +24,7 @@ def allowed_file(filename):
 	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-#serve react app
+# Serve React app @ https://github.com/LUSHDigital/lrpi_scentroom_ui
 @app.route('/')
 def serve():
     return send_from_directory('build/', 'index.html')
@@ -143,6 +143,8 @@ class LightingEvent:
         
 
 if __name__ == '__main__':
+    print("Hi!")
+    print("Uploads directory is: ", uploads_dir)
     app.run(port=80, host='0.0.0.0')
 
 

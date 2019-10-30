@@ -19,9 +19,10 @@ services:
         image: flask:latest
         container_name: flask
         volumes:
-            - ./:/code
+            - ./:/opt/code
+            - /media/usb:/media/usb
         environment:
-            - FLASK_APP=/code/FlaskFileUploader.py
+            - FLASK_APP=/opt/code/FlaskFileUploader.py
         command: flask run --host=0.0.0.0
         networks:
             scentroom_net:
