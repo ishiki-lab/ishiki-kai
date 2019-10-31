@@ -1,11 +1,24 @@
+
+import sys
+sys.path.append('drivers')
+sys.path.append('events')
+
+# Vendors
 from flask import Flask,abort,render_template,request,redirect,url_for, jsonify, send_from_directory
 from flask_cors import CORS
 from werkzeug import secure_filename
 import os
-import sys
+import json
 import logging
-from colorsys import rgb_to_hsv
+import urllib.request
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+from urllib import parse
 
+# Local
+from DistanceSensor import DistanceSensor
+from Relay import Relay
+from LightingEvent import LightingEvent
 
 app = Flask(__name__, static_folder='build/static', template_folder="build")
 logging.basicConfig(level=logging.DEBUG)
@@ -25,9 +38,15 @@ def logger(message):
     app.logger.info("INFO: " + message)
     sys.stdout.flush()
 
+def get_extension(filename):
+    return filename.rsplit('.', 1)[1].lower()
+
+def get_name(filename):
+    return filename.rsplit('.', 1)[0].lower()
+
 # Checks filename extension type
 def allowed_file(filename):
-	return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+	return '.' in filename and get_extension(filename) in ALLOWED_EXTENSIONS
 
 
 # Serve React app @ https://github.com/LUSHDigital/lrpi_scentroom_ui
@@ -46,6 +65,7 @@ def upload_file():
 
         #Gets file from form data
         file = request.files['file']
+        realname_file = "audio_realname.json"
 
         if file.filename == '':
             #No file selected for uploading
@@ -53,10 +73,16 @@ def upload_file():
         
         if file and allowed_file(file.filename):
             #Generate secure file name
-            filename = secure_filename(file.filename)
+            filename = secure_filename("01_scentroom." + get_extension(file.filename))
+            print("Saving file as... ", filename)
             #Save file to dir
             file.save(os.path.join(uploads_dir, filename))
             #File successfully uploaded
+
+            #TODO add real filename to a text file in uploads
+            with open(os.path.join(uploads_dir, realname_file), 'w') as f:
+                f.write(json.dumps({'realname' : filename}, indent=2))
+
             return jsonify({'response': 200, 'audio_saved': True, 'description': 'Audio Saved', 'path': request.url})
         else:
             return jsonify({'response': 500, 'audio_saved': False, 'description': 'File type not allowed - accepted types are mp3, mp4, JSON', 'path': request.url})
@@ -95,66 +121,11 @@ def page_not_found(e):
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return jsonify({'response':500, 'description': 'Internal Server Error' + str(e)})
-
-
-#Lighting event class
-class LightingEvent: 
-
-    #set colour value on init
-    def __init__(self, col_val): 
-        if col_val is not None:
-            #convert hex value to rgb
-            col_val = col_val.lstrip('#')
-            rgb = tuple(int(col_val[i:i+2], 16) for i in (0, 2, 4))
-            r = float(rgb[0])
-            g = float(rgb[1])
-            b = float(rgb[2])
-            #convert rgb value to hsv
-            h,s,v = rgb_to_hsv(r,g,b)
-            self.hsv_col_val = str(h) + ',' + str(s) + ',' + str(v)
-            self.rgbw_col_val = self.rgb_to_rgbw(r,g,b)
-
-
-    #creates srt file with col val at path
-    def to_srt(self, path):
-
-        if self.hsv_col_val is not None: 
-            file_name = "col_lighting_event"
-            completeName = os.path.join(path, file_name + ".srt")
-            #srt file for write operation
-            srt_file = open(completeName, "w")
-            #srt seq num
-            srt_file.write("1\n")
-            #srt marker
-            srt_file.write("00:00:00,000 --> 00:02:00,000\n")
-            #srt HUE col val
-            srt_file.write("HUE1(" + self.hsv_col_val + ");\n")
-            #srt DMX col val
-            srt_file.write("RGBW(" + self.rgbw_col_val + ");\n")
-            srt_file.close()
-            return True
-        
-        return False
-        
-
-    #converts rgb values to rgbw
-    def rgb_to_rgbw(self, Ri, Gi, Bi):
-        Wo = min(Ri,Gi,Bi)
-        Ro = Ri - Wo
-        Go = Gi - Wo
-        Bo = Bi - Wo
-        return(str(int(Ro)) + ', ' + str(int(Go)) + ', ' + str(int(Bo)) + ', ' + str(int(Wo)))
-        
-        
+    return jsonify({'response':500, 'description': 'Internal Server Error' + str(e)})        
 
 if __name__ == '__main__':
-    logger("Hi!")
+    logger("Welcome to the Scentroom! Scentroom is a working title...")
     logger("Uploads directory is: " + uploads_dir)
-    app.run(port=os.environ['PORT'], host='0.0.0.0')
-
-
-
-
-
+    distance_sensor = DistanceSensor(30)
+    app.run(port=os.environ.get("PORT", "5000"), host='0.0.0.0')
 
