@@ -81,7 +81,7 @@ def upload_file():
 
             #TODO add real filename to a text file in uploads
             with open(os.path.join(uploads_dir, realname_file), 'w') as f:
-                f.write(json.dumps({'realname' : filename}, indent=2))
+                f.write(json.dumps({'realname' : file.filename}, indent=2))
 
             return jsonify({'response': 200, 'audio_saved': True, 'description': 'Audio Saved', 'path': request.url})
         else:
