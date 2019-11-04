@@ -56,7 +56,7 @@ def serve():
 
 
 # Handles POST request of file
-@app.route('/uploadfile', methods=['POST'])
+@app.route('/upload-file', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -92,7 +92,7 @@ def upload_file():
 
 
 # Handles POST request of colour value
-@app.route('/uploadcol', methods=['POST'])
+@app.route('/upload-colour', methods=['POST'])
 def upload_col():
     if request.method == 'POST': 
          
@@ -107,6 +107,25 @@ def upload_col():
 
     return jsonify({'response': 500, 'col_saved': False, 'description': 'Colour upload failed', 'path': request.url})
 
+
+# Handles POST request of colour value
+@app.route('/test-start', methods=['GET'])
+def testStart():
+    if request.method == 'GET': 
+         
+        test_distance_sensor = DistanceSensor(0) 
+        test_distance_sensor.triggerPlayer()  
+
+    return jsonify({'response': 500, 'error': 'Something went wrong when trying to START the test'})
+
+@app.route('/test-kill', methods=['GET'])
+def testKill():
+    if request.method == 'GET': 
+         
+        test_distance_sensor = DistanceSensor(0) 
+        test_distance_sensor.stopPlayer()  
+
+    return jsonify({'response': 500, 'error': 'Something went wrong when trying to KILL the test'})
 
 #Function appends col hex values to .srt file type
 def lightingEvent(col_hex_val):

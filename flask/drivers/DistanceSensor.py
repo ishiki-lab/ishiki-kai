@@ -19,13 +19,19 @@ UID = "EuD" # Change XYZ to the UID of your Distance IR Bricklet
 _DISTANCE_THRESHOLD = 30 # in cm
 _DEBOUNCE_TIME = 4000 # in ms
 
+def logger(message):
+    print("DISTANCE SENSOR: " + message)
+
 class DistanceSensor:
     def __init__(self, dist):
         self.threshold_distance = dist
         self.relay = Relay()
         self.ipcon = None
         self.device = None
-        self.poll()
+        if self.threshold_distance:
+            self.poll()
+        else: 
+            logger("test distance sensor created")
 
     def startCallbackSet(self):
         self.device.register_callback(self.device.CALLBACK_DISTANCE_REACHED, self.cb_distance_reached)
