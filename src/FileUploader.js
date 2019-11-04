@@ -1,6 +1,9 @@
 import React from 'react';
+import TestButton from './components/TestButton';
 import './index.css';
 import { Notification } from './notification';
+
+let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.0.56:5000" : window.location.origin;
 
 class FileUploader extends React.Component {
 
@@ -14,7 +17,7 @@ class FileUploader extends React.Component {
             selectedFile: null,
             selectedCol: '#011993',
         }
-      
+    
     }
 
     fileChangeHandler = (event) => {
@@ -94,6 +97,7 @@ class FileUploader extends React.Component {
 
     //POST file input form data
     uploadFile = async (data) => {
+        //const url = API_URL + '/upload-file'
         let url = 'http://192.168.0.56:5000/uploadfile'
         const response = await fetch(url, {
             method: 'POST',
@@ -110,6 +114,7 @@ class FileUploader extends React.Component {
 
     //POST col value form data
     uploadCol = async (selectedCol) => {
+        //const url = API_URL + '/upload-colour';
         let url = 'http://192.168.0.56:5000/uploadcol';
         const response = await fetch(url, {
             method: 'POST',
@@ -138,6 +143,11 @@ class FileUploader extends React.Component {
                     <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
                     <input type="submit" value="Upload" className="inputbtn"/>  
                 </form>
+                <div className="test-button">
+                    <TestButton 
+                        endpoint={API_URL}
+                    />
+                </div>
                 <br />
                 <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > ACTIVATE SENSOR</button>
                 <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > DEACTIVATE SENSOR</button>
@@ -146,7 +156,6 @@ class FileUploader extends React.Component {
             </div>
         )
     }
-
 }
 
 export default FileUploader;
