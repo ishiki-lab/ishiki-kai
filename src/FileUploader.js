@@ -14,11 +14,7 @@ class FileUploader extends React.Component {
             selectedFile: null,
             selectedCol: '#011993',
         }
-        this.fileChangeHandler = this.fileChangeHandler.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.colorChangeHandler = this.colorChangeHandler.bind(this)
-        this.distanceHandlerActive = this.distanceHandlerActive.bind(this)
-        this.distanceHandlerDeactive = this.distanceHandlerDeactive.bind(this)
+      
     }
 
     fileChangeHandler = (event) => {
@@ -43,7 +39,7 @@ class FileUploader extends React.Component {
 
         //Calls notification component manager
         if(fileresponse && colresponse) {
-            this.notificationManager("Success: Audio and Colour Uploaded")
+            this.notificationManager("Upload success")
         } else if (!fileresponse && colresponse) {
             this.notificationManager("Error: Failed to upload audio file")
         } else if (fileresponse && !colresponse) {
@@ -87,10 +83,8 @@ class FileUploader extends React.Component {
             const response = await fetch(url, {
                 method: 'POST',
                 body: JSON.stringify(data)
-            }).catch((error) => {
-                console.log("Sensor Response Error: ", error)
-            });
-            if(response.response === 200)
+            })
+            if(response != null && response.response === 200) 
                 return true
             
         return false
@@ -105,7 +99,7 @@ class FileUploader extends React.Component {
             method: 'POST',
             body: data,
         })
-        if(response.response === 200){
+        if(response != null && response.response === 200){
             return true
         } else {
             console.log("Upload File Error: ", response)
@@ -121,7 +115,7 @@ class FileUploader extends React.Component {
             method: 'POST',
             body: selectedCol,
         })
-        if(response.response === 200){
+        if(response != null && response.response === 200){
             return true
         } else {
             console.log("Upload File Error: ", response)
