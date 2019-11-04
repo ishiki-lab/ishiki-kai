@@ -1,0 +1,21 @@
+.notification {
+    margin-top: 8%;
+    width: 60%;
+    margin-left: 20%;
+    margin-right: 20%;
+    height: auto;
+    display: block;
+    text-align: center;
+  }
+
+  .notification-body {
+    display: block;
+    padding: 8px;
+    background-color: black;
+    color: #f5d864;
+    text-align: center;
+    border: 1px solid white;
+    border-radius: 2px;
+  }
+  
+  
