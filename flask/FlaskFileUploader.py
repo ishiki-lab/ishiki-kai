@@ -17,7 +17,6 @@ from urllib import parse
 
 # Local
 from DistanceSensor import DistanceSensor
-from Relay import Relay
 from LightingEvent import LightingEvent
 
 app = Flask(__name__, static_folder='build/static', template_folder="build")
@@ -26,7 +25,7 @@ logging.basicConfig(level=logging.DEBUG)
 # Need cors to resolve cors conflict
 cors = CORS(app)
 
-# Restrict file types saved to dircd 
+# Restrict file types saved to uploads directory 
 ALLOWED_EXTENSIONS = set(['mp3', 'mp4', 'json'])
 
 # Create upload directory to save files to
