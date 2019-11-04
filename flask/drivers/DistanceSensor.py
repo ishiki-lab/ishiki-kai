@@ -21,7 +21,7 @@ _DISTANCE_THRESHOLD = 30 # in cm
 _DEBOUNCE_TIME = 4000 # in ms
 
 def logger(message):
-    print("DISTANCE SENSOR: " + message)
+    print("DISTANCE SENSOR: " + str(message))
 
 class DistanceSensor:
     def __init__(self, dist):
@@ -122,7 +122,12 @@ class DistanceSensor:
         print("INFO: res from stop: ", playerRes)
 
     def __del__(self):
-        if self.ipcon:
+        try:
             self.ipcon.disconnect()
+        except Exception as e:
+            logger("Cannot destroy the Tinkerforge IP connection gracefully...")
+            print("Why: ", e)
+            logger("It's likely there was no connection to begin with!")
+            logger("Distance sensor ")
         self.device = None
     
