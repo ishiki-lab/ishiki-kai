@@ -1,5 +1,8 @@
 import React from 'react';
+import TestButton from './components/TestButton';
 import './index.css';
+
+let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.0.56:5000" : window.location.origin;
 
 class FileUploader extends React.Component {
 
@@ -10,9 +13,7 @@ class FileUploader extends React.Component {
             selectedFile: null,
             selectedCol: '#011993',
         }
-        this.fileChangeHandler = this.fileChangeHandler.bind(this)
-        this.handleSubmit = this.handleSubmit.bind(this)
-        this.colorChangeHandler = this.colorChangeHandler.bind(this)
+       
     }
 
     fileChangeHandler = (event) => {
@@ -34,24 +35,10 @@ class FileUploader extends React.Component {
         this.uploadCol(data)
     }
 
-    render() {
-        return (
-            <div className="form_body">
-                <form onSubmit={this.handleSubmit}> 
-                    <label>Select Music File</label><br />
-                    <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/><br />
-                    <label>Select Colour</label><br /><br />
-                    <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
-                    <input type="submit" value="Upload" id="inputbtn"/>  
-                </form>
-            </div>
-        )
-    }
-
     //POST file input form data
     uploadFile(data) {
 
-        const url = window.location.origin + '/uploadfile'
+        const url = API_URL + '/upload-file'
         fetch(url, {
             method: 'POST',
             body: data,
@@ -62,13 +49,35 @@ class FileUploader extends React.Component {
 
     //POST col value form data
     uploadCol(selectedCol) {
-        const url = window.location.origin + '/uploadcol';
+        const url = API_URL + '/upload-colour';
         fetch(url, {
             method: 'POST',
             body: selectedCol,
         })
         .catch(error => console.log(error)
         );
+    }
+
+    render() {
+        return (
+            <>
+                <div className="form_body">
+                    <form onSubmit={this.handleSubmit}> 
+                        <label>Select Music File</label><br />
+                        <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/><br />
+                        <label>Select Colour</label><br /><br />
+                        <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
+                        <input type="submit" value="Upload" className="inputbtn"/>  
+                    </form>
+                    <div className="test-button">
+                        <TestButton 
+                            endpoint={API_URL}
+                        />
+                    </div>
+                </div>
+
+            </>
+        )
     }
 
 }
