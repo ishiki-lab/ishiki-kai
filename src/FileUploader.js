@@ -54,7 +54,7 @@ class FileUploader extends React.Component {
 
     }
 
-    distanceHandlerActive() {
+    distanceHandlerActive = () => {
         //Run temp test for distance sensor active
         if(this.endpointRequest(true)){
             this.notificationManager("Success: Activated")
@@ -63,13 +63,75 @@ class FileUploader extends React.Component {
         }
     }
 
-    distanceHandlerDeactive() {
+    distanceHandlerDeactive = () => {
         //Run temp test for distance sensor deactive
         if(this.endpointRequest(false)){
             this.notificationManager("Success: Deactivated")
         } else {
             this.notificationManager("Error: Could not deactivate")
         }
+    }
+
+    //End point requests for dummy distance sensor
+    endpointRequest = async (state) => {
+        var url = ''
+        if(state){
+            url = 'http://192.168.0.56:5000/start-test'
+        } else {
+            url = 'http://192.168.0.56:5000/test-kill'
+        } 
+        if(url !== '')
+            var data = {
+                "active": state
+            }
+            const response = await fetch(url, {
+                method: 'POST',
+                body: JSON.stringify(data)
+            }).catch((error) => {
+                console.log("Sensor Response Error: ", error)
+            });
+            if(response.response === 200)
+                return true
+            
+        return false
+        
+    }
+    
+
+    //POST file input form data
+    uploadFile = async (data) => {
+        let url = 'http://192.168.0.56:5000/uploadfile'
+        const response = await fetch(url, {
+            method: 'POST',
+            body: data,
+        })
+        if(response.response === 200){
+            return true
+        } else {
+            console.log("Upload File Error: ", response)
+            return false
+        }
+
+    }
+
+    //POST col value form data
+    uploadCol = async (selectedCol) => {
+        let url = 'http://192.168.0.56:5000/uploadcol';
+        const response = await fetch(url, {
+            method: 'POST',
+            body: selectedCol,
+        })
+        if(response.response === 200){
+            return true
+        } else {
+            console.log("Upload File Error: ", response)
+            return false
+        }
+    }
+
+    //Inits timed notification component with message param
+    notificationManager(message){
+        this.notificationRef.current.openNotification(message)
     }
 
     render() {
@@ -91,75 +153,6 @@ class FileUploader extends React.Component {
         )
     }
 
-
-    //End point requests for dummy distance sensor
-    endpointRequest(state){
-        var url = ''
-        if(state){
-            url = window.location.origin + '/start-test'
-        } else {
-            url = window.location.origin + '/end-test'
-        } 
-        if(url !== '')
-            var data = {
-                "active": state
-            }
-            const response = fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(data)
-            }).catch((error) => {
-                console.log("Sensor Response Error: " + error)
-            });
-            if(response.response === 200)
-                return true
-            
-        console.log("Sensor Response Error: " + response)
-        return false
-        
-    }
-    
-
-    //POST file input form data
-    uploadFile(data) {
-        let url = window.location.origin + '/uploadfile'
-        const response = fetch(url, {
-            method: 'POST',
-            body: data,
-        }).catch((error) => {
-            console.log("Upload File Error: " + error)
-        });
-        
-        if(response.response === 200){
-            return true
-        } else {
-            console.log("Upload File Error: " + response)
-            return false
-        }
-
-    }
-
-    //POST col value form data
-    uploadCol(selectedCol) {
-        let url = window.location.origin + '/uploadcol';
-        const response = fetch(url, {
-            method: 'POST',
-            body: selectedCol,
-        }).catch((error) => {
-            console.log("Upload File Error: " + error)
-        });
-        
-        if(response.response === 200){
-            return true
-        } else {
-            console.log("Upload File Error: " + response)
-            return false
-        }
-    }
-
-    //Inits timed notification component with message param
-    notificationManager(message){
-        this.notificationRef.current.openNotification(message)
-    }
 }
 
 export default FileUploader;
