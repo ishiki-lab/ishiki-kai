@@ -14,11 +14,10 @@ from tf_device_ids import deviceIdentifiersList
 import os
 from time import sleep
 
-HOST = "localhost"
+HOST = os.environ.get("BRICKD_HOST", "127.0.0.1")
 PORT = 4223
-UID = "EuD" # Change XYZ to the UID of your Distance IR Bricklet
 _DISTANCE_THRESHOLD = 30 # in cm
-_DEBOUNCE_TIME = 4000 # in ms
+_DEBOUNCE_TIME = 500 # in ms
 
 def logger(message):
     print("DISTANCE SENSOR: " + str(message))
