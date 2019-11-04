@@ -87,8 +87,11 @@ class FileUploader extends React.Component {
                 method: 'POST',
                 body: JSON.stringify(data)
             })
-            if(response != null && response.response === 200) 
+            if(response != null && response.response === 200) {
                 return true
+            } else {
+                console.log("Endpoint request error: ", response)
+            }
             
         return false
         
@@ -149,8 +152,8 @@ class FileUploader extends React.Component {
                     />
                 </div>
                 <br />
-                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > ACTIVATE SENSOR</button>
-                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > DEACTIVATE SENSOR</button>
+                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Activate test</button>
+                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > Deactivate test</button>
                 <br />
                 <Notification ref = {this.notificationRef} />
             </div>
