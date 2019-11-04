@@ -17,7 +17,6 @@ class FileUploader extends React.Component {
             selectedFile: null,
             selectedCol: '#011993',
         }
-    
     }
 
     fileChangeHandler = (event) => {
@@ -42,20 +41,21 @@ class FileUploader extends React.Component {
 
         //Calls notification component manager
         if(fileresponse && colresponse) {
+            console.log("Response from notification manager: ", fileresponse, colresponse)
             this.notificationManager("Upload success")
-        } else if (!fileresponse && colresponse) {
+        } else if (!fileresponse && !colresponse) {
+            console.log("Response from notification manager: ", fileresponse, colresponse)
             this.notificationManager("Error: Failed to upload audio file")
-        } else if (fileresponse && !colresponse) {
+        } else if (!fileresponse && colresponse) {
             this.notificationManager("Error: Failed to upload colour")
         } else if (!fileresponse && !colresponse) {
             this.notificationManager("Error: Upload failed")
         }
-
     }
 
     distanceHandlerActive = () => {
         //Run temp test for distance sensor active
-        if(this.endpointRequest(true)){
+        if (this.endpointRequest(true)){
             this.notificationManager("Success: Activated")
         } else {
             this.notificationManager("Error: Could not activate")
@@ -64,7 +64,7 @@ class FileUploader extends React.Component {
 
     distanceHandlerDeactive = () => {
         //Run temp test for distance sensor deactive
-        if(this.endpointRequest(false)){
+        if (this.endpointRequest(false)){
             this.notificationManager("Success: Deactivated")
         } else {
             this.notificationManager("Error: Could not deactivate")
@@ -73,28 +73,22 @@ class FileUploader extends React.Component {
 
     //End point requests for dummy distance sensor
     endpointRequest = async (state) => {
+        
         var url = ''
         if(state){
             url = 'http://192.168.0.56:5000/start-test'
         } else {
             url = 'http://192.168.0.56:5000/test-kill'
         } 
-        if(url !== '')
-            var data = {
-                "active": state
-            }
+        if(url !== '') {
             const response = await fetch(url, {
-                method: 'POST',
-                body: JSON.stringify(data)
+                headers: {'Content-Type': 'application/json'}
             })
             if(response != null && response.response === 200) {
                 return true
-            } else {
-                console.log("Endpoint request error: ", response)
-            }
-            
+            } 
+        }
         return false
-        
     }
     
 
@@ -108,12 +102,10 @@ class FileUploader extends React.Component {
         })
         if(response != null && response.response === 200){
             return true
-        } else {
-            console.log("Upload File Error: ", response)
-            return false
         }
-
+        return false
     }
+
 
     //POST col value form data
     uploadCol = async (selectedCol) => {
@@ -125,10 +117,8 @@ class FileUploader extends React.Component {
         })
         if(response != null && response.response === 200){
             return true
-        } else {
-            console.log("Upload File Error: ", response)
-            return false
         }
+        return false
     }
 
     //Inits timed notification component with message param
