@@ -55,11 +55,12 @@ class FileUploader extends React.Component {
 
     distanceHandlerActive = () => {
         //Run temp test for distance sensor active
+        this.notificationManager("Warming up the room...");
         this.endpointRequest(true).then((success) => {
             if (success){
-                this.notificationManager("Success: Activated")
+                this.notificationManager("Success: Activated");
             } else {
-                this.notificationManager("Error: Could not activate")
+                this.notificationManager("Error: Could not activate");
             }
         }).catch((e) => {
             console.log("Something went horribly wrong...");
@@ -69,10 +70,11 @@ class FileUploader extends React.Component {
 
     distanceHandlerDeactive = () => {
         //Run temp test for distance sensor deactive
+        this.notificationManager("Ending the test...");
         if (this.endpointRequest(false)){
-            this.notificationManager("Success: Deactivated")
+            this.notificationManager("Success: Deactivated");
         } else {
-            this.notificationManager("Error: Could not deactivate")
+            this.notificationManager("Error: Could not deactivate");
         }
     }
 
@@ -151,6 +153,7 @@ class FileUploader extends React.Component {
                 <div className="test-button">
                     <TestButton 
                         endpoint={API_URL}
+                        notificationManager={this.notificationRef}
                     />
                 </div>
                 <br />
