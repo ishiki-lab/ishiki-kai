@@ -1,5 +1,8 @@
-PORT=5000
+PORT=80
+PLAYER_PORT=8080
 
-docker run -it --rm -p $PORT:$PORT -v "$(pwd)"/flask:/opt/code/flask:ro -v /media/usb:/media/usb --entrypoint "/bin/bash" --env PLAYER_PORT=8080 \
---network host  \
-lushdigital/lushroom-scentroom:staging  
+sudo docker run -it --rm --network host -p $PORT:$PORT \
+-v /media/usb:/media/usb \
+--env PLAYER_PORT=$PLAYER_PORT \
+--env PORT=$PORT \
+--entrypoint /usr/bin/python3 lushdigital/lushroom-scentroom:staging  FlaskFileUploader.py

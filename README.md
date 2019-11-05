@@ -7,26 +7,24 @@ This flask server is built to statically deliver the [Lush ScentRoom React Audio
 
 To build the docker image, first, ensure you have docker installed - for instructions installing docker refer [here](https://docs.docker.com/install/).
 
-Next, both the nginx image and python image need to be pulled from docker - use the machines terminal and run the following commands:
-
-    $ docker pull nginx:latest
-    $ docker pull python:3 
-
 Running the included docker file will install the dependencies of flask itself. 
 
-### Running docker-compose
+### Running docker-compose on the Pi
 
 To get the cluster running docker-compose will be used, a docker-compose.yml file is included within the repo which will start the flask and nginx containers.
 
 In terminal navigate to the flask project directory and run: 
-    $ docker-compose up 
+    $ docker-compose up -d
 
 You should then see the terminal output to start each image and serve the flask app. 
 
-Once complete load up [localhost](http://0.0.0.0:5000/) to view the running application. 
+Once complete load up `http://0.0.0.0:$PORT` to view the running application. 
 
+### Running the standlone docker container on the Pi
 
-### Run without docker
+See `run-bash.sh`
+
+### Run without docker on the Pi
 
 To run the flask app without nginx and docker the following steps can be taken:
 
