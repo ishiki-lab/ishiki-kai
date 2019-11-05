@@ -10,11 +10,6 @@ const testStates = {
 
 class TestButton extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-    }
-
     state = {
         runTest: false
     }

@@ -55,11 +55,16 @@ class FileUploader extends React.Component {
 
     distanceHandlerActive = () => {
         //Run temp test for distance sensor active
-        if (this.endpointRequest(true)){
-            this.notificationManager("Success: Activated")
-        } else {
-            this.notificationManager("Error: Could not activate")
-        }
+        this.endpointRequest(true).then((success) => {
+            if (success){
+                this.notificationManager("Success: Activated")
+            } else {
+                this.notificationManager("Error: Could not activate")
+            }
+        }).catch((e) => {
+            console.log("Something went horribly wrong...");
+        })
+        
     }
 
     distanceHandlerDeactive = () => {
@@ -73,29 +78,37 @@ class FileUploader extends React.Component {
 
     //End point requests for dummy distance sensor
     endpointRequest = async (state) => {
+        console.log('epr: ', state);
         
-        var url = ''
+        
+        var url = '';
         if(state){
-            url = 'http://192.168.0.56:5000/start-test'
+            url = API_URL + '/test-start';
         } else {
-            url = 'http://192.168.0.56:5000/test-kill'
+            url = API_URL + '/test-kill';
         } 
+
         if(url !== '') {
-            const response = await fetch(url, {
+
+            const res = await fetch(url, {
                 headers: {'Content-Type': 'application/json'}
             })
+
+            const response = await res.json();
+
+            console.log('json res: ', response)
+           
             if(response != null && response.response === 200) {
-                return true
+                return true;
             } 
         }
-        return false
+        return false;
     }
     
 
     //POST file input form data
     uploadFile = async (data) => {
-        //const url = API_URL + '/upload-file'
-        let url = 'http://192.168.0.56:5000/uploadfile'
+        const url = API_URL + '/upload-file';
         const response = await fetch(url, {
             method: 'POST',
             body: data,
@@ -109,8 +122,7 @@ class FileUploader extends React.Component {
 
     //POST col value form data
     uploadCol = async (selectedCol) => {
-        //const url = API_URL + '/upload-colour';
-        let url = 'http://192.168.0.56:5000/uploadcol';
+        const url = API_URL + '/upload-colour';
         const response = await fetch(url, {
             method: 'POST',
             body: selectedCol,
@@ -142,8 +154,8 @@ class FileUploader extends React.Component {
                     />
                 </div>
                 <br />
-                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Activate test</button>
-                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > Deactivate test</button>
+                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
+                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
                 <br />
                 <Notification ref = {this.notificationRef} />
             </div>
