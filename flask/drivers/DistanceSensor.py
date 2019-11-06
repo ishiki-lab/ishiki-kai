@@ -13,11 +13,14 @@ from tinkerforge.bricklet_distance_ir import BrickletDistanceIR
 from tf_device_ids import deviceIdentifiersList
 import os
 from time import sleep
+import threading
+import logging
 import Settings
 
 HOST = os.environ.get("BRICKD_HOST", "127.0.0.1")
 PORT = 4223
-_DEBOUNCE_TIME = 500 # in ms
+_DEBOUNCE_TIME = 8000 # in ms
+_CALLBACK_PERIOD = 200 # in ms
 
 def logger(message):
     print("DISTANCE SENSOR: " + str(message))
@@ -28,6 +31,9 @@ class DistanceSensor:
         self.ipcon = None
         self.device = None
         self.tfIDs = []
+        self.triggered = False
+        self.thr_start = threading.Thread(target=self.triggerPlayer, args=(1,))
+        self.thr_stop = threading.Thread(target=self.stopPlayer(), args=(1,))
         self.deviceIDs = [i[0] for i in deviceIdentifiersList]
         
         if dist:
@@ -64,13 +70,6 @@ class DistanceSensor:
                     device_identifier, enumeration_type):
         self.tfIDs.append([uid, device_identifier])
 
-    def startCallbackSet(self):
-        self.device.register_callback(self.device.CALLBACK_DISTANCE_REACHED, self.cb_distance_reached)
-        self.device.set_distance_callback_threshold("<", self.threshold_distance*10, 0)
-
-    def stopCallbackSet(self):
-        self.device.register_callback(self.device.CALLBACK_DISTANCE_REACHED, self.cb_distance_surpassed)
-        self.device.set_distance_callback_threshold(">", self.threshold_distance*10, 0)
 
     def poll(self):
         # try:
@@ -82,7 +81,7 @@ class DistanceSensor:
         # Trigger Enumerate
         self.ipcon.enumerate()
 
-        sleep(1)
+        sleep(0.7)
 
         for tf in self.tfIDs:
             if len(tf[0])<=3: # if the device UID is 3 characters it is a bricklet
@@ -93,9 +92,12 @@ class DistanceSensor:
                         self.device = BrickletDistanceIR(tf[0], self.ipcon) # Create device object
                         # Don't use device before ipcon is connected
 
+                        self.device.register_callback(self.device.CALLBACK_DISTANCE, self.cb_distance)
+
                         # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
-                        self.device.set_debounce_period(_DEBOUNCE_TIME)
-                        self.startCallbackSet()
+                        # self.device.set_debounce_period(_DEBOUNCE_TIME)
+                        self.device.set_distance_callback_period(_CALLBACK_PERIOD)
+                      
 
         
 
@@ -107,36 +109,42 @@ class DistanceSensor:
         #     print("Why:", e)
         #     self.__del__()
 
-    # Callback function for distance reached callback
-    def cb_distance_reached(self, distance):
-        print("INFO: TRIGGER -> STARTING PLAYER")
-        print("Distance: " + str(distance/10.0) + " cm")
-        self.stopCallbackSet()
-        self.triggerPlayer()
+    # Callback function for distance polling
+    # Is only called if the distance has changed within _CALLBACK_PERIOD 
 
-    def cb_distance_surpassed(self, distance):
-        print("INFO: TRIGGER -> STOPPING PLAYER")
-        print("Distance: " + str(distance/10.0) + " cm")
-        self.startCallbackSet()
-        self.stopPlayer()
+    def cb_distance(self, distance):
+        logger("Distance: " + str(distance/10.0) + " cm")
+        d = distance/10.0
+        t = None
 
-    def triggerPlayer(self, path="/media/usb/uploads/01_scentroom.mp3", start_position=0):
-        postFields = { \
-                    'trigger' : "start", \
-                    'upload_path': str(path), \
-                    'start_position': str(start_position), \
-                }
+        if d <= self.threshold_distance:
+            t = threading.Thread(target=self.triggerPlayer, args=())
+            t.start()
+            self.triggered = True
+        elif d > self.threshold_distance:
+            t = threading.Thread(target=self.stopPlayer, args=())
+            t.start()
+            self.triggered = False
 
-        playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
-        print("INFO: res from start: ", playerRes)
+    def triggerPlayer(self, path="/media/usb/uploads/01_scentroom.mp3", start_position=0, test=False):
+        if not self.triggered or test:
+            postFields = { \
+                        'trigger' : "start", \
+                        'upload_path': str(path), \
+                        'start_position': str(start_position), \
+                    }
 
-    def stopPlayer(self):
-        postFields = { \
-                    'trigger': "stop" \
-                }
+            playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
+            print("INFO: res from start: ", playerRes)
 
-        playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
-        print("INFO: res from stop: ", playerRes)
+    def stopPlayer(self, test=False):
+        if self.triggered or test:
+            postFields = { \
+                        'trigger': "stop" \
+                    }
+
+            playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
+            print("INFO: res from stop: ", playerRes)
 
     def __del__(self):
         try:

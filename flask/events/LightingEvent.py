@@ -49,4 +49,4 @@ class LightingEvent:
         Ro = Ri - Wo
         Go = Gi - Wo
         Bo = Bi - Wo
-        return(str(int(Ro)) + ', ' + str(int(Go)) + ', ' + str(int(Bo)) + ', ' + str(int(Wo)))
+        return(str(int(Ro)) + ', ' + str(int(Go)) + ', ' + str(int(Bo)) + ', ' + str(int(Wo)) + ', ' + str(int(Ri)) + ', ' + str(int(Gi)) + ', ' + str(int(Bi)))

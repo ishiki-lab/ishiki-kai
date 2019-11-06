@@ -113,7 +113,7 @@ def upload_col():
 def testStart():
     if request.method == 'GET': 
         test_distance_sensor = DistanceSensor(None) 
-        test_distance_sensor.triggerPlayer()  
+        test_distance_sensor.triggerPlayer(test=True)  
         return jsonify({'response': 200, 'message': 'Test started!'})
 
     return jsonify({'response': 500, 'error': 'Something went wrong when trying to START the test'})
@@ -123,7 +123,7 @@ def testKill():
     if request.method == 'GET': 
          
         test_distance_sensor = DistanceSensor(None) 
-        test_distance_sensor.stopPlayer()  
+        test_distance_sensor.stopPlayer(test=True)  
         return jsonify({'response': 200, 'message': 'Test ended!'})
 
     return jsonify({'response': 500, 'error': 'Something went wrong when trying to KILL the test'})
