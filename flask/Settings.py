@@ -57,7 +57,5 @@ def get_evn_settings():
     settings["hostname"] = os.environ.get("HOSTNAME", "?")
     settings["debug"] = os.environ.get("DEBUG") == "true"
     settings["dmx_brightness"] = os.environ.get("DMX_BRIGHTNESS", "254")
-    settings["audio_volume"] = int(os.environ.get("AUDIO_VOLUME", "100"))
-    settings["audio_output"] = os.environ.get("AUDIO_OUPUT", "hdmi")
-    settings["detection_distance"] = int(os.environ.get("DETECTION_DISTANCE", "10"))
+    settings["detection_distance"] = int(os.environ.get("DETECTION_DISTANCE", "150"))
     return settings

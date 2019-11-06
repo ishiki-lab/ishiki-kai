@@ -13,10 +13,10 @@ from tinkerforge.bricklet_distance_ir import BrickletDistanceIR
 from tf_device_ids import deviceIdentifiersList
 import os
 from time import sleep
+import Settings
 
 HOST = os.environ.get("BRICKD_HOST", "127.0.0.1")
 PORT = 4223
-_DISTANCE_THRESHOLD = 30 # in cm
 _DEBOUNCE_TIME = 500 # in ms
 
 def logger(message):
@@ -29,10 +29,22 @@ class DistanceSensor:
         self.device = None
         self.tfIDs = []
         self.deviceIDs = [i[0] for i in deviceIdentifiersList]
+        
+        if dist:
+            self.setThresholdFromSettings()
+
         if self.threshold_distance:
             self.poll()
         else: 
             logger("Test distance sensor created")
+
+    def setThresholdFromSettings(self):
+        try:
+            d = self.loadSettings()
+            self.threshold_distance = d
+            logger("Threshold set to: " + str(d) + "cm")
+        except Exception as e:
+            logger("ERROR: could not get distance setting from the usb stick, falling back..." + e)
 
     def getIdentifier(self, ID): 
         deviceType = ""
@@ -41,6 +53,12 @@ class DistanceSensor:
                 deviceType = deviceIdentifiersList[t][1]
         return(deviceType)
 
+    def loadSettings(self):
+        settings_json = Settings.get_settings()
+        settings_json = settings_json.copy()
+        print("Distance threshold in settings: ", settings_json["detection_distance"])
+        return int(settings_json["detection_distance"])
+
      # Tinkerforge sensors enumeration
     def cb_enumerate(self, uid, connected_uid, position, hardware_version, firmware_version,
                     device_identifier, enumeration_type):
@@ -48,46 +66,46 @@ class DistanceSensor:
 
     def startCallbackSet(self):
         self.device.register_callback(self.device.CALLBACK_DISTANCE_REACHED, self.cb_distance_reached)
-        self.device.set_distance_callback_threshold("<", _DISTANCE_THRESHOLD*10, 0)
+        self.device.set_distance_callback_threshold("<", self.threshold_distance*10, 0)
 
     def stopCallbackSet(self):
         self.device.register_callback(self.device.CALLBACK_DISTANCE_REACHED, self.cb_distance_surpassed)
-        self.device.set_distance_callback_threshold(">", _DISTANCE_THRESHOLD*10, 0)
+        self.device.set_distance_callback_threshold(">", self.threshold_distance*10, 0)
 
     def poll(self):
-        try:
+        # try:
 
-            self.ipcon = IPConnection() # Create IP connection
-            self.ipcon.connect(HOST, PORT) # Connect to brickd
-            self.ipcon.register_callback(IPConnection.CALLBACK_ENUMERATE, self.cb_enumerate)
+        self.ipcon = IPConnection() # Create IP connection
+        self.ipcon.connect(HOST, PORT) # Connect to brickd
+        self.ipcon.register_callback(IPConnection.CALLBACK_ENUMERATE, self.cb_enumerate)
 
-            # Trigger Enumerate
-            self.ipcon.enumerate()
+        # Trigger Enumerate
+        self.ipcon.enumerate()
 
-            sleep(2)
+        sleep(1)
 
-            for tf in self.tfIDs:
-                if len(tf[0])<=3: # if the device UID is 3 characters it is a bricklet
-                    if tf[1] in self.deviceIDs:
-                        print(tf[0],tf[1], self.getIdentifier(tf))
-                        if tf[1] == 25: # DISTANCE IR BRICKLET
-                            print("Registering %s as active Distance IR sensor 1.2" % tf[0])
-                            self.device = BrickletDistanceIR(tf[0], self.ipcon) # Create device object
-                            # Don't use device before ipcon is connected
+        for tf in self.tfIDs:
+            if len(tf[0])<=3: # if the device UID is 3 characters it is a bricklet
+                if tf[1] in self.deviceIDs:
+                    print(tf[0],tf[1], self.getIdentifier(tf))
+                    if tf[1] == 25: # DISTANCE IR BRICKLET
+                        print("Registering %s as active Distance IR sensor 1.2" % tf[0])
+                        self.device = BrickletDistanceIR(tf[0], self.ipcon) # Create device object
+                        # Don't use device before ipcon is connected
 
-                            # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
-                            self.device.set_debounce_period(_DEBOUNCE_TIME)
-                            self.startCallbackSet()
+                        # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
+                        self.device.set_debounce_period(_DEBOUNCE_TIME)
+                        self.startCallbackSet()
 
-            
+        
 
-            print("Polling the TF distance sensor for distance measurement... ")
-            print("Threshold distance is set to ", _DISTANCE_THRESHOLD, "cm")
+        print("Polling the TF distance sensor for distance measurement... ")
+        print("Threshold distance is set to ", self.threshold_distance, "cm")
 
-        except Exception as e:
-            print("ERROR: There is a problem with the Distance Sensor!")
-            print("Why:", e)
-            self.__del__()
+        # except Exception as e:
+        #     print("ERROR: There is a problem with the Distance Sensor!")
+        #     print("Why:", e)
+        #     self.__del__()
 
     # Callback function for distance reached callback
     def cb_distance_reached(self, distance):
