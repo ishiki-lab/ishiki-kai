@@ -16,6 +16,7 @@ class LightingEvent:
             b = float(rgb[2])
             #convert rgb value to hsv
             h,s,v = rgb_to_hsv(r,g,b)
+            self.rgb_col_val = str(int(r)) + ', ' + str(int(g)) + ', ' + str(int(b)) + ', ' + str(int(255))
             self.hsv_col_val = str(h) + ',' + str(s) + ',' + str(v)
             self.rgbw_col_val = self.rgb_to_rgbw(r,g,b)
 
@@ -36,7 +37,7 @@ class LightingEvent:
                 srt_file.write("HUE1(" + self.hsv_col_val + ");\n")
             #srt DMX col val
             if dmx: 
-                srt_file.write("DMX1(" + self.rgbw_col_val + ");\n")
+                srt_file.write("DMX1(" + self.rgbw_col_val + ", " + self.rgb_col_val + ")\n")
             srt_file.close()
             return True
         
@@ -49,4 +50,4 @@ class LightingEvent:
         Ro = Ri - Wo
         Go = Gi - Wo
         Bo = Bi - Wo
-        return(str(int(Ro)) + ', ' + str(int(Go)) + ', ' + str(int(Bo)) + ', ' + str(int(Wo)) + ', ' + str(int(Ri)) + ', ' + str(int(Gi)) + ', ' + str(int(Bi)))
+        return(str(int(Ro)) + ', ' + str(int(Go)) + ', ' + str(int(Bo)) + ', ' + str(int(Wo)))
