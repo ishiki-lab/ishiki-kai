@@ -20,7 +20,8 @@ import Settings
 HOST = os.environ.get("BRICKD_HOST", "127.0.0.1")
 PORT = 4223
 _DEBOUNCE_TIME = 8000 # in ms
-_CALLBACK_PERIOD = 200 # in ms
+_ENTRY_CALLBACK_PERIOD = 200 # in ms
+_EXIT_CALLBACK_PERIOD = 6000 # in ms
 
 def logger(message):
     print("DISTANCE SENSOR: " + str(message))
@@ -96,7 +97,7 @@ class DistanceSensor:
 
                         # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
                         # self.device.set_debounce_period(_DEBOUNCE_TIME)
-                        self.device.set_distance_callback_period(_CALLBACK_PERIOD)
+                        self.device.set_distance_callback_period(_ENTRY_CALLBACK_PERIOD)
                       
 
         
@@ -120,31 +121,41 @@ class DistanceSensor:
         if d <= self.threshold_distance:
             t = threading.Thread(target=self.triggerPlayer, args=())
             t.start()
+            self.device.set_distance_callback_period(_EXIT_CALLBACK_PERIOD)
             self.triggered = True
         elif d > self.threshold_distance:
             t = threading.Thread(target=self.stopPlayer, args=())
             t.start()
+            self.device.set_distance_callback_period(_ENTRY_CALLBACK_PERIOD)
             self.triggered = False
 
     def triggerPlayer(self, path="/media/usb/uploads/01_scentroom.mp3", start_position=0, test=False):
-        if not self.triggered or test:
-            postFields = { \
-                        'trigger' : "start", \
-                        'upload_path': str(path), \
-                        'start_position': str(start_position), \
-                    }
+        try:
+            if not self.triggered or test:
+                postFields = { \
+                            'trigger' : "start", \
+                            'upload_path': str(path), \
+                            'start_position': str(start_position), \
+                        }
 
-            playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
-            print("INFO: res from start: ", playerRes)
+                playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
+                print("INFO: res from start: ", playerRes)
+        except Exception as e:
+            logging.error("HTTP issue with player trigger")
+            print("Why: ", e)
 
     def stopPlayer(self, test=False):
-        if self.triggered or test:
-            postFields = { \
-                        'trigger': "stop" \
-                    }
+        try:
+            if self.triggered or test:
+                postFields = { \
+                            'trigger': "stop" \
+                        }
 
-            playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
-            print("INFO: res from stop: ", playerRes)
+                playerRes = requests.post('http://localhost:' + os.environ.get("PLAYER_PORT", "80") + '/scentroom-trigger', json=postFields)
+                print("INFO: res from stop: ", playerRes)
+        except Exception as e:
+            logging.error("HTTP issue with player stop")
+            
 
     def __del__(self):
         try:
