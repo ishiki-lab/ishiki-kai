@@ -5,7 +5,7 @@ services:
     container_name: lushroom-display
     privileged: true
     network_mode: host
-    image: "lushdigital/lushroom-display:staging"
+    image: "lushdigital/lushroom-display:latest"
     volumes:
       - /media/usb:/media/usb
       - /dev/fb0:/dev/fb0
@@ -19,7 +19,7 @@ services:
 
   player:
     container_name: lushroom-player
-    image: "lushdigital/lushroom-player:staging"
+    image: "lushdigital/lushroom-player:scentrooms"
     privileged: true
     depends_on:
       - brickd
@@ -37,7 +37,7 @@ services:
 
   scentroom:
     container_name: lushroom-scentroom
-    image: "lushdigital/lushroom-scentroom:staging"
+    image: "lushdigital/lushroom-scentroom:latest"
     privileged: true
     network_mode: host
     ports:
@@ -55,7 +55,7 @@ services:
     restart: always
 
   brickd:
-    image: "lushdigital/lushroom-brickd:staging"
+    image: "lushdigital/lushroom-brickd:latest"
     container_name: lushroom-brickd
     privileged: true
     depends_on:
