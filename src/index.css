@@ -7,6 +7,11 @@ body {
   -moz-osx-font-smoothing: grayscale;  
 }
 
+#track-name {
+  border: solid 1px white;
+  padding: 0.3em 0 0.3em 0; 
+}
+
 #fileinput{
   margin-top: 25px;
   margin-bottom: 25px;

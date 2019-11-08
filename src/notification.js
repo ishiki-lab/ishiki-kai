@@ -25,7 +25,7 @@ export class Notification extends PureComponent {
         isActive: false,
         message: ''
       });
-    }, 8000);
+    }, 6000);
   }  
 
   render() {

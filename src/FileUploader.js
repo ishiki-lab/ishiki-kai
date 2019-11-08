@@ -3,7 +3,7 @@ import TestButton from './components/TestButton';
 import './index.css';
 import { Notification } from './notification';
 
-let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.0.56:5000" : window.location.origin;
+let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.63.202:5000" : window.location.origin;
 
 class FileUploader extends React.Component {
 
@@ -16,6 +16,8 @@ class FileUploader extends React.Component {
         this.state = {
             selectedFile: null,
             selectedCol: '#011993',
+            currentTrack: null,
+            hostname: "Offline"
         }
     }
 
@@ -140,28 +142,65 @@ class FileUploader extends React.Component {
         this.notificationRef.current.openNotification(message)
     }
 
+    // Get what's loaded onto the scentroom right now
+
+    async componentDidMount() {
+        const url = API_URL + '/status';
+        const res = await fetch(url, {
+            headers: {'Content-Type': 'application/json'}
+        })
+
+        const response = await res.json();
+
+        if (response.response === 200 && response.status === "healthy" && response.color) {
+            this.setState({
+                selectedCol: response.color,
+                currentTrack: response.track_name,
+                hostname: response.hostname
+            })
+        }
+
+        console.log('json res: ', response)
+
+    }
+
     render() {
         return (
-            <div className="form_body">
-                <form onSubmit={this.handleSubmit}> 
-                    <label>Select Music File</label><br />
-                    <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/><br />
-                    <label>Select Colour</label><br /><br />
-                    <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
-                    <input type="submit" value="Upload" className="inputbtn"/>  
-                </form>
-                <div className="test-button">
-                    <TestButton 
-                        endpoint={API_URL}
-                        notificationManager={this.notificationRef}
-                    />
+            <>
+                <div className = "layout_header">
+                    <h1>{this.state.hostname}</h1>
                 </div>
-                <br />
-                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
-                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
-                <br />
-                <Notification ref = {this.notificationRef} />
-            </div>
+                <div className="form_body">
+                    <form onSubmit={this.handleSubmit}> 
+                        {this.state.currentTrack ? (
+                            <>
+                                <h4>is loaded with:</h4>
+                                <h2 id="track-name">{this.state.currentTrack}</h2>
+                            </>
+                        ) : (
+                            <h5>No track found on this scentroom</h5>
+                        )}
+                        <label>Upload a new mp3 from your device</label><br />
+                        <input type="file" id="fileinput" name="file" accept=".mp3" onChange={this.fileChangeHandler}/>
+                        <label>Pick a color</label><br /><br />
+                        <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
+                        <input type="submit" value="Upload" className="inputbtn"/>  
+                    </form>
+                    <hr/>
+                    <div className="test-button">
+                        <TestButton 
+                            endpoint={API_URL}
+                            notificationManager={this.notificationRef}
+                        />
+                    </div>
+                    or...
+                    <br />
+                    <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
+                    <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
+                    <br />
+                    <Notification ref = {this.notificationRef} />
+                </div>
+            </>
         )
     }
 }

@@ -1,4 +1,6 @@
 .notification {
+    position: fixed;
+    top: 0.5em;
     margin-top: 8%;
     width: 60%;
     margin-left: 20%;
@@ -9,12 +11,13 @@
   }
 
   .notification-body {
+    font-size: 140%;
     display: block;
-    padding: 8px;
-    background-color: black;
-    color: #f5d864;
+    padding: 0.4em;
+    background-color: white;
+    color: #777;
     text-align: center;
-    border: 1px solid white;
+    border: 1px solid #f5d864;
     border-radius: 2px;
   }
   

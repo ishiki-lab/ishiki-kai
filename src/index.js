@@ -9,9 +9,6 @@ class App extends React.Component {
     render() {
       return (
         <div>
-          <div className = "layout_header">
-            <h1>ScentRoom Uploader</h1>
-          </div>
           {<FileUploader />}
         </div>
       )
