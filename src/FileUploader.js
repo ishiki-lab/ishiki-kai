@@ -16,7 +16,8 @@ class FileUploader extends React.Component {
         this.state = {
             selectedFile: null,
             selectedCol: '#011993',
-            currentTrack: null
+            currentTrack: null,
+            hostname: "Offline"
         }
     }
 
@@ -154,7 +155,8 @@ class FileUploader extends React.Component {
         if (response.response === 200 && response.status === "healthy" && response.color) {
             this.setState({
                 selectedCol: response.color,
-                currentTrack: response.track_name
+                currentTrack: response.track_name,
+                hostname: response.hostname
             })
         }
 
@@ -164,36 +166,41 @@ class FileUploader extends React.Component {
 
     render() {
         return (
-            <div className="form_body">
-                <form onSubmit={this.handleSubmit}> 
-                    {this.state.currentTrack ? (
-                        <>
-                            <h4>Loaded with:</h4>
-                            <h5>{this.state.currentTrack}</h5>
-                        </>
-                    ) : (
-                        <h5>No track found on this scentroom</h5>
-                    )}
-                    <label>Upload a new mp3 from your device</label><br />
-                    <input type="file" id="fileinput" name="file" accept=".mp3" onChange={this.fileChangeHandler}/>
-                    <label>Select Colour</label><br /><br />
-                    <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
-                    <input type="submit" value="Upload" className="inputbtn"/>  
-                </form>
-                <hr/>
-                <div className="test-button">
-                    <TestButton 
-                        endpoint={API_URL}
-                        notificationManager={this.notificationRef}
-                    />
+            <>
+                <div className = "layout_header">
+                    <h1>{this.state.hostname}</h1>
                 </div>
-                or...
-                <br />
-                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
-                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
-                <br />
-                <Notification ref = {this.notificationRef} />
-            </div>
+                <div className="form_body">
+                    <form onSubmit={this.handleSubmit}> 
+                        {this.state.currentTrack ? (
+                            <>
+                                <h4>is loaded with:</h4>
+                                <h2 id="track-name">{this.state.currentTrack}</h2>
+                            </>
+                        ) : (
+                            <h5>No track found on this scentroom</h5>
+                        )}
+                        <label>Upload a new mp3 from your device</label><br />
+                        <input type="file" id="fileinput" name="file" accept=".mp3" onChange={this.fileChangeHandler}/>
+                        <label>Pick a color</label><br /><br />
+                        <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
+                        <input type="submit" value="Upload" className="inputbtn"/>  
+                    </form>
+                    <hr/>
+                    <div className="test-button">
+                        <TestButton 
+                            endpoint={API_URL}
+                            notificationManager={this.notificationRef}
+                        />
+                    </div>
+                    or...
+                    <br />
+                    <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
+                    <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
+                    <br />
+                    <Notification ref = {this.notificationRef} />
+                </div>
+            </>
         )
     }
 }
