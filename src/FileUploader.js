@@ -166,26 +166,28 @@ class FileUploader extends React.Component {
         return (
             <div className="form_body">
                 <form onSubmit={this.handleSubmit}> 
-                    <label>Pick a track from your device (mp3 only!)</label><br />
-                    <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/>
                     {this.state.currentTrack ? (
                         <>
                             <h4>Loaded with:</h4>
                             <h5>{this.state.currentTrack}</h5>
                         </>
                     ) : (
-                        <p>No track found on this scentroom</p>
+                        <h5>No track found on this scentroom</h5>
                     )}
+                    <label>Upload a new mp3 from your device</label><br />
+                    <input type="file" id="fileinput" name="file" accept=".mp3" onChange={this.fileChangeHandler}/>
                     <label>Select Colour</label><br /><br />
                     <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
                     <input type="submit" value="Upload" className="inputbtn"/>  
                 </form>
+                <hr/>
                 <div className="test-button">
                     <TestButton 
                         endpoint={API_URL}
                         notificationManager={this.notificationRef}
                     />
                 </div>
+                or...
                 <br />
                 <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
                 <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
