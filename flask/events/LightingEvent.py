@@ -1,10 +1,12 @@
 import os
 from colorsys import rgb_to_hsv
+import json
 
 _CONSISTENT_SRT_NAME = "01_scentroom"
 _RGB_R_TUNING = 1.0
 _RGB_G_TUNING = 1.0
 _RGB_B_TUNING = 1.0
+_JSON_INDENT = 2
 
 class LightingEvent: 
 
@@ -12,6 +14,7 @@ class LightingEvent:
     def __init__(self, col_val): 
         if col_val is not None:
             #convert hex value to rgb
+            self.hex = col_val
             col_val = col_val.lstrip('#')
             rgb = tuple(int(col_val[i:i+2], 16) for i in (0, 2, 4))
             r = float(rgb[0])
@@ -23,6 +26,13 @@ class LightingEvent:
             self.hsv_col_val = str(h) + ',' + str(s) + ',' + str(v)
             self.rgbw_col_val = self.rgb_to_rgbw(r,g,b)
 
+    def to_json_file(self, path="/media/usb/uploads/content.json"):
+        with open(path, 'r+') as f:
+            content = json.load(f)
+            content['color_hex'] = self.hex # <--- add `id` value.
+            f.seek(0)        # <--- should reset file position to the beginning.
+            json.dump(content, f, indent=_JSON_INDENT)
+            f.truncate()     # remove remaining part
 
     #creates srt file with col val at path
     def to_srt(self, path, file_name=_CONSISTENT_SRT_NAME, hue=False, dmx=True):

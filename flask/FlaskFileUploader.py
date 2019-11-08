@@ -18,6 +18,7 @@ from urllib import parse
 # Local
 from DistanceSensor import DistanceSensor
 from LightingEvent import LightingEvent
+import Settings
 
 app = Flask(__name__, static_folder='build/static', template_folder="build")
 logging.basicConfig(level=logging.DEBUG)
@@ -27,7 +28,9 @@ cors = CORS(app)
 
 # Restrict file types saved to uploads directory 
 ALLOWED_EXTENSIONS = set(['mp3', 'mp4', 'json'])
-_FALLBACK_THRESHOLD_DISTANCE = 100
+_FALLBACK_THRESHOLD_DISTANCE = 145
+_JSON_INDENT = 2
+_CONTENT_FILENAME = "content.json"
 
 # Create upload directory to save files to
 uploads_dir = os.path.join('/media/usb/', 'uploads')
@@ -48,6 +51,12 @@ def get_name(filename):
 def allowed_file(filename):
 	return '.' in filename and get_extension(filename) in ALLOWED_EXTENSIONS
 
+#Function appends col hex values to .srt file type
+def lightingEvent(col_hex_val):
+    scentroom_event = LightingEvent(col_hex_val)
+    scentroom_event.to_json_file()
+    return scentroom_event.to_srt(str(uploads_dir))
+
 
 # Serve React app @ https://github.com/LUSHDigital/lrpi_scentroom_ui
 @app.route('/')
@@ -65,7 +74,6 @@ def upload_file():
 
         #Gets file from form data
         file = request.files['file']
-        realname_file = "audio_realname.json"
 
         if file.filename == '':
             #No file selected for uploading
@@ -79,13 +87,16 @@ def upload_file():
             file.save(os.path.join(uploads_dir, filename))
             #File successfully uploaded
 
-            #TODO add real filename to a text file in uploads
-            with open(os.path.join(uploads_dir, realname_file), 'w') as f:
-                f.write(json.dumps({'realname' : file.filename}, indent=2))
+            with open(os.path.join(uploads_dir, _CONTENT_FILENAME), 'r+') as f:
+                content = json.load(f)
+                content['real_audio_name'] = file.filename # <--- add `id` value.
+                f.seek(0)        # <--- should reset file position to the beginning.
+                json.dump(content, f, indent=_JSON_INDENT)
+                f.truncate()     # remove remaining part
 
             return jsonify({'response': 200, 'audio_saved': True, 'description': 'Audio Saved', 'path': request.url})
         else:
-            return jsonify({'response': 500, 'audio_saved': False, 'description': 'File type not allowed - accepted types are mp3, mp4, JSON', 'path': request.url})
+            return jsonify({'response': 500, 'audio_saved': False, 'description': 'File type not allowed - accepted types are mp3, JSON', 'path': request.url})
     
     return jsonify({'response': 500, 'audio_saved': False, 'description': 'Could not save audio file', 'path': request.url})
 
@@ -128,11 +139,24 @@ def testKill():
 
     return jsonify({'response': 500, 'error': 'Something went wrong when trying to KILL the test'})
 
-#Function appends col hex values to .srt file type
-def lightingEvent(col_hex_val):
-    scentroom_event = LightingEvent(col_hex_val)
-    return scentroom_event.to_srt(str(uploads_dir))
 
+@app.route('/status', methods=['GET'])
+def status():
+    if request.method == 'GET': 
+         
+        health = "healthy"
+        settings = Settings.get_json_settings()
+
+        with open(os.path.join(uploads_dir, _CONTENT_FILENAME), 'r') as f:
+            content = json.load(f)
+            color = content['color_hex']
+            real_audio_name = content['real_audio_name']
+
+        # Error handling here...
+
+        return jsonify({'status': health, 'response': 200, 'color': color, 'track_name': real_audio_name, 'hostname': settings['host_name'] })
+
+    return jsonify({'response': 500, 'error': 'Cannot get status. Please use GET'})
 
 @app.errorhandler(404)
 def page_not_found(e):
