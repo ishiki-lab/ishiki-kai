@@ -3,7 +3,7 @@ import TestButton from './components/TestButton';
 import './index.css';
 import { Notification } from './notification';
 
-let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.0.56:5000" : window.location.origin;
+let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.63.202:5000" : window.location.origin;
 
 class FileUploader extends React.Component {
 
@@ -16,6 +16,7 @@ class FileUploader extends React.Component {
         this.state = {
             selectedFile: null,
             selectedCol: '#011993',
+            currentTrack: null
         }
     }
 
@@ -140,12 +141,41 @@ class FileUploader extends React.Component {
         this.notificationRef.current.openNotification(message)
     }
 
+    // Get what's loaded onto the scentroom right now
+
+    async componentDidMount() {
+        const url = API_URL + '/status';
+        const res = await fetch(url, {
+            headers: {'Content-Type': 'application/json'}
+        })
+
+        const response = await res.json();
+
+        if (response.response === 200 && response.status === "healthy" && response.color) {
+            this.setState({
+                selectedCol: response.color,
+                currentTrack: response.track_name
+            })
+        }
+
+        console.log('json res: ', response)
+
+    }
+
     render() {
         return (
             <div className="form_body">
                 <form onSubmit={this.handleSubmit}> 
-                    <label>Select Music File</label><br />
-                    <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/><br />
+                    <label>Pick a track from your device (mp3 only!)</label><br />
+                    <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/>
+                    {this.state.currentTrack ? (
+                        <>
+                            <h4>Loaded with:</h4>
+                            <h5>{this.state.currentTrack}</h5>
+                        </>
+                    ) : (
+                        <p>No track found on this scentroom</p>
+                    )}
                     <label>Select Colour</label><br /><br />
                     <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
                     <input type="submit" value="Upload" className="inputbtn"/>  
