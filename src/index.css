@@ -71,6 +71,21 @@ label {
   border-radius: 10px;
 }
 
+.tempSensorBtn{
+  margin: 10px;
+  height: 50px;
+  font-size: 15px;
+  font-weight: 800;
+  width: 50%;
+  max-width: 220px;
+  min-width: 110px;
+  background-color: white;
+  color: black;
+  border: none;
+  font-size: 17px;
+  border-radius: 10px;
+}
+
 #root{
   width:98%;
   margin: 2%;

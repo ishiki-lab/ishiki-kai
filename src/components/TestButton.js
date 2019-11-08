@@ -10,20 +10,18 @@ const testStates = {
 
 class TestButton extends React.Component {
 
-    constructor(props) {
-        super(props);
-
-    }
-
     state = {
         runTest: false
     }
 
     sendCommand = (c) => {
         if (c === testStates.TEST_START) {
+            this.props.notificationManager.current.openNotification("The test is warming up...");
             const url = this.props.endpoint + '/test-start';
             fetch(url, {
                 method: 'GET'
+            }).then(() => {
+                this.props.notificationManager.current.openNotification("Test is running!");   
             })
             .catch(error => console.log(error)
             );
@@ -34,6 +32,8 @@ class TestButton extends React.Component {
             const url = this.props.endpoint + '/test-kill';
             fetch(url, {
                 method: 'GET'
+            }).then(() => {
+                this.props.notificationManager.current.openNotification("Test cancelled");     
             })
             .catch(error => console.log(error)
             );  

@@ -1,10 +1,14 @@
 import React from 'react';
 import TestButton from './components/TestButton';
 import './index.css';
+import { Notification } from './notification';
 
 let API_URL = process.env.REACT_APP_STAGE === 'dev' ? "http://192.168.0.56:5000" : window.location.origin;
 
 class FileUploader extends React.Component {
+
+    //Ref for notification component
+    notificationRef = React.createRef()
 
     constructor(props) {
         super(props);
@@ -13,7 +17,6 @@ class FileUploader extends React.Component {
             selectedFile: null,
             selectedCol: '#011993',
         }
-       
     }
 
     fileChangeHandler = (event) => {
@@ -31,55 +34,136 @@ class FileUploader extends React.Component {
         const data = new FormData()
         data.append('file', this.state.selectedFile)
         data.append('colour', this.state.selectedCol)
-        this.uploadFile(data)
-        this.uploadCol(data)
+        
+        //Upload methods return boolean success/fail
+        let fileresponse = this.uploadFile(data)
+        let colresponse = this.uploadCol(data)
+
+        //Calls notification component manager
+        if(fileresponse && colresponse) {
+            console.log("Response from notification manager: ", fileresponse, colresponse)
+            this.notificationManager("Upload success")
+        } else if (!fileresponse && !colresponse) {
+            console.log("Response from notification manager: ", fileresponse, colresponse)
+            this.notificationManager("Error: Failed to upload audio file")
+        } else if (!fileresponse && colresponse) {
+            this.notificationManager("Error: Failed to upload colour")
+        } else if (!fileresponse && !colresponse) {
+            this.notificationManager("Error: Upload failed")
+        }
     }
 
-    //POST file input form data
-    uploadFile(data) {
+    distanceHandlerActive = () => {
+        //Run temp test for distance sensor active
+        this.notificationManager("Warming up the room...");
+        this.endpointRequest(true).then((success) => {
+            if (success){
+                this.notificationManager("Success: Activated");
+            } else {
+                this.notificationManager("Error: Could not activate");
+            }
+        }).catch((e) => {
+            console.log("Something went horribly wrong...");
+        })
+        
+    }
 
-        const url = API_URL + '/upload-file'
-        fetch(url, {
+    distanceHandlerDeactive = () => {
+        //Run temp test for distance sensor deactive
+        this.notificationManager("Ending the test...");
+        if (this.endpointRequest(false)){
+            this.notificationManager("Success: Deactivated");
+        } else {
+            this.notificationManager("Error: Could not deactivate");
+        }
+    }
+
+    //End point requests for dummy distance sensor
+    endpointRequest = async (state) => {
+        console.log('epr: ', state);
+        
+        
+        var url = '';
+        if(state){
+            url = API_URL + '/test-start';
+        } else {
+            url = API_URL + '/test-kill';
+        } 
+
+        if(url !== '') {
+
+            const res = await fetch(url, {
+                headers: {'Content-Type': 'application/json'}
+            })
+
+            const response = await res.json();
+
+            console.log('json res: ', response)
+           
+            if(response != null && response.response === 200) {
+                return true;
+            } 
+        }
+        return false;
+    }
+    
+
+    //POST file input form data
+    uploadFile = async (data) => {
+        const url = API_URL + '/upload-file';
+        const response = await fetch(url, {
             method: 'POST',
             body: data,
         })
-        .catch(error => console.log(error)
-        );
+        if(response != null && response.response === 200){
+            return true
+        }
+        return false
     }
 
+
     //POST col value form data
-    uploadCol(selectedCol) {
+    uploadCol = async (selectedCol) => {
         const url = API_URL + '/upload-colour';
-        fetch(url, {
+        const response = await fetch(url, {
             method: 'POST',
             body: selectedCol,
         })
-        .catch(error => console.log(error)
-        );
+        if(response != null && response.response === 200){
+            return true
+        }
+        return false
+    }
+
+    //Inits timed notification component with message param
+    notificationManager(message){
+        this.notificationRef.current.openNotification(message)
     }
 
     render() {
         return (
-            <>
-                <div className="form_body">
-                    <form onSubmit={this.handleSubmit}> 
-                        <label>Select Music File</label><br />
-                        <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/><br />
-                        <label>Select Colour</label><br /><br />
-                        <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
-                        <input type="submit" value="Upload" className="inputbtn"/>  
-                    </form>
-                    <div className="test-button">
-                        <TestButton 
-                            endpoint={API_URL}
-                        />
-                    </div>
+            <div className="form_body">
+                <form onSubmit={this.handleSubmit}> 
+                    <label>Select Music File</label><br />
+                    <input type="file" id="fileinput" name="file" accept=".mp3,.mp4;" onChange={this.fileChangeHandler}/><br />
+                    <label>Select Colour</label><br /><br />
+                    <input type="color" name="colour" onChange={this.colorChangeHandler} value={this.state.selectedCol}/> <br />
+                    <input type="submit" value="Upload" className="inputbtn"/>  
+                </form>
+                <div className="test-button">
+                    <TestButton 
+                        endpoint={API_URL}
+                        notificationManager={this.notificationRef}
+                    />
                 </div>
-
-            </>
+                <br />
+                <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
+                <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
+                <br />
+                <Notification ref = {this.notificationRef} />
+            </div>
         )
     }
-
 }
 
 export default FileUploader;
