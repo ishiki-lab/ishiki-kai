@@ -2,6 +2,9 @@ import os
 from colorsys import rgb_to_hsv
 
 _CONSISTENT_SRT_NAME = "01_scentroom"
+_RGB_R_TUNING = 1.0
+_RGB_G_TUNING = 1.0
+_RGB_B_TUNING = 1.0
 
 class LightingEvent: 
 
@@ -16,7 +19,7 @@ class LightingEvent:
             b = float(rgb[2])
             #convert rgb value to hsv
             h,s,v = rgb_to_hsv(r,g,b)
-            self.rgb_col_val = str(int(r)) + ', ' + str(int(g)) + ', ' + str(int(b)) + ', ' + str(int(255))
+            self.rgb_col_val = str(int(_RGB_R_TUNING*r)) + ', ' + str(int(_RGB_G_TUNING*g)) + ', ' + str(int(_RGB_B_TUNING*b)) + ', ' + str(int(255))
             self.hsv_col_val = str(h) + ',' + str(s) + ',' + str(v)
             self.rgbw_col_val = self.rgb_to_rgbw(r,g,b)
 
