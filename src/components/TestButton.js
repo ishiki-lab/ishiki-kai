@@ -56,7 +56,7 @@ class TestButton extends React.Component {
     render() {
         return (
             <>
-                <button 
+                <button className="red-button"
                     onTouchStart={() => this.triggerTest(testStates.TEST_START)}
                     onTouchEnd={() => this.triggerTest(testStates.TEST_KILL)}
                     onMouseDown={() => this.triggerTest(testStates.TEST_START)}

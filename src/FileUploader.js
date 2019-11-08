@@ -1,5 +1,6 @@
 import React from 'react';
 import TestButton from './components/TestButton';
+import Reboot from './components/Reboot';
 import './index.css';
 import { Notification } from './notification';
 
@@ -198,7 +199,13 @@ class FileUploader extends React.Component {
                     <button className="tempSensorBtn" onClick={this.distanceHandlerActive} > Start test</button>
                     <button className="tempSensorBtn" onClick={this.distanceHandlerDeactive} > End test</button>
                     <br />
+                    <br/>
                     <Notification ref = {this.notificationRef} />
+                    <hr/>
+                    <Reboot 
+                        endpoint={API_URL}
+                        notificationManager={this.notificationRef}
+                    />
                 </div>
             </>
         )
