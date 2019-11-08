@@ -158,6 +158,17 @@ def status():
 
     return jsonify({'response': 500, 'error': 'Cannot get status. Please use GET'})
 
+# Courtesy of:
+# https://stackoverflow.com/questions/24750137/restarting-host-from-docker-container
+@app.route('/reboot', methods=['GET'])
+def reboot():
+    if request.method == 'GET': 
+        logging.warning("Reboot has been called! There will be no response from this call!")
+        try:
+            os.system("echo b > /sysrq")
+        except Exception as e:
+            return jsonify({'response': 500, 'error': 'Something went wrong with reboot. It could be time for a hard reset...'})
+
 @app.errorhandler(404)
 def page_not_found(e):
     return jsonify({'response':404, 'description': 'Page Not Found' + str(e)})

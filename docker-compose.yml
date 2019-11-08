@@ -47,6 +47,7 @@ services:
       - brickd
     volumes:
       - /media/usb:/media/usb
+      - /proc/sysrq-trigger:/sysrq
     environment:
       - PORT=80
       - PLAYER_PORT=8080
