@@ -1,6 +1,8 @@
 
 ## Lush ScentRoom Colour and Audio Uploader
 
+NOTE: SWAGGER NEEDS UPDATING
+
 React application interactive colour and audio uploader for use with Lush Spa treatments.
 
 ### UI Features
