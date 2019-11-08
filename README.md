@@ -8,6 +8,7 @@ React application interactive colour and audio uploader for use with Lush Spa tr
 1. File Selector - Select audio file to play through audio system
 2. Colour Picker - Select hexadecimal colour value to display dynamic lighting
 3. Submit - Send selected values to the flask server
+4. Test - both press and hold to test the audio/lighting and start forever and end that same start
 
 ### How to output to Lush Scentroom Flask app
 1. Navigate to the project directory in terminal
