@@ -99,7 +99,7 @@ class DistanceSensor:
                         # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
                         # self.device.set_debounce_period(_DEBOUNCE_TIME)
                         self.device.set_distance_callback_period(_ENTRY_CALLBACK_PERIOD)
-                    else if tf[1] == 2125: # DISTANCE IR BRICKLET V2.0
+                    elif tf[1] == 2125: # DISTANCE IR BRICKLET V2.0
                         print("Registering %s as active Distance IR sensor 2.0" % tf[0])
                         self.device = BrickletDistanceIRV2(tf[0], self.ipcon) # Create device object
                         # Don't use device before ipcon is connected
