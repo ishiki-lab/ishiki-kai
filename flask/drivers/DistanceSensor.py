@@ -10,6 +10,7 @@ from urllib import parse
 import requests
 from tinkerforge.ip_connection import IPConnection
 from tinkerforge.bricklet_distance_ir import BrickletDistanceIR
+from tinkerforge.bricklet_distance_ir_v2 import BrickletDistanceIRV2
 from tf_device_ids import deviceIdentifiersList
 import os
 from time import sleep
@@ -36,13 +37,13 @@ class DistanceSensor:
         self.thr_start = threading.Thread(target=self.triggerPlayer, args=(1,))
         self.thr_stop = threading.Thread(target=self.stopPlayer(), args=(1,))
         self.deviceIDs = [i[0] for i in deviceIdentifiersList]
-        
+
         if dist:
             self.setThresholdFromSettings()
 
         if self.threshold_distance:
             self.poll()
-        else: 
+        else:
             logger("Test distance sensor created")
 
     def setThresholdFromSettings(self):
@@ -53,7 +54,7 @@ class DistanceSensor:
         except Exception as e:
             logger("ERROR: could not get distance setting from the usb stick, falling back..." + e)
 
-    def getIdentifier(self, ID): 
+    def getIdentifier(self, ID):
         deviceType = ""
         for t in range(len(self.deviceIDs)):
             if ID[1]==deviceIdentifiersList[t][0]:
@@ -98,9 +99,18 @@ class DistanceSensor:
                         # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
                         # self.device.set_debounce_period(_DEBOUNCE_TIME)
                         self.device.set_distance_callback_period(_ENTRY_CALLBACK_PERIOD)
-                      
+                    else if tf[1] == 2125: # DISTANCE IR BRICKLET V2.0
+                        print("Registering %s as active Distance IR sensor 2.0" % tf[0])
+                        self.device = BrickletDistanceIRV2(tf[0], self.ipcon) # Create device object
+                        # Don't use device before ipcon is connected
 
-        
+                        self.device.register_callback(self.device.CALLBACK_DISTANCE, self.cb_distance_v2)
+
+                        # Get threshold callbacks with a debounce time of 10 seconds (10000ms)
+                        # self.device.set_debounce_period(_DEBOUNCE_TIME)
+
+
+
 
         print("Polling the TF distance sensor for distance measurement... ")
         print("Threshold distance is set to ", self.threshold_distance, "cm")
@@ -111,7 +121,7 @@ class DistanceSensor:
         #     self.__del__()
 
     # Callback function for distance polling
-    # Is only called if the distance has changed within _CALLBACK_PERIOD 
+    # Is only called if the distance has changed within _CALLBACK_PERIOD
 
     def cb_distance(self, distance):
         logger("Distance: " + str(distance/10.0) + " cm")
@@ -128,6 +138,24 @@ class DistanceSensor:
             t.start()
             self.device.set_distance_callback_period(_ENTRY_CALLBACK_PERIOD)
             self.triggered = False
+
+    def cb_distance_v2(self, distance):
+        logger("Distance: " + str(distance/10.0) + " cm")
+        d = distance/10.0
+        t = None
+
+        if d <= self.threshold_distance:
+            t = threading.Thread(target=self.triggerPlayer, args=())
+            t.start()
+            self.device.set_distance_callback_configuration(_EXIT_CALLBACK_PERIOD, False, "x", 0, 0)
+            self.triggered = True
+        elif d > self.threshold_distance:
+            t = threading.Thread(target=self.stopPlayer, args=())
+            t.start()
+            self.device.set_distance_callback_configuration(_ENTRY_CALLBACK_PERIOD, False, "x", 0, 0)
+            self.triggered = False
+
+
 
     def triggerPlayer(self, path="/media/usb/uploads/01_scentroom.mp3", start_position=0, test=False):
         try:
@@ -155,7 +183,7 @@ class DistanceSensor:
                 print("INFO: res from stop: ", playerRes)
         except Exception as e:
             logging.error("HTTP issue with player stop")
-            
+
 
     def __del__(self):
         try:
@@ -166,4 +194,3 @@ class DistanceSensor:
             logger("It's likely there was no connection to begin with!")
             logger("Distance sensor ")
         self.device = None
-    
