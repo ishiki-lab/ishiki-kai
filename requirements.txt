@@ -4,3 +4,5 @@ Flask-RESTful>=0.3.7
 Flask-Jsonpify>=1.5.0
 flask-inputs>=0.3.0
 pysrt>=1.1.1
+tinkerforge
+apscheduler
