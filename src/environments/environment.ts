@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  hostname: 'lushroom-dev-master.local'
+  hostname: '192.168.0.56'
 };
 
 /*
