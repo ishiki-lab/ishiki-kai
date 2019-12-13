@@ -62,7 +62,6 @@ export class TrackControlComponent implements OnInit {
     private route: ActivatedRoute,
     private getTracksService: GetTracksService,
     private getStylesService: GetStylesService,
-    private _location: Location,
     private router: Router
   ) {}
 
@@ -129,20 +128,12 @@ export class TrackControlComponent implements OnInit {
       }  
     }
 
-    setInterval(() => { 
+    setInterval(() => {
       if (this.playing && (this.ticks < +this.totalTicks)) {
-        this.now = this.hhmmss(this.ticks += 1); 
+        this.now = this.hhmmss(this.ticks += 1);
       } else if (this.ticks >= +this.totalTicks && this.ticks != 0 && this.playing) {
-        this.now = '00:00:00' 
-        this.ticks = 0; 
-        // Play the next track in the playlist
-        // automatically
-        this.playing = false;
-        this.skipped = false;
-        this.duration = 'XX:XX:XX';
-        // TODO: needs to loop on LOOP tracks?
-        // Skip only on command
-        this.next(undefined);
+        this.resetProgressBar()
+        this.next(undefined);;
       }
       this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
@@ -151,6 +142,24 @@ export class TrackControlComponent implements OnInit {
       this.id = params['id'];
     });
 
+  }
+
+  // Used in the skip function to avoid looping an entire playlist
+  // Beware! if there is only one track in the playlist this will always
+  // return true
+
+  endOfPlaylist() {
+    return this.hrId + 1 === this.playlist.length;
+  }
+
+  resetProgressBar() {
+    this.now = '00:00:00';
+    this.ticks = 0;
+    // Play the next track in the playlist
+    // automatically
+    this.playing = false;
+    this.skipped = false;
+    this.duration = 'XX:XX:XX';
   }
 
   play() {
@@ -170,7 +179,7 @@ export class TrackControlComponent implements OnInit {
         this.playing = true;
         this.duration = this.hhmmss(data)
         console.log(data);
-      });  
+      });
     }
   }
 
@@ -185,6 +194,7 @@ export class TrackControlComponent implements OnInit {
   next(interval) {
     if(!this.loading) {
       this.hrId = ((++this.hrId) % (this.numTracks));
+      if (this.hrId === 0) this.started = false;
       this.fadeToTrack(
         this.hrId, 
         this.playing ? interval : 0

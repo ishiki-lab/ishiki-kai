@@ -1,5 +1,10 @@
 <!-- <router-outlet></router-outlet> -->
-<div *ngIf="serverData != null; else elseBlock">
+<div id="mainBox" [ngStyle]="styleObject()" *ngIf="loading">
+  <h2>Please wait...</h2>
+  <mat-spinner class="white"></mat-spinner>
+</div>
+
+<div *ngIf="serverData != null; else error">
   <div id="mainBox" [ngStyle]="styleObject()">
     <div class="selector-heading">Select treatment:</div>
     <div *ngFor="let item of serverData | async" [ngStyle]="itemStyleObject()">
@@ -18,12 +23,12 @@
               <mat-icon>arrow_right_alt</mat-icon>
             </div>
           </div>
-        </a> 
+        </a>
       </ng-template>
 
     </div>
   </div>
 </div>
-<ng-template #elseBlock>
+<ng-template #error>
   <div class="error">{{ errorResponse.message }}</div>
 </ng-template>
