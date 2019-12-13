@@ -133,7 +133,7 @@ export class TrackControlComponent implements OnInit {
         this.now = this.hhmmss(this.ticks += 1);
       } else if (this.ticks >= +this.totalTicks && this.ticks != 0 && this.playing) {
         this.resetProgressBar()
-        this.autoSkip();
+        this.next(undefined);;
       }
       this.i_progress = Math.floor((this.ticks/this.totalTicks)*100)
     }, 1000);
@@ -160,11 +160,6 @@ export class TrackControlComponent implements OnInit {
     this.playing = false;
     this.skipped = false;
     this.duration = 'XX:XX:XX';
-    if (this.hrId === 0) this.started = false;
-  }
-
-  autoSkip() {
-    if (this.endOfPlaylist() === false) this.next(undefined);
   }
 
   play() {
@@ -199,6 +194,7 @@ export class TrackControlComponent implements OnInit {
   next(interval) {
     if(!this.loading) {
       this.hrId = ((++this.hrId) % (this.numTracks));
+      if (this.hrId === 0) this.started = false;
       this.fadeToTrack(
         this.hrId, 
         this.playing ? interval : 0

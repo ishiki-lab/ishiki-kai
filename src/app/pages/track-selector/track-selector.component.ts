@@ -21,6 +21,7 @@ export class TrackSelectorComponent implements OnInit {
   folderId = null;
   settings: any;
   roomName: string = '?';
+  loading = true;
 
   constructor(
     private httpClient: HttpClient,
@@ -55,6 +56,7 @@ export class TrackSelectorComponent implements OnInit {
   ngOnInit() {
 
     this.folderId = this.route.snapshot.queryParamMap.get("id");
+    this.loading = true;
 
     this.getTracksService.getStatus().pipe(
       switchMap((status: any) => {
@@ -87,6 +89,7 @@ export class TrackSelectorComponent implements OnInit {
         console.log('In the playlist processor');
         
         let data: any = d;
+        this.loading = false;
 
         console.log('tracks: ', data, ' length: ', data.length);
 

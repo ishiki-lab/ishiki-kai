@@ -32,6 +32,10 @@ a {
     font-weight: bold;
 }
 
+.mat-spinner.white circle {
+    stroke: white;
+}
+
 
 .mat-progress-spinner circle, .mat-spinner circle {
     stroke: black;
