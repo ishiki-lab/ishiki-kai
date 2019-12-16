@@ -10,8 +10,8 @@ html {
     font-size: 140%;
 }
 
-.pair-button:hover {
-    cursor: pointer;
+.pair-button:hover, .home-button:hover {
+    cursor: pointer; 
 }
 
 p.slave-prompt {
@@ -21,4 +21,9 @@ p.slave-prompt {
 .pair-button button {
     margin-left: 0.3em;
     font-size: 110%;
+}
+
+.home-button {
+    float: right;
+    padding-right: 1em;
 }

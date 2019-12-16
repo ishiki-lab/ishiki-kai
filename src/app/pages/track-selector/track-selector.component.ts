@@ -89,7 +89,6 @@ export class TrackSelectorComponent implements OnInit {
         console.log('In the playlist processor');
         
         let data: any = d;
-        this.loading = false;
 
         console.log('tracks: ', data, ' length: ', data.length);
 
@@ -98,6 +97,7 @@ export class TrackSelectorComponent implements OnInit {
 
         if (data.length === undefined) {
           this.errorResponse['message'] = 'Syncing may not have completed yet. Alternatively, is the usb stick plugged in?'
+          this.loading = false;
           this.serverData = null;
           return;
         }
@@ -122,6 +122,7 @@ export class TrackSelectorComponent implements OnInit {
         }
 
         console.log('playlist? : ', isPlaylist);
+        this.loading = false; 
 
         this.serverData = of(
           data
@@ -131,6 +132,7 @@ export class TrackSelectorComponent implements OnInit {
       (err: any) => {
         console.log('error', err);
         this.errorResponse = err;
+        this.loading = false;
         this.errorResponse['message'] = 'Something is wrong...'
         this.router.navigate([`/tracks`]);
       }
