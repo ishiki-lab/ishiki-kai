@@ -2,21 +2,14 @@ version: '3'
 
 services:
   rclone:
-    container_name: lushroom-rclone
+    container_name: rclone
     privileged: true
     image: "lushdigital/lushroom-rclone:latest"
     volumes:
        - /media/usb:/media/usb
-       - /etc/localtime:/etc/localtime
-       - /etc/timezone:/etc/timezone
     restart: always
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
-        tag: "rclone"
   display:
-    container_name: lushroom-display
+    container_name: display
     privileged: true
     network_mode: host
     image: "lushdigital/lushroom-display:latest"
@@ -24,18 +17,12 @@ services:
        - /media/usb:/media/usb
        - /dev/fb0:/dev/fb0
        - /dev/input/event0:/dev/input/event0
-       - /etc/localtime:/etc/localtime
-       - /etc/timezone:/etc/timezone
     environment:
-       - HOSTNAME
+       - HOSTNAME=$HOSTNAME
+       - SENTRY_URL=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
     restart: always
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
-        tag: "display"
   player:
-    container_name: lushroom-player
+    container_name: player
     image: "lushdigital/lushroom-player:latest"
     privileged: true
     ports:
@@ -45,9 +32,15 @@ services:
        - /dev/vchiq:/dev/vchiq
        - /opt/vc:/opt/vc
     restart: always
-    logging:
-      driver: "syslog"
-      options:
-        syslog-address: "tcp+tls://logs7.papertrailapp.com:38699"
-        tag: "player"
-
+    links:
+      - brickd
+    environment:
+      - BRICKD_HOST=brickd
+      - SENTRY_URL=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
+  brickd:
+    container_name: brickd
+    image: "lushdigital/lushroom-brickd:latest"
+    privileged: true
+    ports:
+       - 4223:4223
+    restart: always
