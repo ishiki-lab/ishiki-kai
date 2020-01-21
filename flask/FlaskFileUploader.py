@@ -26,7 +26,7 @@ logging.basicConfig(level=logging.DEBUG)
 # Need cors to resolve cors conflict
 cors = CORS(app)
 
-# Restrict file types saved to uploads directory 
+# Restrict file types saved to uploads directory
 ALLOWED_EXTENSIONS = set(['mp3', 'mp4', 'json'])
 _FALLBACK_THRESHOLD_DISTANCE = 145
 _JSON_INDENT = 2
@@ -38,7 +38,7 @@ if not os.path.exists(uploads_dir):
     os.makedirs(uploads_dir)
 
 def logger(message):
-    app.logger.info("INFO: " + message)
+    logging.info("INFO: " + message)
     sys.stdout.flush()
 
 def get_extension(filename):
@@ -55,8 +55,9 @@ def allowed_file(filename):
 def lightingEvent(col_hex_val):
     scentroom_event = LightingEvent(col_hex_val)
     scentroom_event.to_json_file()
+    scentroom_event.to_idle_mp3(uploads_dir)
+    scentroom_event.to_idle_srt(str(uploads_dir))
     return scentroom_event.to_srt(str(uploads_dir))
-
 
 # Serve React app @ https://github.com/LUSHDigital/lrpi_scentroom_ui
 @app.route('/')
@@ -78,7 +79,7 @@ def upload_file():
         if file.filename == '':
             #No file selected for uploading
             return jsonify({'response': 500, 'audio_saved': False, 'description': 'No file selected', 'path': request.url})
-        
+
         if file and allowed_file(file.filename):
             #Generate secure file name
             filename = secure_filename("01_scentroom." + get_extension(file.filename))
@@ -179,8 +180,20 @@ def internal_server_error(e):
     return jsonify({'response':500, 'description': 'Internal Server Error' + str(e)})        
 
 if __name__ == '__main__':
-    logger("Welcome to the Scentroom! Scentroom is a working title...")
+    logger("Welcome to the Scentroom!")
     logger("Uploads directory is: " + uploads_dir)
+
+    logger("Creating distance sensor...")
     distance_sensor = DistanceSensor(_FALLBACK_THRESHOLD_DISTANCE)
-    app.run(port=os.environ.get("PORT", "5000"), host='0.0.0.0')
+
+    # create content.json file if it doesn't exist
+    content_filename = os.path.join(uploads_dir,_CONTENT_FILENAME)
+    if not os.path.exists(content_filename):
+        f = open(content_filename, "w")
+        f.write("{\n\"real_audio_name\": \"\",\n\"color_hex\": \"#0000ff\"\n}\n")
+        f.close()
+
+    # disabling flask reloader as it triggers apscheduler events twice
+    # https://stackoverflow.com/questions/14874782/apscheduler-in-flask-executes-twice
+    app.run(use_reloader=False, debug=True, port=os.environ.get("PORT", "5000"), host='0.0.0.0')
 

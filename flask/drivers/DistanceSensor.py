@@ -243,7 +243,12 @@ class DistanceSensor:
             LOGGER.error(e)
 
     def startIdle(self):
-        LOGGER.info("dummy idle loop started...")
+        try:
+            playerRes = requests.get('http://localhost:' + os.environ.get("PLAYER_PORT", "8080") + '/scentroom-idle')
+            print("INFO: res from idleloop: ", playerRes)
+        except Exception as e:
+            LOGGER.error("HTTP issue with idle trigger")
+            LOGGER.error(e)
 
     def __del__(self):
         try:
