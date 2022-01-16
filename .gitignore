@@ -12,3 +12,4 @@ gui/lrpi/dist
 /srt_out
 v2r.log
 [0-9]*.srt
+build

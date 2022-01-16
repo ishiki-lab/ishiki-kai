@@ -34,7 +34,7 @@ from colorsys import rgb_to_hsv
 from numpy import array, zeros, array_equal, append, trim_zeros
 from pysrt import SubRipFile, SubRipItem, SubRipTime
 import argparse
-from pyfiglet import Figlet
+from pyfiglet import Figlet, fonts
 
 
 __author__ = "Francesco Anselmo"
@@ -352,7 +352,7 @@ def handle_compositions(compositions):
         composition_name_dom = composition.getElementsByTagName('name')[0]
         composition_name = getText(composition_name_dom.childNodes)
         srt_filename = composition_name+OUT_EXT
-        # print("SRT output filename: %s" % srt_filename)
+        print("SRT output filename: %s" % srt_filename)
         print("Processing composition %s" % composition_name)
         fps    = int(getText(composition.getElementsByTagName('fps')[0].childNodes))
         bpm    = int(getText(composition.getElementsByTagName('bpm')[0].childNodes))
@@ -379,9 +379,11 @@ def handle_compositions_file(compositions_file):
 def main():
     global XML_FILENAME, HUE_SAMPLING, DMX_SAMPLING, TRANSITION_TIME, START, END, VERBOSE, DEBUG
 
-    f1 = Figlet(font='standard')
+    #f1 = Figlet(font='standard')
+    f1 = Figlet()
     print(f1.renderText('LushRoom'))
-    f2 = Figlet(font='standard')
+    #f2 = Figlet(font='standard')
+    f2 = Figlet()
     print(f2.renderText('Vezer2SRT'))
 
     parser = argparse.ArgumentParser()

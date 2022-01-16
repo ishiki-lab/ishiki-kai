@@ -10,7 +10,11 @@ if __name__ == '__main__':
     # t.start()
 
     api = Api()
-    webview.config.gui = "qt"
+    #webview.config.gui = "qt"
+    # webview.create_window('Lushroom Pi', 'www/index.html',
+                        #   js_api=api, width=400, height =600, min_size=(400, 600), confirm_quit=True,
+                        #   text_select=True, resizable=False, debug=False)
     webview.create_window('Lushroom Pi', 'www/index.html',
-                          js_api=api, width=400, height =600, min_size=(400, 600), confirm_quit=True,
-                          text_select=True, resizable=False, debug=False)
+                          js_api=api, width=400, height =600, min_size=(400, 600), 
+                          text_select=True, resizable=False)
+    webview.start()

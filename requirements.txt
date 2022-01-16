@@ -14,4 +14,4 @@ PyQtWebEngine
 pywebview
 sip
 py2app
-
+pyinstaller
