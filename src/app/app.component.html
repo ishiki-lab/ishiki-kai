@@ -1,18 +1,24 @@
 <div class="settings-room-name">
-   {{roomName}} 
-    <span *ngIf="slaveIp && !partyModeActive" class="pair-button" (click)="pair()"> 
-        <button mat-stroked-button class="btn">pair</button>
-    </span>
-    <span class="pair-button" (click)="unpair()"> 
-        <button mat-stroked-button class="btn" *ngIf="partyModeActive">unpair</button>
-    </span>
+  {{ roomName }}
+  <span
+    *ngIf="slaveIp && !partyModeActive"
+    class="pair-button"
+    (click)="pair()"
+  >
+    <button mat-stroked-button class="btn">pair</button>
+  </span>
+  <span class="pair-button" (click)="unpair()">
+    <button mat-stroked-button class="btn" *ngIf="partyModeActive">
+      unpair
+    </button>
+  </span>
 </div>
 <router-outlet *ngIf="!slaved; else slavedPrompt"></router-outlet>
 <ng-template #slavedPrompt>
-    <p class="slave-prompt">
-        Sorry, I'm being controlled by another LushRoom &pi; 
-    </p>
-    <p class="slave-prompt">
-        <i>(its IP address is {{masterIp}})</i>
-    </p>
+  <p class="slave-prompt">
+    Sorry, I'm being controlled by another LushRooms Pi
+  </p>
+  <p class="slave-prompt">
+    <i>(its IP address is {{ masterIp }})</i>
+  </p>
 </ng-template>

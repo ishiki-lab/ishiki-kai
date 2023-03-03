@@ -186,9 +186,11 @@ export class TrackControlComponent implements OnInit {
 
   pause() {
     this.playing = false;
+    this.loading = true;
     this.getTracksService.playPause().subscribe((data) => {
       this.duration = this.hhmmss(data);
       console.log(data);
+      this.loading = false;
     });
   }
 
