@@ -3,14 +3,20 @@
   <span
     *ngIf="slaveIp && !partyModeActive"
     class="pair-button"
-    (click)="pair()"
+    (click)="!pairingInProgress && pair()"
   >
     <button mat-stroked-button class="btn">pair</button>
   </span>
-  <span class="pair-button" (click)="unpair()">
+  <span class="pair-button" (click)="!unPairingInProgress && unpair()">
     <button mat-stroked-button class="btn" *ngIf="partyModeActive">
       unpair
     </button>
+  </span>
+  <span *ngIf="pairingInProgress" class="pair-button">
+    Pairing, please wait...
+  </span>
+  <span *ngIf="unPairingInProgress" class="pair-button">
+    Cancelling pairing, please wait...
   </span>
 </div>
 <router-outlet *ngIf="!slaved; else slavedPrompt"></router-outlet>

@@ -18,6 +18,8 @@ export class AppComponent implements OnInit {
   slaveIp: string;
   masterIp: string;
   slaved: boolean = false;
+  pairingInProgress = false;
+  unPairingInProgress = false;
 
   constructor(
     private settingsService: SettingsService,
@@ -56,18 +58,22 @@ export class AppComponent implements OnInit {
   }
 
   pair() {
+    this.pairingInProgress = true;
     this.pairingService.pair(this.slaveIp).subscribe((res: any) => {
       console.log("Pair res: ", res);
       if (res === 0) {
+        this.pairingInProgress = false;
         this.partyModeActive = true;
       }
     });
   }
 
   unpair() {
+    this.unPairingInProgress = true;
     this.pairingService.unpair().subscribe((res: any) => {
       console.log("unpair res: ", res);
       if (res === 0) {
+        this.unPairingInProgress = false;
         this.partyModeActive = false;
       }
     });
