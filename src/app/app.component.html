@@ -18,6 +18,7 @@
   <span *ngIf="unPairingInProgress" class="pair-button">
     Cancelling pairing, please wait...
   </span>
+  <span *ngIf="pairingError" class="pair-button"> Pairing failed </span>
 </div>
 <router-outlet *ngIf="!slaved; else slavedPrompt"></router-outlet>
 <ng-template #slavedPrompt>
