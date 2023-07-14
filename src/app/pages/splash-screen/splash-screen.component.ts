@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
-import { GetTracksService } from '../services/get-tracks.service';
-import { GetStylesService } from '../services/get-styles.service';
+import { Component, OnInit } from "@angular/core";
+import { GetTracksService } from "../services/get-tracks.service";
+import { GetStylesService } from "../services/get-styles.service";
 
 @Component({
-  selector: 'app-splash-screen',
-  templateUrl: './splash-screen.component.html',
-  styleUrls: ['./splash-screen.component.css']
+  selector: "app-splash-screen",
+  templateUrl: "./splash-screen.component.html",
+  styleUrls: ["./splash-screen.component.css"],
 })
 export class SplashScreenComponent implements OnInit {
   constructor(
@@ -18,9 +18,8 @@ export class SplashScreenComponent implements OnInit {
   }
   styleObject() {
     if (!this.getStylesService.getStyles()) {
-      return {border: 'none'};
+      return { border: "none" };
     }
-
   }
   ngOnInit() {}
 }

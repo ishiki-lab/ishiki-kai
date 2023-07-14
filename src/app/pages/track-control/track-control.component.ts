@@ -5,8 +5,6 @@ import { Router } from "@angular/router";
 import { GetTracksService } from "../services/get-tracks.service";
 import { of, Observable } from "rxjs";
 import { GetStylesService } from "../services/get-styles.service";
-import { interval } from "rxjs";
-import { map } from "rxjs/operators";
 import {
   trigger,
   state,
@@ -319,12 +317,14 @@ export class TrackControlComponent implements OnInit {
     this.getTracksService.stopMusic().subscribe((stopRes) => {
       if (stopRes === 0) {
         console.log("Stop success!");
+        this.getTracksService.setStatus({});
       } else {
         console.log("Stop failed... check the logs!");
       }
       this.router.navigate([`/tracks`], {
         relativeTo: this.route,
-        skipLocationChange: true,
+        queryParams: { id: null },
+        queryParamsHandling: "merge",
       });
     });
     this.playing = false;

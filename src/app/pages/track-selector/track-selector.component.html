@@ -1,4 +1,3 @@
-<!-- <router-outlet></router-outlet> -->
 <div id="mainBox" [ngStyle]="styleObject()" *ngIf="loading">
   <h2>Please wait...</h2>
   <mat-spinner class="white"></mat-spinner>
@@ -8,16 +7,18 @@
   <div id="mainBox" [ngStyle]="styleObject()">
     <div class="selector-heading">Select treatment:</div>
     <div *ngFor="let item of serverData | async" [ngStyle]="itemStyleObject()">
-
-      <a *ngIf="!item.IsDir; else folderLink" [routerLink]="['/player',item.ID]">
-        <div class="item" >
+      <a
+        *ngIf="!item.IsDir; else folderLink"
+        [routerLink]="['/player', item.ID]"
+      >
+        <div class="item">
           <div class="text">{{ item.Name | cleanPath }}</div>
         </div>
       </a>
 
       <ng-template #folderLink>
-        <a href="/tracks?id={{item.ID}}">
-          <div class="item" >
+        <a [routerLink]="['/tracks']" [queryParams]="{ id: item.ID }">
+          <div class="item">
             <div class="text">
               {{ item.Name | cleanPath }}
               <mat-icon>arrow_right_alt</mat-icon>
@@ -25,7 +26,6 @@
           </div>
         </a>
       </ng-template>
-
     </div>
   </div>
 </div>

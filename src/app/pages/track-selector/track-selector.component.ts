@@ -1,12 +1,10 @@
 import { Component, OnInit } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
 import { of, Observable } from "rxjs";
 import { GetTracksService } from "../services/get-tracks.service";
 import { GetStylesService } from "../services/get-styles.service";
 import { ActivatedRoute } from "@angular/router";
 import { Router } from "@angular/router";
-import { SettingsService } from "../services/settings.service";
-import { switchMap, map, mergeMap } from "rxjs/operators";
+import { switchMap } from "rxjs/operators";
 
 @Component({
   selector: "app-track-selector",
@@ -23,13 +21,27 @@ export class TrackSelectorComponent implements OnInit {
   loading = true;
 
   constructor(
-    private httpClient: HttpClient,
     private getTracksService: GetTracksService,
     private getStylesService: GetStylesService,
-    private settingsService: SettingsService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) {
+    // This is a little bit React 12
+    // "onComponentDidChange" vibes...
+    let last_id = "";
+    route.queryParams.subscribe(({ id }) => {
+      console.log(`id param changed to :: ${id} from ${last_id}`);
+      if (id !== last_id) {
+        this.folderId = id;
+        console.log("Attempting to pass to player...");
+        this.getTracksService
+          .getStatus()
+          .pipe(switchMap(this.isPlayerReady))
+          .subscribe(this.processPlaylist, this.handleErrors);
+      }
+      last_id = id;
+    });
+  }
 
   styleObject() {
     if (!this.getStylesService.getStyles()) {
@@ -50,99 +62,116 @@ export class TrackSelectorComponent implements OnInit {
     }
   }
 
+  processPlaylist = (_statusOrPlaylist: any) => {
+    console.log("In the playlist processor");
+
+    let statusOrPlaylist: any = _statusOrPlaylist;
+
+    console.log(
+      "statusOrPlaylist: ",
+      statusOrPlaylist,
+      " length: ",
+      statusOrPlaylist.length
+    );
+
+    let dataLen = statusOrPlaylist.length;
+    let isPlaylist: boolean = true;
+
+    if (statusOrPlaylist.length === undefined) {
+      this.errorResponse["message"] =
+        "Syncing may not have completed yet. Alternatively, is the usb stick plugged in?";
+      this.loading = false;
+      this.serverData = null;
+      return;
+    }
+
+    if (statusOrPlaylist.playlist) {
+      statusOrPlaylist = statusOrPlaylist.playlist;
+      dataLen = statusOrPlaylist.length;
+    }
+
+    console.log("playlist: ", statusOrPlaylist);
+
+    for (let i = 0; i < dataLen; i++) {
+      if (statusOrPlaylist[i].IsDir === true) {
+        isPlaylist = false;
+        break;
+      }
+    }
+
+    if (isPlaylist) {
+      this.getTracksService.setPlaylist(statusOrPlaylist);
+      this.router.navigate([`/player`], {
+        relativeTo: this.route,
+        skipLocationChange: true,
+      });
+    }
+
+    console.log("playlist? : ", isPlaylist);
+    this.loading = false;
+
+    this.serverData = of(statusOrPlaylist);
+  };
+
+  handleErrors = (err: any) => {
+    console.log("error", err);
+    this.errorResponse = err;
+    this.loading = false;
+    this.errorResponse["message"] =
+      "Something is wrong. Please refresh and try again...";
+    this.router.navigate([`/tracks`]);
+  };
+
+  isPlayerReady = (status: any) => {
+    console.log("status from server: ", status);
+    this.getTracksService.setStatus(status);
+
+    // if we're trying to control a slaved 'Pi lock the UI
+
+    const playerIsEnslaved = status.paired && status.master_ip;
+
+    if (playerIsEnslaved) {
+      this.serverData = null;
+      this.errorResponse["message"] =
+        "Currently paired to: " + status.master_ip + " -> controls are locked!";
+      return of(status);
+    }
+
+    const cannotControlPlayer = status.canControl === false;
+
+    if (cannotControlPlayer) {
+      console.log("Player is not yet playing, calling get-track-list...");
+      return this.getTracksService.getTracks(this.folderId);
+    } else {
+      this.getTracksService.setPlaylist(status.playlist);
+      // update the shared service with the status to pass to the track controller
+      this.getTracksService.setStatus(status);
+      this.router.navigate([`/player`], {
+        relativeTo: this.route,
+        skipLocationChange: true,
+      });
+
+      return of(status);
+    }
+  };
+
   ngOnInit() {
     this.folderId = this.route.snapshot.queryParamMap.get("id");
     this.loading = true;
 
-    this.getTracksService
-      .getStatus()
-      .pipe(
-        switchMap((status: any) => {
-          console.log("status in switchMap: ", status);
-          this.getTracksService.setStatus(status);
+    // this.getTracksService
+    //   .getStatus()
+    //   .pipe(switchMap(this.isPlayerReady))
+    //   .subscribe(this.processPlaylist, this.handleErrors);
+  }
 
-          // if we're trying to control a slaved 'Pi lock the UI
+  navigateToPlaylist(trackOrFolderId: number) {
+    console.log("Hack navigation to :: ", trackOrFolderId);
 
-          if (status.paired && status.master_ip) {
-            this.serverData = null;
-            this.errorResponse["message"] =
-              "Currently paired to: " +
-              status.master_ip +
-              " -> controls are locked!";
-            return of(status);
-          }
-
-          if (!status.canControl || !status.playerState || !status.source) {
-            console.log("player is idle, getting tracks...");
-            return this.getTracksService.getTracks(this.folderId);
-          } else {
-            console.log("Player is active, updating this page...");
-            this.getTracksService.setPlaylist(status.playlist);
-            // update the shared service with the status to pass to the track controller
-            this.getTracksService.setStatus(status);
-            this.router.navigate([`/player`], {
-              relativeTo: this.route,
-              skipLocationChange: true,
-            });
-
-            return of(status);
-          }
-        })
-      )
-      .subscribe(
-        (d: any) => {
-          console.log("In the playlist processor");
-
-          let data: any = d;
-
-          console.log("tracks: ", data, " length: ", data.length);
-
-          let dataLen = data.length;
-          let isPlaylist: boolean = true;
-
-          if (data.length === undefined) {
-            this.errorResponse["message"] =
-              "Syncing may not have completed yet. Alternatively, is the usb stick plugged in?";
-            this.loading = false;
-            this.serverData = null;
-            return;
-          }
-
-          if (data.playlist) {
-            data = data.playlist;
-            dataLen = data.length;
-          }
-
-          console.log("playlist: ", data);
-
-          for (let i = 0; i < dataLen; i++) {
-            if (data[i].IsDir === true) {
-              isPlaylist = false;
-              break;
-            }
-          }
-
-          if (isPlaylist) {
-            this.getTracksService.setPlaylist(data);
-            this.router.navigate([`/player`], {
-              relativeTo: this.route,
-              skipLocationChange: true,
-            });
-          }
-
-          console.log("playlist? : ", isPlaylist);
-          this.loading = false;
-
-          this.serverData = of(data);
-        },
-        (err: any) => {
-          console.log("error", err);
-          this.errorResponse = err;
-          this.loading = false;
-          this.errorResponse["message"] =
-            "Something is wrong. Please refresh and try again...";
-          this.router.navigate([`/tracks`]);
-        }
-      );
+    this.router.navigate([`/tracks`], {
+      relativeTo: this.route,
+      queryParams: { id: trackOrFolderId },
+      queryParamsHandling: "merge",
+    });
   }
 }
