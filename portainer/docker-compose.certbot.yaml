@@ -16,7 +16,7 @@ services:
       - ./nginx-data/certbot/www:/var/www/certbot
     # network_mode: host
     ports:
-      - "81:80"
+      - "80:80"
       - "443:443"
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   certbot:
