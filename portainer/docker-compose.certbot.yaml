@@ -7,7 +7,7 @@ version: '3'
 # https://docs.nginx.com/nginx/admin-guide/security-controls/configuring-http-basic-authentication/
 
 services:
-  nginx:
+  nginx-test:
     image: nginx:1.15-alpine
     restart: always
     volumes:
