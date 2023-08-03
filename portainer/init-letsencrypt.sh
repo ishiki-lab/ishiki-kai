@@ -77,4 +77,4 @@ docker-compose -f docker-compose.certbot.yaml run --rm --entrypoint "\
 echo
 
 echo "### Reloading nginx ..."
-docker-compose -f docker-compose.certbot.yaml exec nginx nginx -s reload
+docker-compose -f docker-compose.certbot.yaml exec nginx-test nginx -s reload
