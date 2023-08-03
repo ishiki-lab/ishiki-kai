@@ -39,7 +39,7 @@ echo
 
 
 echo "### Starting nginx ..."
-docker-compose up --force-recreate -d nginx
+docker-compose -f docker-compose.certbot.yaml up --force-recreate -d nginx-test
 echo
 
 echo "### Deleting dummy certificate for $domains ..."
