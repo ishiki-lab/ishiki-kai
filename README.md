@@ -22,5 +22,8 @@ git remote add scentroom git@github.com:LUSHDigital/lrpi_scentroom.git
 git fetch scentroom
 git subtree add --prefix=scentroom scentroom develop
 
-##
+## scentroom ui
+git remote add scentroom_ui git@github.com:LUSHDigital/lrpi_scentroom_ui.git
+git fetch scentroom_ui
+git subtree add --prefix=scentroom_ui scentroom_ui reboot_button
 ```
