@@ -27,6 +27,10 @@ git remote add scentroom_ui git@github.com:LUSHDigital/lrpi_scentroom_ui.git
 git fetch scentroom_ui
 git subtree add --prefix=scentroom_ui scentroom_ui reboot_button
 
+# Lush source at:
+# https://github.com/orgs/LUSHDigital/repositories?language=&q=lrpi&sort=&type=all
+## be wary of forks on inbrewj / pisuke / ishiki-lab
+#
 # TO ADD
 ## lrpi_record
 
