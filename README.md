@@ -26,4 +26,19 @@ git subtree add --prefix=scentroom scentroom develop
 git remote add scentroom_ui git@github.com:LUSHDigital/lrpi_scentroom_ui.git
 git fetch scentroom_ui
 git subtree add --prefix=scentroom_ui scentroom_ui reboot_button
+
+# TO ADD
+
+## lrpi_ap
+
+## lrpi_record
+
+## lrpi_display
+
+## lrpi_rclone
+
+# SS'd
+## lrpi_brickd (ishiki-brickd ?)
+## lrpi_base (ishiki-base ?)
+## lrpi_bootstrap (ishiki-bootstrap ?)
 ```
