@@ -4,6 +4,10 @@ Cloud connected sound and light player for Lush treatment rooms
 
 Flask/omxplayer/vlcplayer/DMX/HUE/Tinkerforge/SRT
 
+## Pointer for the reboot buttom
+
+https://github.com/LUSHDigital/lrpi_player/pull/155
+
 ## Helpers
 
 Sample sshfs command:

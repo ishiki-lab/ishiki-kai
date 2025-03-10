@@ -18,7 +18,9 @@ git fetch tablet_ui
 git subtree add --prefix=tablet_ui tablet_ui jb/noodle/rpi3_pairing_fixes
 
 ## scentrooms
-
+git remote add scentroom git@github.com:LUSHDigital/lrpi_scentroom.git
+git fetch scentroom
+git subtree add --prefix=scentroom scentroom develop
 
 ##
 ```
