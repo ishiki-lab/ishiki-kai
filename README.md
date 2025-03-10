@@ -28,17 +28,20 @@ git fetch scentroom_ui
 git subtree add --prefix=scentroom_ui scentroom_ui reboot_button
 
 # TO ADD
-
-## lrpi_ap
-
 ## lrpi_record
+
+## lrpi_bootstrap
+### note: how does this overlap with ishiki-bootstrap?
+### see here for the cerbot / TLS setup: https://github.com/InBrewJ/lrpi_bootstrap/tree/portainer_instance_nginx_with_tls_certbot
 
 ## lrpi_display
 
+## lrpi_ap
+
 ## lrpi_rclone
 
-# SS'd
-## lrpi_brickd (ishiki-brickd ?)
-## lrpi_base (ishiki-base ?)
-## lrpi_bootstrap (ishiki-bootstrap ?)
+# SS'd (or might be?)
+## lrpi_brickd (-> ishiki-brickd ??)
+## lrpi_base (-> ishiki-base ??)
+
 ```
