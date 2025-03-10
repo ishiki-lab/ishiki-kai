@@ -1,0 +1,88 @@
+swagger: '2.0'
+info:
+  description: >-
+    This API is built to  deliver services to [Lush ScentRoom file
+    uploader](https://github.com/LUSHDigital/lrpi_scentroom_ui). This is a flask
+    server which runs in a container behind an nginx proxy container which is
+    set-up through docker.
+  version: 1.0.0
+  title: ScentRoom Uploader API
+tags:
+  - name: uploadfile
+    externalDocs:
+      description: Find out more
+      url: 'https://github.com/LUSHDigital/lrpi_scentroom'
+  - name: uploadcol
+schemes:
+  - https
+  - http
+paths:
+  /uploadfile:
+    post:
+      tags:
+        - uploadfile
+      summary: Uploads music file
+      description: Accepts audio mp3/mp4 files
+      operationId: uploadFile
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: uploadfile
+          type: file
+          description: The audio file to upload.
+          required: true
+      responses:
+        '200':
+          description: Audio Saved
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '404':
+          description: File not found
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '500':
+          description: Could not save audio file
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /uploadcol:
+    post:
+      tags:
+        - uploadcol
+      summary: Upload colour selection
+      description: Accepts colour picker values
+      operationId: uploadCol
+      produces:
+        - application/json
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: formData
+          name: uploadcol
+          type: string
+          description: Hexidecimal colour value
+          required: true
+      responses:
+        '200':
+          description: Colour Saved
+          schema:
+            $ref: '#/definitions/ApiResponse'
+        '500':
+          description: Could not save selected colour value
+          schema:
+            $ref: '#/definitions/ApiResponse'
+definitions:
+  ApiResponse:
+    type: object
+    properties:
+      response:
+        type: integer
+        format: int32
+      col_saved:
+        type: boolean
+      description:
+        type: string
+      path:
+        type: string

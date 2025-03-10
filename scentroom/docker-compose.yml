@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  display:
+    container_name: lushroom-display
+    privileged: true
+    network_mode: host
+    image: "lushdigital/lushroom-display:latest"
+    volumes:
+      - /media/usb:/media/usb
+      - /dev/fb0:/dev/fb0
+      - /dev/input/event0:/dev/input/event0
+      - /etc/localtime:/etc/localtime
+      - /etc/timezone:/etc/timezone
+    environment:
+      - HOSTNAME
+      - SENTRY_URL=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
+    restart: always
+
+  player:
+    container_name: lushroom-player
+    image: "lushdigital/lushroom-player:scentrooms"
+    privileged: true
+    depends_on:
+      - brickd
+    ports:
+      - 8080:8080
+    volumes:
+      - /media/usb:/media/usb
+      - /dev/vchiq:/dev/vchiq
+      - /opt/vc:/opt/vc
+    environment:
+      - PORT=8080
+      - BRICKD_HOST=brickd
+      - SENTRY_URL=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
+    restart: always
+
+  scentroom:
+    container_name: lushroom-scentroom
+    image: "lushdigital/lushroom-scentroom:latest"
+    privileged: true
+    network_mode: host
+    ports:
+      - 80:80
+    depends_on:
+      - player
+      - brickd
+    volumes:
+      - /media/usb:/media/usb
+      - /proc/sysrq-trigger:/sysrq
+    environment:
+      - PORT=80
+      - PLAYER_PORT=8080
+      - SENTRY_URL=https://47ba8b60e8994fd1a5979cad36185cad@sentry.io/1391137
+    command: python3 -u FlaskFileUploader.py
+    restart: always
+
+  brickd:
+    image: "lushdigital/lushroom-brickd:latest"
+    container_name: lushroom-brickd
+    privileged: true
+    depends_on:
+      - display
+    ports:
+      - 4223:4223
+    restart: always
