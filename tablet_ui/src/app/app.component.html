@@ -1,0 +1,31 @@
+<div class="settings-room-name">
+  {{ roomName }}
+  <span
+    *ngIf="slaveIp && !partyModeActive"
+    class="pair-button"
+    (click)="!pairingInProgress && pair()"
+  >
+    <button mat-stroked-button class="btn">pair</button>
+  </span>
+  <span class="pair-button" (click)="!unPairingInProgress && unpair()">
+    <button mat-stroked-button class="btn" *ngIf="partyModeActive">
+      unpair
+    </button>
+  </span>
+  <span *ngIf="pairingInProgress" class="pair-button">
+    Pairing, please wait...
+  </span>
+  <span *ngIf="unPairingInProgress" class="pair-button">
+    Cancelling pairing, please wait...
+  </span>
+  <span *ngIf="pairingError" class="pair-button"> Pairing failed </span>
+</div>
+<router-outlet *ngIf="!slaved; else slavedPrompt"></router-outlet>
+<ng-template #slavedPrompt>
+  <p class="slave-prompt">
+    Sorry, I'm being controlled by another LushRooms Pi
+  </p>
+  <p class="slave-prompt">
+    <i>(its IP address is {{ masterIp }})</i>
+  </p>
+</ng-template>

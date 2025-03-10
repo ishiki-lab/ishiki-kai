@@ -1,0 +1,54 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+body {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+a {
+    color: white;
+    text-decoration: none; /* no underline */
+}
+
+#mainBox
+{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    min-height: 100vh;
+
+    color: white;
+    
+    background: #000000;
+    box-sizing: border-box;
+
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    font-weight: bold;
+}
+
+.mat-spinner.white circle {
+    stroke: white;
+}
+
+
+.mat-progress-spinner circle, .mat-spinner circle {
+    stroke: black;
+    
+}
+
+.player-control-icon.play-pause.loading .mat-spinner.mat-progress-spinner,
+.player-control-icon.play-pause.loading .mat-spinner.mat-progress-spinner svg
+ {
+    width: 1em !important;
+    height: 1em !important;
+}
+
+mat-icon.back {
+    transform: scale(2.4, 1.6) 
+}

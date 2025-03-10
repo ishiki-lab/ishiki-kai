@@ -1,0 +1,133 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    height: 100vh;
+
+    color: white;
+     
+    background: #000000;
+    box-sizing: border-box;
+
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
+    font-weight: bold;
+}
+
+.container .trackNameBox {
+    margin-top: 2rem;
+    width: 80vw;
+    text-align: center;
+    font-size: 2.9em;
+    background: #570033;
+}
+
+.trackNameBox .trackNameText {
+    padding: 0.3em;
+}
+
+.container .back-button-wrapper {
+    margin-top: 4em;
+    margin-bottom: 2em;
+    width: 80%;
+}
+
+.container .treatment {
+    margin-top: 3em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 5em;
+    width: 80vw;
+    font-size: 2.5em;
+    background: #5d0037;
+}
+
+.container .text {
+    text-align: center;
+}
+
+.text.track-counter {
+    font-size: 80%;
+}
+
+.track-counter {
+    margin-bottom: 1em;
+}
+
+.treatment .playback
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    /* margin-top: 1.5em; */
+}
+
+.player-controls {
+    display: flex;
+    justify-content: center;
+
+}
+
+.player-controls .mat-icon,
+.player-controls .mat-spinner.mat-progress-spinner
+{
+    display: block;
+}
+
+.player-controls .player-control-icon.play-pause {
+    background-color: white; 
+    color: #222;
+    border-radius: 100%
+}
+
+
+.player-control-icon  {
+    display: block;
+    font-size: 1em;
+    width: 1em;
+    height: 1em;
+    padding: 0.7em;
+}
+
+.mat-icon:hover {
+    cursor: pointer;
+}
+
+.playback {
+    z-index: 1000;
+}
+
+.playback .progress
+{
+    margin-top: 3em;
+    margin-bottom: 1em;
+    height: 0.3em;
+    width: 20vw;
+    background-color: white;
+}
+
+.playback .remaining
+{
+    margin-top: 3em;
+    margin-bottom: 1em;
+    height: 0.3em;
+    width: 80vw;
+    background-color: #424242
+}
+
+.playback .position-slider
+{
+    margin-top: 3em;
+    margin-bottom: 1em;
+    height: 0.6em;
+    width: 9px;
+    background-color: white;
+}
+
+.timer {
+    display: block;
+    padding-top: 3em;
+}

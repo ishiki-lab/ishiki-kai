@@ -1,0 +1,34 @@
+<div id="mainBox" [ngStyle]="styleObject()" *ngIf="loading">
+  <h2>Please wait...</h2>
+  <mat-spinner class="white"></mat-spinner>
+</div>
+
+<div *ngIf="serverData != null; else error">
+  <div id="mainBox" [ngStyle]="styleObject()">
+    <div class="selector-heading">Select treatment:</div>
+    <div *ngFor="let item of serverData | async" [ngStyle]="itemStyleObject()">
+      <a
+        *ngIf="!item.IsDir; else folderLink"
+        [routerLink]="['/player', item.ID]"
+      >
+        <div class="item">
+          <div class="text">{{ item.Name | cleanPath }}</div>
+        </div>
+      </a>
+
+      <ng-template #folderLink>
+        <a [routerLink]="['/tracks']" [queryParams]="{ id: item.ID }">
+          <div class="item">
+            <div class="text">
+              {{ item.Name | cleanPath }}
+              <mat-icon>arrow_right_alt</mat-icon>
+            </div>
+          </div>
+        </a>
+      </ng-template>
+    </div>
+  </div>
+</div>
+<ng-template #error>
+  <div class="error">{{ errorResponse.message }}</div>
+</ng-template>
