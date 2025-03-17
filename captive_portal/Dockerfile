@@ -1,6 +1,6 @@
 FROM balenalib/raspberrypi3-debian:stretch
 
-MAINTAINER Paul Harter "paul@glowinthedark.co.uk"
+LABEL Paul Harter "paul@glowinthedark.co.uk"
 
 RUN [ "cross-build-start" ]
 

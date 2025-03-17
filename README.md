@@ -2,6 +2,12 @@
 
 The new home for LushRooms and whatever it grows up to be
 
+## TODO: LICENSE
+
+There are a few different licenses in the various modules, variously attributed to different years and organisations.
+
+Let's stick with MIT and bring it into 2025.
+
 ## Monorepo building
 
 ```sh
