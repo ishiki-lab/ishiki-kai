@@ -1,0 +1,17 @@
+tinkerforge
+pynput
+pysrt
+numpy
+phue
+python-vlc
+pytz
+apscheduler
+requests
+python-osc
+pyfiglet
+PyQt5
+PyQtWebEngine
+pywebview
+sip
+py2app
+pyinstaller

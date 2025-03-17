@@ -1,0 +1,15 @@
+.DS_Store
+*.pyc
+__pycache__/
+output.mp3
+srt_files/
+test/
+gui/lrpi/src_example
+gui/lrpi_ionic3
+gui/lrpi/build
+gui/lrpi/dist
+/xml
+/srt_out
+v2r.log
+[0-9]*.srt
+build
