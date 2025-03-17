@@ -1,0 +1,9 @@
+# http://www.circuitbasics.com/raspberry-pi-touchscreen-calibration-screen-rotation/
+
+apt install libts-bin
+export TSLIB_TSDEVICE=/dev/input/event0
+export TSLIB_FBDEVICE=/dev/fb0
+ts_calibrate
+cat /etc/pointercal
+ts_test
+

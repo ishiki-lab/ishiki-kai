@@ -1,0 +1,9 @@
+zeroconf
+pygame
+numpy
+scipy
+evdev
+netifaces
+schedule
+sentry-sdk>=0.7.2
+phue
