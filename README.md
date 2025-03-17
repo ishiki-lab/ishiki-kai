@@ -57,6 +57,10 @@ git subtree add --prefix=display display master
 
 ## lrpi_ap
 
+git remote add captive_portal git@github.com:LUSHDigital/lrpi_ap.git
+git fetch captive_portal
+git subtree add --prefix=captive_portal captive_portal master
+
 ## lrpi_rclone
 
 # SS'd (or so I believe)
