@@ -8,7 +8,8 @@ The new home for LushRooms and whatever it grows up to be
 ## player
 git remote add player git@github.com:LUSHDigital/lrpi_player.git
 git fetch player
-# defacto latest commit on LUSHDigital/lrpi_player::master
+# defacto latest commit on LUSHDigital/lrpi_player, seems to have been
+# used to create the latest 'prod' image on DockerHub
 git subtree add --prefix=player player rpi3_32bit_omxplayer
 
 
@@ -62,6 +63,10 @@ git fetch captive_portal
 git subtree add --prefix=captive_portal captive_portal master
 
 ## lrpi_rclone
+
+git remote add rclone git@github.com:LUSHDigital/lrpi_rclone.git
+git fetch rclone
+git subtree add --prefix=rclone rclone master
 
 # SS'd (or so I believe)
 ## lrpi_brickd (-> ishiki-brickd ??)
