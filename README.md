@@ -51,11 +51,15 @@ git subtree add --prefix=bootstrap bootstrap portainer_instance_nginx_with_tls_c
 
 ## lrpi_display
 
+git remote add display git@github.com:LUSHDigital/lrpi_display.git
+git fetch display
+git subtree add --prefix=display display master
+
 ## lrpi_ap
 
 ## lrpi_rclone
 
-# SS'd (or might be?)
+# SS'd (or so I believe)
 ## lrpi_brickd (-> ishiki-brickd ??)
 ## lrpi_base (-> ishiki-base ??)
 
