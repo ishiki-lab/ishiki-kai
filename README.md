@@ -41,6 +41,13 @@ git subtree add --prefix=record record master
 ## lrpi_bootstrap
 ### note: how does this overlap with ishiki-bootstrap?
 ### see here for the cerbot / TLS setup: https://github.com/InBrewJ/lrpi_bootstrap/tree/portainer_instance_nginx_with_tls_certbot
+#
+### As far as I can tell for now, ishiki-bootstrap doesn't have Portainer
+### run / operate config
+
+git remote add bootstrap git@github.com:InBrewJ/lrpi_bootstrap.git
+git fetch bootstrap
+git subtree add --prefix=bootstrap bootstrap portainer_instance_nginx_with_tls_certbot
 
 ## lrpi_display
 
