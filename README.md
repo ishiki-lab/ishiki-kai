@@ -34,6 +34,10 @@ git subtree add --prefix=scentroom_ui scentroom_ui reboot_button
 # TO ADD
 ## lrpi_record
 
+git remote add record git@github.com:LUSHDigital/lrpi_record.git
+git fetch record
+git subtree add --prefix=record record master
+
 ## lrpi_bootstrap
 ### note: how does this overlap with ishiki-bootstrap?
 ### see here for the cerbot / TLS setup: https://github.com/InBrewJ/lrpi_bootstrap/tree/portainer_instance_nginx_with_tls_certbot
